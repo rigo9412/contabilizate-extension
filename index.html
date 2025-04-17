@@ -1,0 +1,100 @@
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proceso de llenado del formulario de factura</title>
+    <!-- <link rel="stylesheet" href="css/bootstrap.min.css"> -->
+    <style>
+        body {
+            min-width: 25rem;
+            padding: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Proceso de llenado del formulario de factura</h1>
+    <p>Esta extensión es para rellenar el formulario de tu facturan en el portal del SAT</p>
+
+    <button id="btnSite"  class="btn btn-link">Ir al Sitio SAT</button>
+    <hr />
+    <details>
+        <summary >Configuración</summary>
+        <form id="formKeys" class="d-flex flex-column">
+            <div class="mb-3">
+                <label for="fileInputCertificado"  >Certificado <span id="fileInputCertificadoStatus" class="badge text-bg-secondary">No Cargado</span></label>
+                <input type="file" class="form-control" id="fileInputCertificado" placeholder="Llave">
+            </div>
+            <div class="mb-3">
+                <label for="fileInputCertificadoKey"  >Llave <span id="fileInputCertificadoKeyStatus" class="badge text-bg-secondary">No Cargado</span></label>
+                <input type="file" class="form-control" id="fileInputCertificadoKey" placeholder="Certificado">
+            </div>
+            <div class="mb-3">
+                <label for="rfcInput"  >RFC <span id="rfcStatus" class="badge text-bg-secondary">No Cargado</span></label>
+                <input   class="form-control"  type="text" placeholder="Contraseña" id="rfcInput" name="rfcInput">
+            </div>
+            <div class="mb-3">
+                <label for="passwordInputCertificado"  >Contraseña <span id="passwordStatus" class="badge text-bg-secondary">No Cargado</span></label>
+                <input   class="form-control"  type="text" placeholder="Contraseña" id="passwordInputCertificado" name="passwordInputCertificado">
+            </div>
+ 
+            <div class="grid">
+                <button type="button"  class="btn btn-link">Borrar Registros</button>
+                <button type="submit"  class="btn btn-success" >Guardar</button>
+            </div>
+        </form>
+    </details>
+    <hr />
+    <details>
+        <summary>Factura Cargada</summary>
+        <div class="table_component" role="region" tabindex="0">
+            <table class="table table-striped">
+
+                <thead>
+                    <tr>
+                        <th colspan="2">
+                            Cliente
+                        </th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b>RFC</b></td>
+                        <td id="rfc">XXXXXXXXXX</td>
+                    </tr>
+                    <tr>
+                        <td><b>Razón Social</b></td>
+                        <td id="razonSocial">XXXXXXXXXX</td>
+                    </tr>
+                    <tr>
+                        <td><b>Código Postal</b></td>
+                        <td id="codigoPostal">XXXXXXXXXX</td>
+                    </tr>
+                    <tr>
+                        <td><b>Regimen Fiscal</b></td>
+                        <td id="regimentFiscalId">XXXXXXXXXX</td>
+                    </tr>
+                    <tr>
+                        <td><b>Uso CFDI</b></td>
+                        <td id="usoCFDI">XXXXXXXXXX</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </details>
+    <hr />
+    <button id="btnStartProcess"  class="btn btn-success">Iniciar Sesión (Firma)</button>
+    <button id="btnStartProcessBill"  class="btn btn-success">Llenar Factura</button>
+  
+</div>
+
+    <script   src="/js/popup.js"></script>
+
+
+</body>
+
+</html>

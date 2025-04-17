@@ -1,0 +1,50 @@
+{
+    "name": "Contabilizate Extension",
+    "description": "Automated form filling extension enhanced with Puppeteer",
+    "version": "1.0",
+    "manifest_version": 3,
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "tabs",
+        "nativeMessaging",
+        "storage"
+    ],
+    "host_permissions": [
+        "https://*.sat.gob.mx/*",
+        "https://portal.facturaelectronica.sat.gob.mx/*"
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["temp/certificado.cer", "temp/llave.key", "js/*"],
+            "matches": ["<all_urls>"]
+        }
+    ],
+    "action": {
+        "default_popup": "index.html",
+        "default_icon": {
+            "16": "logo.svg",
+            "48": "logo.svg",
+            "128": "logo.svg"
+        }
+    },
+    "icons": {
+        "16": "logo.svg",
+        "48": "logo.svg",
+        "128": "logo.svg"
+    },
+    "background": {
+        "service_worker": "js/background.js",
+        "type": "module"
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": [
+              
+                "js/popup.js"
+            ],
+            "css": ["css/style.css"]
+        }
+    ]
+}
