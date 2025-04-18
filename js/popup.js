@@ -248,74 +248,135 @@
       formConfig
         .readFile("certificado.cer")
         .then((data) => {
-          inputCertificadoStatus.classList.add("green");
+          inputCertificadoStatus.classList.add("bg-success");
           inputCertificadoStatus.textContent = "Cargado";
         })
         .catch(() => {
-          inputCertificadoStatus.classList?.remove("green");
+          inputCertificadoStatus.classList?.remove("bg-success");
           inputCertificadoStatus.textContent = "No Cargado";
         });
 
       formConfig
         .readFile("llave.key")
         .then((data) => {
-          inputCertificadoKeyStatus.classList?.add("green");
+          inputCertificadoKeyStatus.classList?.add("bg-success");
           inputCertificadoKeyStatus.textContent = "Cargada";
         })
         .catch(() => {
           inputCertificadoKeyStatus.textContent = "No Cargada";
-          inputCertificadoKeyStatus.classList?.remove("green");
+          inputCertificadoKeyStatus.classList?.remove("bg-success");
         });
 
       chrome.storage.local.get(["rfc"], function (result) {
         if (result.rfc) {
-          rfcStatus.classList.add("green");
+          rfcStatus.classList.add("bg-success");
           rfcStatus.textContent = "Cargado";
         } else {
-          rfcStatus.classList.remove("green");
+          rfcStatus.classList.remove("bg-success");
           rfcStatus.textContent = "No Cargado";
         }
       });
 
       chrome.storage.local.get(["passwordCertificado"], function (result) {
         if (result.passwordCertificado) {
-          passwordStatus.classList.add("green");
+          passwordStatus.classList.add("bg-success");
           passwordStatus.textContent = "Cargada";
         } else {
-          passwordStatus.classList.remove("green");
+          passwordStatus.classList.remove("bg-success");
           passwordStatus.textContent = "No Cargada";
         }
       });
     }
 
     function initDataBill() {
-      chrome.storage.local.get(["contabilizateData"], function (result) {
+      chrome.storage.local.get(null, (result) => {
      
-        if (result.contabilizateData) {
+      
           const rfc = document.getElementById("rfc");
-          if (rfc) rfc.innerHTML = result.contabilizateData.rfc ?? "No RFC";
+          if (rfc) rfc.innerHTML = result.rfc ?? "No RFC";
 
           // If you have more fields in your HTML, you can display them like this:
           const razonSocial = document.getElementById("razonSocial");
           if (razonSocial)
             razonSocial.innerHTML =
-              result.contabilizateData.razonSocial ?? "No Razón Social";
+              result.razonSocial ?? "No Razón Social";
 
           const codigoPostal = document.getElementById("codigoPostal");
           if (codigoPostal)
             codigoPostal.innerHTML =
-              result.contabilizateData.codigoPostal ?? "No CP";
+              result.codigoPostal ?? "No CP";
 
           const regimentFiscal = document.getElementById("regimentFiscalId");
           if (regimentFiscal)
             regimentFiscal.innerHTML =
-              result.contabilizateData.regimentFiscalId ?? "No Régimen";
+              result.regimentFiscalId ?? "No Régimen";
 
           const usoCFDI = document.getElementById("usoCFDI");
           if (usoCFDI)
             usoCFDI.innerHTML =
-              result.contabilizateData.useCFDI ?? "No Uso CFDI";
-        }
+              result.useCFDI ?? "No Uso CFDI";
+
+          const conceptoDescripcion = document.getElementById("conceptoDescripcion");
+          if (conceptoDescripcion)
+            conceptoDescripcion.innerHTML =
+              result.conceptoDescripcion ?? "No Descripción";
+
+          const conceptoProducto = document.getElementById("conceptoProducto");
+          if (conceptoProducto)
+            conceptoProducto.innerHTML =
+              result.conceptoProducto ?? "No Producto";
+
+          const conceptoUnidad = document.getElementById("conceptoUnidad");
+          if (conceptoUnidad)
+            conceptoUnidad.innerHTML =
+              result.conceptoUnidad ?? "No Unidad";
+
+          const conceptoCantidad = document.getElementById("conceptoCantidad");
+          if (conceptoCantidad)
+            conceptoCantidad.innerHTML =
+              result.conceptoCantidad ?? "No Cantidad";
+
+          const conceptoValor = document.getElementById("conceptoValor");
+          if (conceptoValor)
+            conceptoValor.innerHTML =
+              result.conceptoValor ?? "No Valor";
+
+          const conceptoSujectoImpuesto = document.getElementById("conceptoSujectoImpuesto");
+          if (conceptoSujectoImpuesto)
+            conceptoSujectoImpuesto.innerHTML =
+              result.conceptoImpuesto ?? "No Impuesto";
+
+          const conceptoIVA = document.getElementById("conceptoIVA");
+          if (conceptoIVA)
+            conceptoIVA.innerHTML =
+              result.conceptoIva ?? "No IVA";
+
+          const conceptoRetencionIVA = document.getElementById("conceptoRetencionIVA");
+          if (conceptoRetencionIVA)
+            conceptoRetencionIVA.innerHTML =
+              result.conceptoRetIva ?? "No RetIVA";
+
+          const conceptoRetencionISR = document.getElementById("conceptoRetencionISR");
+          if (conceptoRetencionISR)
+            conceptoRetencionISR.innerHTML =
+              result.conceptoRetIsr ?? "No RetISR";
+
+          const total = document.getElementById("total");
+          if (total)
+            total.innerHTML =
+              result.total ?? "No Total";
+          const subtotal = document.getElementById("subtotal");
+          if (subtotal)
+            subtotal.innerHTML =
+              result.subtotal ?? "No Subtotal";
+          const impuestosTrasladados = document.getElementById("impuestosTrasladados");
+          if (impuestosTrasladados)
+            impuestosTrasladados.innerHTML =
+              result.impuestosTrasladados ?? "No Impuestos Trasladados";
+          const impuestosRetenidos = document.getElementById("impuestosRetenidos");
+          if (impuestosRetenidos)
+            impuestosRetenidos.innerHTML =  result.impuestosRetenidos ?? "No Impuestos Retenidos";
+        
       });
     }
 

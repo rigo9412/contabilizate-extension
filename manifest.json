@@ -41,7 +41,6 @@
         {
             "matches": ["<all_urls>"],
             "js": [
-              
                 "js/popup.js"
             ],
             "css": ["css/style.css"]

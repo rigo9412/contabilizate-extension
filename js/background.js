@@ -1,27 +1,3 @@
-// window.addEventListener("message", (event) => {
-//     if (event.source !== window) return; // Ignorar mensajes no deseados
-//     if (event.data && event.data.type === "FROM_PAGE") {
-//       console.log("FROM_PAGE_EXTENSION", event.data.payload);
-
-
-//       chrome.storage.local.set(
-//         { contabilizateData: event.data.payload },
-//         function () {
-//           console.log("Payload saved to storage");
-//         }
-//       );
-
-//       chrome.runtime.sendMessage(
-//         { type: "GREETING", payload: event.data.payload },
-//         (response) => {
-//           // Enviar la respuesta de vuelta a la página
-//           window.postMessage({ type: "FROM_EXTENSION", payload: "POP" }, "*");
-//         }
-//       );
-//     }
-//   });
-
-
 const URL_SIGNATURE = "https://portal.facturaelectronica.sat.gob.mx/Sellado/Index/"
 const URL_BILL =
   "https://portal.facturaelectronica.sat.gob.mx/Factura/GeneraFactura";
