@@ -17,7 +17,7 @@
 <body>
     <h1>Proceso de llenado del formulario de factura</h1>
     <p>Esta extensión es para rellenar el formulario de tu facturan en el portal del SAT</p>
-
+    <div id="alert-container"></div>
     <button id="btnSite"  class="btn btn-link">Ir al Sitio SAT</button>
     <hr />
     <details>
@@ -43,6 +43,21 @@
             <div class="grid">
                 <button type="button"  class="btn btn-link">Borrar Registros</button>
                 <button type="submit"  class="btn btn-success" >Guardar</button>
+            </div>
+        </form>
+    </details>
+    <hr />
+    <details>
+        <summary>Configuración JSON</summary>
+        <form id="jsonForm" class="mt-3">
+            <div class="form-group">
+                <label for="jsonInput">Datos en formato JSON:</label>
+                <textarea id="jsonInput" class="form-control" rows="10" style="font-family: monospace;"></textarea>
+            </div>
+            <div class="mt-2">
+                <button type="submit" class="btn btn-primary">Guardar JSON</button>
+                <button type="button" id="loadJsonExample" class="btn btn-secondary">Cargar Ejemplo</button>
+                <button type="button" id="copyJsonExample" class="btn btn-info">Copiar Ejemplo</button>
             </div>
         </form>
     </details>

@@ -1,6 +1,6 @@
 {
-    "name": "Contabilizate Extension",
-    "description": "Automated form filling extension enhanced with Puppeteer",
+    "name": "SAT Bot Form Fill",
+    "description": "Automated form filling extension for SAT Billing.",
     "version": "1.0",
     "manifest_version": 3,
     "permissions": [

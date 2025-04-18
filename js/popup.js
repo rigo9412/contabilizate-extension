@@ -92,12 +92,133 @@
       }
     });
 
+    // Agregar el manejador para el formulario JSON
+    document.getElementById("jsonForm")?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        const jsonInput = document.getElementById("jsonInput");
+        if (!jsonInput) {
+          throw new Error("No se encontró el campo de entrada JSON");
+        }
 
-    
+        const jsonData = JSON.parse(jsonInput.value);
+        const storageData = {
+          rfc: jsonData.rfc,
+          razonSocial: jsonData.razonSocial,
+          codigoPostal: jsonData.codigoPostal,
+          regimenFiscal: jsonData.regimenFiscal,
+          usoCFDI: jsonData.usoCFDI,
+          conceptoDescripcion: jsonData.concepto?.descripcion,
+          conceptoProducto: jsonData.concepto?.producto,
+          conceptoUnidad: jsonData.concepto?.unidad,
+          conceptoCantidad: jsonData.concepto?.cantidad,
+          conceptoValor: jsonData.concepto?.valor,
+          conceptoId: jsonData.concepto?.id,
+          conceptoImpuesto: jsonData.concepto?.impuesto,
+          conceptoIva: jsonData.concepto?.iva,
+          conceptoRetIva: jsonData.concepto?.retIva,
+          conceptoRetIsr: jsonData.concepto?.retIsr,
+          total: jsonData?.total,
+          subtotal: jsonData?.subtotal,
+          impuestosTrasladados: jsonData?.impuestosTrasladados,
+          impuestosRetenidos: jsonData?.impuestosRetenidos
+
+
+
+        };
+
+        // Guardar en storage
+        await new Promise((resolve, reject) => {
+          chrome.storage.local.set(storageData, () => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+            } else {
+              resolve();
+            }
+          });
+        });
+
+        showMessage("Datos JSON guardados correctamente", "success");
+        initDataBill(); // Actualizar la visualización
+      } catch (error) {
+        console.error("Error al procesar el JSON:", error);
+        showMessage(`Error: ${error.message}`, "error");
+      }
+    });
+
+    // Agregar botón para cargar ejemplo JSON
+    document.getElementById("loadJsonExample")?.addEventListener("click", () => {
+      const jsonExample = {
+        "rfc": "XAXX010101000",
+        "razonSocial": "PUBLICO GENERAL",
+        "codigoPostal": "88240",
+        "regimenFiscal": "Sin obligaciones fiscales",
+        "usoCFDI": "Sin efectos fiscales.",
+        "concepto": {
+          "descripcion": "Servicio basico",
+          "producto": "Programadores de computador",
+          "unidad": "Unidad de servicio",
+          "cantidad": "1",
+          "valor": "1.00",
+          "id": "1",
+          "impuesto": "02",
+          "iva": "16",
+          "retIva": "00",
+          "retIsr": "00"
+        },
+        "total": "1.16",
+        "subtotal": "1.00",
+        "impuestosTrasladados": "0.16",
+        "impuestosRetenidos": ""
+      }
+      
+
+      const jsonInput = document.getElementById("jsonInput");
+      if (jsonInput) {
+        jsonInput.value = JSON.stringify(jsonExample, null, 2);
+      }
+    });
+
+    // Agregar botón para copiar ejemplo JSON
+    document.getElementById("copyJsonExample")?.addEventListener("click", () => {
+      const jsonExample = {
+        "rfc": "XAXX010101000",
+        "razonSocial": "PUBLICO GENERAL",
+        "codigoPostal": "88240",
+        "regimenFiscal": "Sin obligaciones fiscales",
+        "usoCFDI": "Sin efectos fiscales.",
+        "concepto": {
+          "descripcion": "Servicio basico",
+          "producto": "Programadores de computador",
+          "unidad": "Unidad de servicio",
+          "cantidad": "1",
+          "valor": "1.00",
+          "id": "1",
+          "impuesto": "02",
+          "iva": "16",
+          "retIva": "00",
+          "retIsr": "00"
+        },
+        "total": "1.16",
+        "subtotal": "1.00",
+        "impuestosTrasladados": "0.16",
+        "impuestosRetenidos": ""
+      }
+      
+
+      // Copiar al portapapeles
+      navigator.clipboard.writeText(JSON.stringify(jsonExample, null, 2))
+        .then(() => {
+          showMessage("JSON copiado al portapapeles", "success");
+        })
+        .catch(err => {
+          console.error('Error al copiar:', err);
+          showMessage("Error al copiar el JSON", "error");
+        });
+    });
 
     initConfiguration();
     initDataBill();
-
 
     
     // Función helper para mostrar mensajes
@@ -106,7 +227,7 @@
       const messageElement = document.createElement("div");
       messageElement.className = `alert alert-${type}`;
       messageElement.textContent = message;
-      document.getElementById("formKeys").appendChild(messageElement);
+      document.getElementById("alert-container").appendChild(messageElement);
       
       // Remover mensaje después de 3 segundos
       setTimeout(() => messageElement.remove(), 3000);

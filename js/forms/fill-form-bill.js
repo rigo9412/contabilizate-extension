@@ -1,4 +1,14 @@
-const FORM_BILL_KEYS = {
+const CONFIG = {
+  TIMEOUTS: {
+    VISIBILITY: 2500,
+    DELAY: 500,
+    SHORT_DELAY: 25,
+    WAIT_MENU: 200,
+  },
+};
+
+var bodyElement = document.body;
+var FORM_BILL_KEYS = {
   rfc: {
     "view-model": "E1350003PFAC085Descrip",
     tabindex: "13",
@@ -81,6 +91,7 @@ const FORM_BILL_KEYS = {
     tabindex: "",
     id: "135select79",
   },
+ 
 
   concepto_no_impuesto: {
     "view-model": "E1350001PFAC069",
@@ -105,154 +116,646 @@ const FORM_BILL_KEYS = {
     tabindex: "46",
     id: "135textboxautocomplete179",
   },
+  impuestos_trasladados_total: {
+    id: "135textbox268",
+  },
+  impuestos_retenidos_total: {
+    id: "135textbox269",
+  },
+  subtotal: {
+    id: "135textbox266",
+  },
+  total: {
+    id: "135textbox270",
+  },
 };
 
-export async function launchPuppeteerBrowser() {
-  return await chrome.runtime.sendMessage({ action: "createBrowser" });
+async function getStorageData() {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(null, (result) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve(result);
+      }
+    });
+  });
 }
 
-async function waitForVisibility(page, selector, timeout = 5000) {
+async function loadConfigFromStorage() {
   try {
-    await page.waitForSelector(selector, { visible: true, timeout });
-    return true;
-  } catch (error) {
-    console.error(`Element ${selector} not visible after ${timeout}ms`);
-    return false;
-  }
-}
-
-async function fillInput(page, selector, value) {
-  try {
-    await page.waitForSelector(selector);
-    await page.click(selector);
-    await page.type(selector, value, { delay: 100 });
-    await page.keyboard.press("ArrowDown");
-    await page.keyboard.press("Enter");
-    return true;
-  } catch (error) {
-    console.error(`Error filling input ${selector}: ${error.message}`);
-    return false;
-  }
-}
-
-async function handleAutocomplete(page, selector, value) {
-  try {
-    await page.waitForSelector(selector);
-    await page.click(selector);
-    await page.type(selector, value, { delay: 100 });
-    // Wait for autocomplete dropdown
-    await page.waitForSelector(".ui-menu-item", { visible: true });
-    await page.keyboard.press("ArrowDown");
-    await page.keyboard.press("Enter");
-    return true;
-  } catch (error) {
-    console.error(`Error handling autocomplete ${selector}: ${error.message}`);
-    return false;
-  }
-}
-
-async function selectOption(page, selector, value) {
-  try {
-    await page.select(selector, value);
-    return true;
-  } catch (error) {
-    console.error(`Error selecting option ${selector}: ${error.message}`);
-    return false;
-  }
-}
-
-export async function FillBillProcess(page) {
-  if (
-    !(await page.evaluate(() =>
-      document.body.classList.contains("client-info-filled")
-    ))
-  ) {
-    await page.evaluate(
-      () => (document.body.style.backgroundColor = "lightblue")
-    );
-
-    // Fill client information
-    await fillInput(page, `#${FORM_BILL_KEYS.rfc.id}`, "TNM140723GFA");
-    await fillInput(
-      page,
-      `#${FORM_BILL_KEYS.razonSocial.id}`,
-      "TECNOLOGICO NACIONAL DE MEXICO"
-    );
-    await handleAutocomplete(
-      page,
-      `#${FORM_BILL_KEYS.usoFactura.id}`,
-      "Gastos en general."
-    );
-    await fillInput(page, `#${FORM_BILL_KEYS.codigoPostal.id}`, "03330");
-    await handleAutocomplete(
-      page,
-      `#${FORM_BILL_KEYS.regimenFiscal.id}`,
-      "Personas Morales con Fines no Lucrativos"
-    );
-
-    await page.evaluate(() =>
-      document.body.classList.add("client-info-filled")
-    );
-  }
-
-  if (
-    !(await page.evaluate(() =>
-      document.body.classList.contains("concept-info-filled")
-    ))
-  ) {
-    // Add new concept
-    await page.click('.btnNewItem[entidad="1350001"]');
-
-    await handleAutocomplete(
-      page,
-      `#${FORM_BILL_KEYS.concepto_descripcion.id}`,
-      "Apoyo a la educación como Coordinador de Desarrollo de Sistemas en area de Centro de Cómputo del 2025-02-01 al 2025-02-15"
-    );
-
-    await handleAutocomplete(
-      page,
-      `#${FORM_BILL_KEYS.concepto_productoServicio.id}`,
-      "Programadores de computador"
-    );
-    await handleAutocomplete(
-      page,
-      `#${FORM_BILL_KEYS.concepto_unidadDeMedida.id}`,
-      "Unidad de servicio"
-    );
-    await fillInput(page, `#${FORM_BILL_KEYS.concepto_cantidad.id}`, "1");
-    await fillInput(page, `#${FORM_BILL_KEYS.concepto_valorUnitario.id}`, "7200");
-    await fillInput(page, `#${FORM_BILL_KEYS.concepto_noIdentificacion.id}`, "1");
-
-    await selectOption(page, `#${FORM_BILL_KEYS.concepto_impuesto.id}`, "02");
-    await page.evaluate(() =>
-      document.body.classList.add("concept-info-filled")
-    );
-  }
-
-  if (
-    !(await page.evaluate(() =>
-      document.body.classList.contains("concept-info-filled-tax")
-    ))
-  ) {
-    await waitForVisibility(page, `#${FORM_BILL_KEYS.concepto_no_impuesto.id}`);
-
-    const isChecked = await page.$eval(
-      `#${FORM_BILL_KEYS.concepto_no_impuesto.id}`,
-      (checkbox) => checkbox.checked
-    );
-    if (isChecked) {
-      await page.click(`#${FORM_BILL_KEYS.concepto_no_impuesto.id}`);
+    const storageData = await getStorageData();
+    if (!storageData || Object.keys(storageData).length === 0) {
+      console.log("No hay datos almacenados en el storage");
+      return null;
     }
 
-    await fillInput(page, `#${FORM_BILL_KEYS.concepto_cobradoIVA.id}`, "8");
-    await fillInput(page, `#${FORM_BILL_KEYS.concepto_retencionIVA.id}`, "5.33");
-    await fillInput(page, `#${FORM_BILL_KEYS.concepto_retencionISR.id}`, "1.25");
+    return {
+      RFC: storageData.rfc || "",
+      RAZON_SOCIAL: storageData.razonSocial || "",
+      USO_CFDI: storageData.usoCFDI || "",
+      CODIGO_POSTAL: storageData.codigoPostal || "",
+      REGIMEN_FISCAL: storageData.regimenFiscal || "",
+      CONCEPTO: {
+        DESCRIPCION: storageData.conceptoDescripcion || "",
+        PRODUCTO: storageData.conceptoProducto || "",
+        UNIDAD: storageData.conceptoUnidad || "",
+        CANTIDAD: storageData.conceptoCantidad || "",
+        VALOR: storageData.conceptoValor || "",
+        ID: storageData.conceptoId || "",
+        IMPUESTO: storageData.conceptoImpuesto || "",
+        IVA: storageData.conceptoIva || "",
+        RET_IVA: storageData.conceptoRetIva || "",
+        RET_ISR: storageData.conceptoRetIsr || "",
+      },
+      SUBTOTAL: storageData.subtotal || "",
+      IMPUESTOS_TRASLADADOS: storageData.impuestosTrasladados || "",
+      IMPUESTOS_RETENIDOS: storageData.impuestosRetenidos || "",
+      TOTAL: storageData.total || "",
+    };
+  } catch (error) {
+    console.error("Error loading storage data:", error);
+    return null;
+  }
+}
 
-    await page.click('.btnAddItem[entidad="1350001"]');
-    await page.evaluate(() =>
-      document.body.classList.add("concept-info-filled-tax")
-    );
+async function waitForVisibility(
+  selector,
+  timeout = CONFIG.TIMEOUTS.VISIBILITY
+) {
+  return new Promise((resolve, reject) => {
+    let timeoutId;
+
+    const observer = new MutationObserver(() => {
+      const element = document.getElementById(selector);
+      if (element && element.offsetParent !== null) {
+        clearTimeout(timeoutId);
+        observer.disconnect();
+        resolve(element);
+      }
+    });
+
+    // Observe changes to the DOM that might affect visibility
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["style", "class", "hidden"],
+    });
+
+    // Initial check
+    const element = document.getElementById(selector);
+    if (element && element.offsetParent !== null) {
+      observer.disconnect();
+      resolve(element);
+      return;
+    }
+
+    // Set timeout
+    timeoutId = setTimeout(() => {
+      observer.disconnect();
+      reject(new Error(`Timeout waiting for ${selector} to become visible`));
+    }, timeout);
+  });
+}
+
+function simulateKeydown(inputText, key) {
+  const keyCodeMap = {
+    Enter: 13,
+    ArrowDown: 40,
+    Tab: 9,
+  };
+
+  const event = new KeyboardEvent("keydown", {
+    key: key, // 'Enter', 'ArrowDown', or 'Tab'
+    code: key, // Code of the key
+    keyCode: keyCodeMap[key] || 40, // Numeric key code
+    bubbles: true, // Allow event bubbling
+    cancelable: true, // Allow event to be canceled
+  });
+
+  inputText.dispatchEvent(event);
+}
+
+function simulateSelectOptionById(option, selectInput) {
+  const selectElement = document.getElementById(selectInput);
+  if (!selectElement) {
+    console.log("No se encontró el select", selectInput);
+    return;
   }
 
-  await page.click('.btn-sellar-factura[tabindex="2002"]');
+  // If the select is disabled, enable it temporarily
+  const wasDisabled = selectElement.disabled;
+  if (wasDisabled) {
+    selectElement.disabled = false;
+  }
+
+  // Handle both value-only and text-based option selection
+  const optionElement = Array.from(selectElement.options).find(opt => 
+    opt.value === option || opt.text.toLowerCase().includes(option.toLowerCase())
+  );
+
+  if (optionElement) {
+    selectElement.value = optionElement.value;
+  } else {
+    selectElement.value = option;
+  }
+
+  // Dispatch both change and input events for better compatibility
+  selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+  selectElement.dispatchEvent(new Event('input', { bubbles: true }));
+
+  // Restore disabled state if it was disabled
+  if (wasDisabled) {
+    selectElement.disabled = true;
+  }
 }
+
+function simulateClick(className, entityID) {
+  const elements = document.getElementsByClassName(className);
+  const element = Array.from(elements).find(
+    (el) => el.getAttribute("entidad") === entityID
+  );
+  if (element) {
+    element.click();
+  }
+}
+
+function simulateClickLink(className, tabindex) {
+  const elements = document.getElementsByClassName(className);
+  if (elements.length > 0) {
+    for (const element of elements) {
+      if (element.getAttribute("tabindex") === tabindex) {
+        element.click();
+        break;
+      }
+    }
+  }
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function waitForAutocompleteMenu() {
+  return new Promise((resolve) => {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "childList") {
+          const autocompleteMenus = document.querySelectorAll(
+            ".ui-menu.ui-widget.ui-widget-content.ui-autocomplete.ui-front"
+          );
+          if (
+            Array.from(autocompleteMenus).some(
+              (menu) => menu.style.display !== "none"
+            )
+          ) {
+            observer.disconnect();
+            resolve();
+            break;
+          }
+        }
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+}
+
+function waitForInputChange(input) {
+  return new Promise((resolve) => {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "value"
+        ) {
+          observer.disconnect();
+          resolve();
+          break;
+        }
+      }
+    });
+
+    observer.observe(input, {
+      attributes: true,
+      attributeFilter: ["value"],
+    });
+  });
+}
+
+function waitForInputEvent(input, eventName) {
+  return new Promise((resolve) => {
+    const handler = () => {
+      input.removeEventListener(eventName, handler);
+      resolve();
+    };
+    input.addEventListener(eventName, handler);
+  });
+}
+
+async function typeCharByChar(inputElement, text) {
+  // for (const char of text) {
+  //   if (!simulateCharInput(inputElement, char)) {
+  //     console.log(`Character ${char} was prevented`);
+  //     continue;
+  //   }
+  //   await delay(CONFIG.TIMEOUTS.SHORT_DELAY);
+  // }
+  inputElement.value = text;
+  inputElement.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+async function InputTypeTextById(input, value) {
+  const inputText = document.getElementById(input);
+  if (!inputText) return false;
+
+  inputText.value = "";
+  inputText.focus();
+  inputText.click();
+
+  await delay(CONFIG.TIMEOUTS.DELAY);
+
+  await typeCharByChar(inputText, value);
+
+  await delay(CONFIG.TIMEOUTS.DELAY);
+
+  simulateKeydown(inputText, "Enter");
+
+  await delay(CONFIG.TIMEOUTS.SHORT_DELAY);
+
+  inputText.dispatchEvent(new Event("change"));
+  inputText.dispatchEvent(new Event("blur"));
+
+  return true;
+}
+
+async function waitForMenuItem(text, timeout = CONFIG.TIMEOUTS.WAIT_MENU) {
+  return new Promise((resolve, reject) => {
+    let timeoutId;
+
+    const flattenText = (element) => {
+      // Get all text content, normalize spaces and remove special characters
+      return element.innerText
+        .replace(/\s+/g, " ") // normalize multiple spaces to single space
+        .toLowerCase() // convert to lowercase for case-insensitive matching
+        .trim(); // remove leading/trailing spaces
+    };
+
+    const findAndMatchMenuItem = (menuItems, searchText) => {
+      const normalizedSearch = searchText.toLowerCase().trim();
+
+      for (const item of menuItems) {
+        const flattenedText = flattenText(item);
+        //console.log('Comparing:', flattenedText, 'with:', normalizedSearch); // Debug log
+
+        if (
+          flattenedText === normalizedSearch ||
+          flattenedText.includes(normalizedSearch)
+        ) {
+          console.log("Found menu item:", flattenedText); // Debug log
+          item.click();
+          return true;
+        }
+      }
+      return false;
+    };
+
+    const observer = new MutationObserver(() => {
+      const menuItems = document.querySelectorAll("li.ui-menu-item");
+      if (findAndMatchMenuItem(menuItems, text)) {
+        clearTimeout(timeoutId);
+        observer.disconnect();
+        resolve(true);
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    // Initial check
+    const menuItems = document.querySelectorAll("li.ui-menu-item");
+    if (findAndMatchMenuItem(menuItems, text)) {
+      observer.disconnect();
+      resolve(true);
+      return;
+    }
+
+    timeoutId = setTimeout(() => {
+      observer.disconnect();
+      reject(new Error(`Timeout waiting for menu item: ${text}`));
+    }, timeout);
+  });
+}
+
+async function waitForAutocompleteResults() {
+  return new Promise((resolve) => {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        const menus = document.querySelectorAll(".ui-autocomplete");
+        for (const menu of menus) {
+          if (
+            menu.children.length > 0 &&
+            window.getComputedStyle(menu).display !== "none"
+          ) {
+            observer.disconnect();
+            resolve();
+            return;
+          }
+        }
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["style", "class"],
+    });
+
+    // También resolver después de un tiempo máximo para evitar bloqueos
+    setTimeout(() => {
+      observer.disconnect();
+      resolve();
+    }, 3000);
+  });
+}
+
+async function InputTypeAutocomplete(input, value) {
+  const inputText = document.getElementById(input);
+  if (!inputText) return false;
+
+  // Limpiar el input y enfocarlo
+  inputText.value = "";
+  inputText.focus();
+  inputText.click();
+
+  await delay(CONFIG.TIMEOUTS.DELAY);
+
+  // Escribir el valor carácter por carácter
+  await typeCharByChar(inputText, value);
+
+  // Esperar a que aparezcan los resultados del autocomplete
+  await waitForAutocompleteResults();
+
+  // Intentar encontrar y hacer clic en el elemento del menú que coincida
+  try {
+    await waitForMenuItem(value);
+    await delay(CONFIG.TIMEOUTS.SHORT_DELAY);
+  } catch (error) {
+    console.log(
+      "No se encontró el elemento exacto en el menú, intentando con navegación manual"
+    );
+    // Si no se encuentra el elemento exacto, usar el método de navegación manual
+    simulateKeydown(inputText, "ArrowDown");
+    await delay(CONFIG.TIMEOUTS.SHORT_DELAY);
+    simulateKeydown(inputText, "Enter");
+  }
+
+  // Asegurarse de que el valor fue seleccionado
+  inputText.dispatchEvent(new Event("change"));
+  inputText.dispatchEvent(new Event("blur"));
+
+  return true;
+}
+
+async function FillBillInput(key, data) {
+  const input = FORM_BILL_KEYS[key];
+  let result = await InputTypeTextById(input.id, data);
+  if (result) return;
+
+  result = await InputTypeTextByAttribute(
+    `tabindex=${input["tabindex"]}`,
+    data
+  );
+  if (result) return;
+
+  result = await InputTypeTextByAttribute(
+    `view-model=${input["view-model"]}`,
+    data
+  );
+  if (result) return;
+
+  console.log("No se encontró el input", key, data);
+}
+
+function SelectBillOption(key, optionValue) {
+  const input = FORM_BILL_KEYS[key];
+  simulateSelectOptionById(optionValue, input.id);
+}
+
+function InputFillAutocomplete(key, data) {
+  const input = FORM_BILL_KEYS[key];
+  return InputTypeAutocomplete(input.id, data);
+}
+
+const checkValue = async (elementId, expectedValue) => {
+  const element = document.getElementById(elementId);
+  if (!element) {
+    console.log(`No se encontró el elemento con ID: ${elementId}`);
+    return false;
+  }
+   console.log("Elemento encontrado", element.value);
+  if (element.value !== expectedValue) {
+    console.log(
+      `El valor ${elementId} no coincide. Esperado: ${expectedValue}, Actual: ${element.value}`
+    );
+    return false;
+  }
+  return true;
+};
+
+
+async function verifyTotals(expectedValues) {
+
+
+  const subtotalOk = await checkValue(FORM_BILL_KEYS.subtotal.id, expectedValues.subtotal);
+  const impuestosTrasladadosOk = await checkValue(FORM_BILL_KEYS.impuestos_trasladados_total.id, expectedValues.impuestosTransladados);
+  const impuestosRetenidosOk = await checkValue(FORM_BILL_KEYS.impuestos_retenidos_total.id,expectedValues.impuestosRetenidos);
+  const totalOk = await checkValue( FORM_BILL_KEYS.total.id, expectedValues.total);
+
+  if (
+    !subtotalOk ||
+    !impuestosTrasladadosOk ||
+    !impuestosRetenidosOk ||
+    !totalOk
+  ) {
+    document.body.style.backgroundColor = "lightsalmon";
+    throw new Error("Los totales no coinciden con los valores esperados");
+  }
+
+  console.log("Totales verificados correctamente");
+  document.body.style.backgroundColor = "lightgreen";
+
+  return true;
+}
+
+async function FillBillProcess() {
+  const storageConfig = await loadConfigFromStorage();
+  if (!storageConfig) {
+    console.log("No hay datos en el storage, el proceso no se ejecutará");
+    return;
+  }
+
+  if (!bodyElement.classList.contains("client-info-filled")) {
+    document.body.style.backgroundColor = "lightblue";
+
+    if (
+      !storageConfig.RFC ||
+      !storageConfig.RAZON_SOCIAL ||
+      !storageConfig.USO_CFDI ||
+      !storageConfig.CODIGO_POSTAL ||
+      !storageConfig.REGIMEN_FISCAL
+    ) {
+      console.log("Faltan datos del cliente en el storage");
+      return;
+    }
+
+    await InputFillAutocomplete("rfc", storageConfig.RFC);
+    await InputFillAutocomplete("razonSocial", storageConfig.RAZON_SOCIAL);
+    await InputFillAutocomplete("usoFactura", storageConfig.USO_CFDI);
+    await FillBillInput("codigoPostal", storageConfig.CODIGO_POSTAL);
+    await InputFillAutocomplete("regimenFiscal", storageConfig.REGIMEN_FISCAL);
+
+    bodyElement.classList.add("client-info-filled");
+  }
+
+  if (!bodyElement.classList.contains("concept-info-filled")) {
+    if (
+      !storageConfig.CONCEPTO.DESCRIPCION ||
+      !storageConfig.CONCEPTO.PRODUCTO ||
+      !storageConfig.CONCEPTO.UNIDAD ||
+      !storageConfig.CONCEPTO.CANTIDAD ||
+      !storageConfig.CONCEPTO.VALOR ||
+      !storageConfig.CONCEPTO.ID
+    ) {
+      console.log("Faltan datos del concepto en el storage");
+      return;
+    }
+
+    simulateClick("btnNewItem", "1350001");
+
+    // Esperar a que el formulario de concepto esté visible
+    await waitForVisibility(FORM_BILL_KEYS["concepto_descripcion"].id);
+    await InputFillAutocomplete(
+      "concepto_productoServicio",
+      storageConfig.CONCEPTO.PRODUCTO
+    );
+    await FillBillInput(
+      "concepto_descripcion",
+      storageConfig.CONCEPTO.DESCRIPCION
+    );
+
+    await FillBillInput(
+      "concepto_unidadDeMedida",
+      storageConfig.CONCEPTO.UNIDAD
+    );
+    await FillBillInput("concepto_cantidad", storageConfig.CONCEPTO.CANTIDAD);
+    await FillBillInput("concepto_valorUnitario", storageConfig.CONCEPTO.VALOR);
+    await FillBillInput("concepto_noIdentificacion", storageConfig.CONCEPTO.ID);
+
+    if (storageConfig.CONCEPTO.IMPUESTO) {
+     
+      SelectBillOption("concepto_impuesto", storageConfig.CONCEPTO.IMPUESTO);
+      SelectBillOption("concepto_impuesto_2", storageConfig.CONCEPTO.IMPUESTO);
+    }
+    bodyElement.classList.add("concept-info-filled");
+  }
+
+  if (!bodyElement.classList.contains("concept-info-filled-tax")) {
+    if (
+      !storageConfig.CONCEPTO.IVA ||
+      !storageConfig.CONCEPTO.RET_IVA ||
+      !storageConfig.CONCEPTO.RET_ISR
+    ) {
+      console.log("Faltan datos de impuestos en el storage");
+      return;
+    }
+
+    await waitForVisibility(FORM_BILL_KEYS["concepto_no_impuesto"].id);
+
+    const checkbox = document.getElementById(
+      FORM_BILL_KEYS["concepto_no_impuesto"].id
+    );
+    if (checkbox.checked) {
+      checkbox.click();
+    }
+
+    await FillBillInput(
+      "concepto_cobradoIVA",
+      storageConfig.CONCEPTO.IVA + "%"
+    );
+    if (
+      storageConfig.CONCEPTO.RET_IVA !== "" &&
+      Number(storageConfig.CONCEPTO.RET_IVA) > 0
+    ) {
+      await FillBillInput(
+        "concepto_retencionIVA",
+        storageConfig.CONCEPTO.RET_IVA + "%"
+      );
+    }
+    if (
+      storageConfig.CONCEPTO.RET_ISR !== "" &&
+      Number(storageConfig.CONCEPTO.RET_ISR) > 0
+    ) {
+      await FillBillInput(
+        "concepto_retencionISR",
+        storageConfig.CONCEPTO.RET_ISR + "%"
+      );
+    }
+    
+    await delay(CONFIG.TIMEOUTS.DELAY/2);
+    simulateClick("btnAddItem", "1350001");
+  }
+
+  if (!bodyElement.classList.contains("totals-verified")) {
+    try {
+      await delay(CONFIG.TIMEOUTS.DELAY * 2);
+      await verifyTotals({
+        subtotal: storageConfig.SUBTOTAL,
+        impuestosTransladados:
+          storageConfig.IMPUESTOS_TRASLADADOS,
+        impuestosRetenidos:
+          storageConfig.IMPUESTOS_RETENIDOS,
+        total: storageConfig.TOTAL
+      });
+      bodyElement.classList.add("totals-verified");
+      //sellar
+      document.querySelector('a.btn-sellar-factura[tabindex="2002"]').click();
+
+    } catch (error) {
+      console.error("Error al verificar totales:", error.message);
+      return;
+    }
+  }
+
+ 
+ 
+
+
+
+}
+
+function StartBillMutationObserver() {
+  const config = {
+    attributes: true, // Observar cambios en los atributos
+    attributeFilter: ["class"], // Filtra solo cambios en la clase
+  };
+
+  const observer = new MutationObserver(async (mutationsList) => {
+    for (const mutation of mutationsList) {
+      if (
+        mutation.type === "attributes" &&
+        mutation.attributeName === "class" &&
+        bodyElement.className.trim() == "pace-done"
+      ) {
+        FillBillProcess();
+      }
+    }
+  });
+  observer.observe(bodyElement, config);
+}
+
+StartBillMutationObserver();
