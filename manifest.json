@@ -16,7 +16,7 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["temp/certificado.cer", "temp/llave.key", "js/*"],
+            "resources": ["certificado.cer", "llave.key", "js/*"],
             "matches": ["<all_urls>"]
         }
     ],
