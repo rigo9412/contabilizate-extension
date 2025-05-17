@@ -23,15 +23,13 @@
     "action": {
         "default_popup": "index.html",
         "default_icon": {
-            "16": "logo.svg",
-            "48": "logo.svg",
-            "128": "logo.svg"
+            "128": "128.png"
         }
     },
     "icons": {
-        "16": "logo.svg",
-        "48": "logo.svg",
-        "128": "logo.svg"
+        "16": "128.png",
+        "48": "128.png",
+        "128": "128.png"
     },
     "background": {
         "service_worker": "js/background.js",

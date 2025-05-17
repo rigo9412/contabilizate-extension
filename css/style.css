@@ -9,16 +9,14 @@
   --sat-red: #cc0000;
 }
 
-body {
+ 
+.container-popup {
+  max-width: 800px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f8f9fa;
   color: #333;
   min-width: 600px;
   padding: 16px;
-}
-
-.container {
-  max-width: 800px;
 }
 
 .header-content {
