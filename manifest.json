@@ -1,14 +1,15 @@
 {
     "name": "SAT Bot Form Fill",
     "description": "Automated form filling extension for SAT Billing.",
-    "version": "1.1",
+    "version": "1.2",
     "manifest_version": 3,
     "permissions": [
         "activeTab",
         "scripting",
         "tabs",
         "nativeMessaging",
-        "storage"
+        "storage",
+        "downloads"
     ],
     "host_permissions": [
         "https://*.sat.gob.mx/*",
@@ -16,8 +17,14 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["certificado.cer", "llave.key", "js/*"],
-            "matches": ["<all_urls>"]
+            "resources": [
+                "certificado.cer",
+                "llave.key",
+                "js/*"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
         }
     ],
     "action": {
@@ -37,11 +44,15 @@
     },
     "content_scripts": [
         {
-            "matches": ["<all_urls>"],
+            "matches": [
+                "<all_urls>"
+            ],
             "js": [
                 "js/popup.js"
             ],
-            "css": ["css/style.css"]
+            "css": [
+                "css/style.css"
+            ]
         }
     ]
 }

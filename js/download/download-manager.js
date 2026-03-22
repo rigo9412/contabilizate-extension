@@ -5,14 +5,16 @@ class DownloadManager {
         this.currentTabId = null;
         this.downloadedInvoices = [];
         this.fileHandler = new FileHandler();
-        this.init();
         this.completedFiles = [];
         this.xmlFiles = [];
         this.pdfFiles = [];
         this.currentProgress = 0;
         this.totalFiles = 0;
         this.cancelled = false;
-        
+
+        this.monthsToProcess = [];
+        this.allInvoices = [];
+
         this.initializeEventListeners();
     }
 
@@ -83,6 +85,7 @@ class DownloadManager {
         this.xmlFiles = [];
         this.pdfFiles = [];
         this.completedFiles = [];
+        this.allInvoices = [];
         this.currentProgress = 0;
         this.totalFiles = 0;
 
@@ -91,13 +94,14 @@ class DownloadManager {
         try {
             // Get current active tab
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            
+
             // Navigate to appropriate SAT portal
-            const targetUrl = invoiceType === 'emitidas' 
+            const targetUrl = invoiceType === 'emitidas'
                 ? 'https://portalcfdi.facturaelectronica.sat.gob.mx/ConsultaEmisor.aspx'
                 : 'https://portalcfdi.facturaelectronica.sat.gob.mx/ConsultaReceptor.aspx';
 
-            await chrome.tabs.update(tab.id, { url: targetUrl });
+            this.updateProgress('Navegando al portal del SAT...', 5);
+            await chrome.tabs.update(tab.id, { url: targetUrl, });
 
             // Wait for page to load
             await this.waitForPageLoad(tab.id);
@@ -114,6 +118,22 @@ class DownloadManager {
         }
     }
 
+    getMonthsBetween(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const months = [];
+        let current = new Date(start.getFullYear(), start.getMonth(), 1);
+
+        while (current <= end) {
+            months.push({
+                year: current.getFullYear(),
+                month: current.getMonth() + 1 // 1-indexed
+            });
+            current.setMonth(current.getMonth() + 1);
+        }
+        return months;
+    }
+
     async waitForPageLoad(tabId) {
         return new Promise((resolve) => {
             const listener = (updatedTabId, changeInfo, tab) => {
@@ -128,145 +148,186 @@ class DownloadManager {
 
     async automateDownload(tabId, invoiceType, startDate, endDate) {
         try {
-            this.updateProgress('Navegando al portal del SAT...', 10);
-
-            // Wait for the page to be ready
+            this.showPageStatus(tabId);
+            this.updateProgress('Preparando búsqueda...', 10);
+            await this.updatePageStatus(tabId, 'Preparando búsqueda...', 10);
             await this.delay(2000);
 
-            // Fill date forms and search
-            await this.fillDateForm(tabId, startDate, endDate);
-            
-            this.updateProgress('Buscando facturas...', 20);
+            if (invoiceType === 'recibidas') {
+                const months = this.getMonthsBetween(startDate, endDate);
+                for (let i = 0; i < months.length; i++) {
+                    if (this.cancelled) throw new Error('Descarga cancelada');
+                    
+                    const { year, month } = months[i];
+                    const progress = 10 + (i * 20 / months.length);
+                    const statusText = `Buscando facturas de ${month}/${year}...`;
+                    
+                    this.updateProgress(statusText, progress);
+                    await this.updatePageStatus(tabId, statusText, progress);
+                    
+                    await this.fillRecibidasForm(tabId, year, month);
+                    await this.delay(3000); // Wait for results
+                    
+                    const invoices = await this.getInvoiceList(tabId);
+                    this.allInvoices.push(...invoices);
+                }
+            } else {
+                this.updateProgress('Buscando facturas emitidas...', 15);
+                await this.updatePageStatus(tabId, 'Buscando facturas emitidas...', 15);
+                
+                await this.fillEmitidasForm(tabId, startDate, endDate);
+                await this.delay(3000); // Wait for results
+                
+                const invoices = await this.getInvoiceList(tabId);
+                this.allInvoices.push(...invoices);
+            }
 
-            // Wait for results
-            await this.delay(3000);
-
-            // Get invoice list
-            const invoices = await this.getInvoiceList(tabId);
-            
-            if (invoices.length === 0) {
-                this.showAlert('No se encontraron facturas en el rango de fechas especificado', 'info');
+            if (this.allInvoices.length === 0) {
+                await this.updatePageStatus(tabId, 'No se encontraron facturas', 100);
+                setTimeout(() => this.removePageStatus(tabId), 3000);
+                this.showAlert('No se encontraron facturas en el rango especificado', 'info');
                 this.hideProgressInterface();
                 return;
             }
 
-            this.totalFiles = invoices.length * 2; // XML + PDF for each invoice
-            this.updateProgress(`Encontradas ${invoices.length} facturas. Iniciando descarga...`, 30);
+            // Remove duplicates (based on UUID)
+            const uniqueInvoices = Array.from(new Map(this.allInvoices.map(item => [item.uuid, item])).values());
+            
+            this.totalFiles = uniqueInvoices.length * 2;
+            this.updateProgress(`Encontradas ${uniqueInvoices.length} facturas. Iniciando descarga...`, 30);
+            await this.updatePageStatus(tabId, `Iniciando descarga de ${uniqueInvoices.length} facturas...`, 30);
 
-            // Download files
-            for (let i = 0; i < invoices.length; i++) {
-                if (this.cancelled) {
-                    throw new Error('Descarga cancelada por el usuario');
-                }
+            for (let i = 0; i < uniqueInvoices.length; i++) {
+                if (this.cancelled) throw new Error('Descarga cancelada');
 
-                const invoice = invoices[i];
-                this.updateProgress(`Descargando factura ${i + 1} de ${invoices.length}: ${invoice.uuid}`, 30 + (i * 60 / invoices.length));
-
-                // Download XML
-                await this.downloadInvoiceFile(tabId, invoice, 'xml');
+                const invoice = uniqueInvoices[i];
+                const progress = 30 + (i * 60 / uniqueInvoices.length);
+                const statusText = `Descargando ${i + 1}/${uniqueInvoices.length}: ${invoice.uuid}`;
                 
-                // Download PDF
-                await this.downloadInvoiceFile(tabId, invoice, 'pdf');
+                this.updateProgress(statusText, progress);
+                await this.updatePageStatus(tabId, statusText, progress);
 
+                await this.downloadInvoiceFile(tabId, invoice, 'xml');
+                await this.downloadInvoiceFile(tabId, invoice, 'pdf');
                 this.completedFiles.push(invoice.uuid);
             }
 
-            // Create ZIP files
-            this.updateProgress('Creando archivos ZIP...', 90);
-            await this.createZipFiles();
-
             this.updateProgress('Descarga completada', 100);
+            await this.updatePageStatus(tabId, '¡Descarga completada!', 100);
+            
+            setTimeout(() => this.removePageStatus(tabId), 5000);
             this.showDownloadResults();
 
         } catch (error) {
+            await this.updatePageStatus(tabId, `Error: ${error.message}`, 0);
             throw error;
         }
     }
 
-    async fillDateForm(tabId, startDate, endDate) {
-        // Convert dates to the format expected by SAT portal
-        const startParts = startDate.split('-');
-        const endParts = endDate.split('-');
-        
-        const startDay = startParts[2];
-        const startMonth = startParts[1];
-        const startYear = startParts[0];
-        
-        const endDay = endParts[2];
-        const endMonth = endParts[1];
-        const endYear = endParts[0];
-
-        // Fill the date form using the selectors from reference files
-        const fillFormScript = `
-            // Switch to date search if needed
-            const fechaRadio = document.querySelector('input[value="RdoFechas"]');
-            if (fechaRadio && !fechaRadio.checked) {
-                fechaRadio.click();
-                // Wait for form to update
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-
-            // Fill initial date
-            const initialDateInput = document.querySelector('#ctl00_MainContent_CldFechaInicial2_Calendario_text');
-            if (initialDateInput) {
-                initialDateInput.value = '${startDay}/${startMonth}/${startYear}';
-                initialDateInput.dispatchEvent(new Event('change'));
-            }
-
-            // Fill final date
-            const finalDateInput = document.querySelector('#ctl00_MainContent_CldFechaFinal2_Calendario_text');
-            if (finalDateInput) {
-                finalDateInput.value = '${endDay}/${endMonth}/${endYear}';
-                finalDateInput.dispatchEvent(new Event('change'));
-            }
-
-            // Click search button
-            const searchButton = document.querySelector('#ctl00_MainContent_BtnBusqueda');
-            if (searchButton) {
-                searchButton.click();
-            }
-        `;
+    async fillEmitidasForm(tabId, startDate, endDate) {
+        const [sy, sm, sd] = startDate.split('-');
+        const [ey, em, ed] = endDate.split('-');
 
         await chrome.scripting.executeScript({
             target: { tabId },
-            func: () => {
+            func: (sd, sm, sy, ed, em, ey) => {
                 return new Promise((resolve) => {
-                    // Switch to date search if needed
                     const fechaRadio = document.querySelector('input[value="RdoFechas"]');
-                    if (fechaRadio && !fechaRadio.checked) {
-                        fechaRadio.click();
-                        setTimeout(resolve, 1000);
-                    } else {
-                        resolve();
-                    }
-                });
-            }
-        });
+                    if (fechaRadio && !fechaRadio.checked) fechaRadio.click();
 
+                    setTimeout(() => {
+                        const initialInput = document.querySelector('#ctl00_MainContent_CldFechaInicial2_Calendario_text');
+                        const finalInput = document.querySelector('#ctl00_MainContent_CldFechaFinal2_Calendario_text');
+
+                        if (initialInput) {
+                            initialInput.value = `${sd}/${sm}/${sy}`;
+                            initialInput.dispatchEvent(new Event('change'));
+                        }
+                        if (finalInput) {
+                            finalInput.value = `${ed}/${em}/${ey}`;
+                            finalInput.dispatchEvent(new Event('change'));
+                        }
+
+                        const searchBtn = document.querySelector('#ctl00_MainContent_BtnBusqueda');
+                        if (searchBtn) {
+                            searchBtn.click();
+                        }
+                        resolve();
+                    }, 1000);
+                });
+            },
+            args: [sd, sm, sy, ed, em, ey]
+        });
+    }
+
+    async fillRecibidasForm(tabId, year, month) {
         await chrome.scripting.executeScript({
             target: { tabId },
-            func: (startDay, startMonth, startYear, endDay, endMonth, endYear) => {
-                // Fill initial date
-                const initialDateInput = document.querySelector('#ctl00_MainContent_CldFechaInicial2_Calendario_text');
-                if (initialDateInput) {
-                    initialDateInput.value = `${startDay}/${startMonth}/${startYear}`;
-                    initialDateInput.dispatchEvent(new Event('change'));
-                }
+            func: (year, month) => {
+                return new Promise((resolve) => {
+                    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+                    
+                    const executeSearch = async () => {
+                        // Intentar encontrar el radio button por ID o por valor
+                        const rdoFechas = document.getElementById('ctl00_MainContent_RdoFechas') || 
+                                         document.querySelector('input[value="RdoFechas"]');
+                        
+                        if (rdoFechas && !rdoFechas.checked) {
+                            console.log("Activando radio button de fechas...");
+                            rdoFechas.click();
+                            rdoFechas.dispatchEvent(new Event('change', { bubbles: true }));
+                            await wait(2000); // Esperar a que el portal procese el cambio
+                        }
 
-                // Fill final date
-                const finalDateInput = document.querySelector('#ctl00_MainContent_CldFechaFinal2_Calendario_text');
-                if (finalDateInput) {
-                    finalDateInput.value = `${endDay}/${endMonth}/${endYear}`;
-                    finalDateInput.dispatchEvent(new Event('change'));
-                }
+                        // Verificar si los selectores están presentes
+                        let ddlAnio = document.getElementById('DdlAnio');
+                        let ddlMes = document.getElementById('ctl00_MainContent_CldFecha_DdlMes');
 
-                // Click search button
-                const searchButton = document.querySelector('#ctl00_MainContent_BtnBusqueda');
-                if (searchButton) {
-                    searchButton.click();
-                }
+                        if (!ddlAnio || !ddlMes) {
+                            console.error("No se encontraron los selectores de fecha. Reintentando activación...");
+                            // Reintentar clic en el radio button por si acaso
+                            if (rdoFechas) rdoFechas.click();
+                            await wait(2000);
+                            ddlAnio = document.getElementById('DdlAnio');
+                            ddlMes = document.getElementById('ctl00_MainContent_CldFecha_DdlMes');
+                        }
+
+                        if (ddlAnio) {
+                            console.log(`Seleccionando año ${year}`);
+                            ddlAnio.value = year.toString();
+                            ddlAnio.dispatchEvent(new Event('change', { bubbles: true }));
+                            await wait(1000);
+                        }
+
+                        if (ddlMes) {
+                            console.log(`Seleccionando mes ${month}`);
+                            ddlMes.value = month.toString();
+                            ddlMes.dispatchEvent(new Event('change', { bubbles: true }));
+                            await wait(1000);
+                        }
+
+                        const ddlDia = document.getElementById('ctl00_MainContent_CldFecha_DdlDia');
+                        if (ddlDia) {
+                            ddlDia.value = "0";
+                            ddlDia.dispatchEvent(new Event('change', { bubbles: true }));
+                            await wait(500);
+                        }
+
+                        const searchBtn = document.querySelector('#ctl00_MainContent_BtnBusqueda');
+                        if (searchBtn) {
+                            console.log("Iniciando búsqueda...");
+                            searchBtn.click();
+                            resolve(true);
+                        } else {
+                            console.error("No se encontró el botón de búsqueda");
+                            resolve(false);
+                        }
+                    };
+
+                    executeSearch();
+                });
             },
-            args: [startDay, startMonth, startYear, endDay, endMonth, endYear]
+            args: [year, month]
         });
     }
 
@@ -276,23 +337,23 @@ class DownloadManager {
             func: () => {
                 const invoices = [];
                 const table = document.querySelector('#ctl00_MainContent_tblResult');
-                
+
                 if (table) {
                     const rows = table.querySelectorAll('tbody tr');
                     rows.forEach(row => {
                         const uuidCell = row.querySelector('td:nth-child(2) span');
                         const xmlButton = row.querySelector('[onclick*="RecuperaCfdi.aspx"]');
                         const pdfButton = row.querySelector('[onclick*="recuperaRepresentacionImpresa"]');
-                        
+
                         if (uuidCell && xmlButton) {
                             const uuid = uuidCell.textContent.trim();
                             const xmlOnclick = xmlButton.getAttribute('onclick');
                             const pdfOnclick = pdfButton ? pdfButton.getAttribute('onclick') : null;
-                            
+
                             // Extract URL from onclick
                             const xmlMatch = xmlOnclick.match(/RecuperaCfdi\.aspx\?Datos=([^']+)/);
                             const pdfMatch = pdfOnclick ? pdfOnclick.match(/recuperaRepresentacionImpresa\('([^']+)'\)/) : null;
-                            
+
                             invoices.push({
                                 uuid,
                                 xmlUrl: xmlMatch ? xmlMatch[1] : null,
@@ -301,7 +362,7 @@ class DownloadManager {
                         }
                     });
                 }
-                
+
                 return invoices;
             }
         });
@@ -311,41 +372,51 @@ class DownloadManager {
 
     async downloadInvoiceFile(tabId, invoice, type) {
         try {
+            const baseUrl = 'https://portalcfdi.facturaelectronica.sat.gob.mx/';
             const url = type === 'xml' ? invoice.xmlUrl : invoice.pdfUrl;
             if (!url) return;
 
-            const result = await chrome.scripting.executeScript({
+            // Fetch XML content first to ensure we have it, and because XML downloads can be tricky
+            const [response] = await chrome.scripting.executeScript({
                 target: { tabId },
-                func: (downloadUrl, fileType, uuid) => {
-                    return new Promise((resolve) => {
-                        // Create a hidden link to trigger download
-                        const link = document.createElement('a');
-                        link.href = fileType === 'xml' 
-                            ? `RecuperaCfdi.aspx?Datos=${downloadUrl}`
-                            : `javascript:recuperaRepresentacionImpresa('${downloadUrl}')`;
-                        
+                func: async (downloadUrl, fileType) => {
+                    try {
                         if (fileType === 'xml') {
-                            link.download = `${uuid}.xml`;
-                            link.click();
-                        } else {
-                            // For PDF, we need to call the function
-                            setTimeout(() => {
-                                window.recuperaRepresentacionImpresa(downloadUrl);
-                                resolve();
-                            }, 500);
+                            const resp = await fetch(`RecuperaCfdi.aspx?Datos=${downloadUrl}`);
+                            const text = await resp.text();
+                            return { success: true, content: text };
                         }
-                        
-                        resolve();
-                    });
+                        return { success: true }; // Just finding URL was enough
+                    } catch (e) {
+                        return { success: false, error: e.message };
+                    }
                 },
-                args: [url, type, invoice.uuid]
+                args: [url, type]
             });
 
-            // Add to appropriate file list
-            if (type === 'xml') {
-                this.xmlFiles.push({ uuid, url, type });
+            const fileName = `${invoice.uuid}.${type}`;
+            
+            if (type === 'xml' && response.result.success) {
+                // Use data URL for XML to ensure the content we fetched is exactly what gets downloaded
+                const dataUrl = 'data:text/xml;charset=utf-8,' + encodeURIComponent(response.result.content);
+                await chrome.downloads.download({
+                    url: dataUrl,
+                    filename: fileName,
+                    saveAs: false
+                });
             } else {
-                this.pdfFiles.push({ uuid, url, type });
+                // For PDF, we use the direct URL. Chrome shares the session cookies for this origin.
+                // If it's emitted, it might have a different base, but for receptor it's usually this.
+                const downloadUrl = `${baseUrl}${type === 'xml' ? 'RecuperaCfdi.aspx?Datos=' : 'recuperaRepresentacionImpresa.aspx?Datos='}${url}`;
+                
+                // If the portal uses a complex JS function for PDF, we might still need executeScript for those.
+                // However, let's try direct download first as it's more reliable for multiple files.
+                await chrome.downloads.download({
+                    url: downloadUrl,
+                    filename: fileName,
+                    conflictAction: 'overwrite',
+                    saveAs: false
+                });
             }
 
         } catch (error) {
@@ -353,43 +424,103 @@ class DownloadManager {
         }
     }
 
-    async createZipFiles() {
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        
-        try {
-            // Create XML ZIP
-            if (this.xmlFiles.length > 0) {
-                for (const file of this.xmlFiles) {
-                    this.fileHandler.addXmlFile({
-                        url: file.url,
-                        filename: `${file.uuid}.xml`
-                    });
-                }
-                
-                const xmlZipBlob = await this.fileHandler.createXmlZip();
-                const xmlZipName = this.fileHandler.generateZipName('xml', startDate, endDate);
-                await this.fileHandler.downloadZip(xmlZipBlob, xmlZipName);
-            }
 
-            // Create PDF ZIP
-            if (this.pdfFiles.length > 0) {
-                for (const file of this.pdfFiles) {
-                    this.fileHandler.addPdfFile({
-                        url: file.url,
-                        filename: `${file.uuid}.pdf`
-                    });
-                }
-                
-                const pdfZipBlob = await this.fileHandler.createPdfZip();
-                const pdfZipName = this.fileHandler.generateZipName('pdf', startDate, endDate);
-                await this.fileHandler.downloadZip(pdfZipBlob, pdfZipName);
+
+    async showPageStatus(tabId) {
+        await chrome.scripting.executeScript({
+            target: { tabId },
+            func: () => {
+                if (document.getElementById('sat-bot-status')) return;
+
+                const container = document.createElement('div');
+                container.id = 'sat-bot-status';
+                container.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    width: 300px;
+                    background: white;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 999999;
+                    padding: 15px;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    border: 1px solid #e0e0e0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                `;
+
+                const header = document.createElement('div');
+                header.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-weight: bold;
+                    color: #002e5f;
+                `;
+                header.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    SAT Bot - Descargando
+                `;
+
+                const statusText = document.createElement('div');
+                statusText.id = 'sat-bot-status-text';
+                statusText.style.cssText = 'font-size: 13px; color: #666;';
+                statusText.innerText = 'Iniciando...';
+
+                const progressContainer = document.createElement('div');
+                progressContainer.style.cssText = `
+                    width: 100%;
+                    height: 8px;
+                    background: #f0f0f0;
+                    border-radius: 4px;
+                    overflow: hidden;
+                `;
+
+                const progressBar = document.createElement('div');
+                progressBar.id = 'sat-bot-progress-bar';
+                progressBar.style.cssText = `
+                    width: 0%;
+                    height: 100%;
+                    background: #007bff;
+                    transition: width 0.3s ease;
+                `;
+
+                progressContainer.appendChild(progressBar);
+                container.appendChild(header);
+                container.appendChild(statusText);
+                container.appendChild(progressContainer);
+                document.body.appendChild(container);
             }
-            
-        } catch (error) {
-            console.error('Error creating ZIP files:', error);
-            throw new Error(`Error al crear archivos ZIP: ${error.message}`);
-        }
+        });
+    }
+
+    async updatePageStatus(tabId, text, progress) {
+        await chrome.scripting.executeScript({
+            target: { tabId },
+            func: (text, progress) => {
+                const statusText = document.getElementById('sat-bot-status-text');
+                const progressBar = document.getElementById('sat-bot-progress-bar');
+                if (statusText) statusText.innerText = text;
+                if (progressBar) progressBar.style.width = `${progress}%`;
+            },
+            args: [text, progress]
+        });
+    }
+
+    async removePageStatus(tabId) {
+        await chrome.scripting.executeScript({
+            target: { tabId },
+            func: () => {
+                const container = document.getElementById('sat-bot-status');
+                if (container) container.remove();
+            }
+        });
     }
 
     updateProgress(status, percent) {
@@ -414,8 +545,8 @@ class DownloadManager {
     }
 
     showDownloadResults() {
-        document.getElementById('downloadResults').style.display = 'block';
-        this.showAlert(`Descarga completada: ${this.xmlFiles.length} archivos XML y ${this.pdfFiles.length} archivos PDF`, 'success');
+        this.showAlert(`Descarga completada: ${this.completedFiles.length} facturas procesadas`, 'success');
+        this.hideProgressInterface();
     }
 
     cancelDownload() {
@@ -433,11 +564,24 @@ class DownloadManager {
     showAlert(message, type) {
         const alertContainer = document.getElementById('alert-container');
         const alert = document.createElement('div');
-        alert.className = `alert alert-${type} alert-dismissible fade show`;
-        alert.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
+        // Vanilla CSS classes for alert instead of Bootstrap specifics
+        alert.className = `alert alert-${type} d-flex justify-content-between alert-dismissible`;
+
+        const messageSpan = document.createElement('span');
+        messageSpan.innerHTML = message;
+
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'btn-close';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.onclick = () => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        };
+
+        alert.appendChild(messageSpan);
+        alert.appendChild(closeBtn);
         alertContainer.appendChild(alert);
 
         // Auto-dismiss after 5 seconds

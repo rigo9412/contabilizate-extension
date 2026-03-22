@@ -2,10 +2,13 @@
 
 (async () => {
   try {
+    // Inicializar pestañas primero para que funcionen aun si hay errores en la carga de datos
+    initTabs();
+
     const formConfig = await import(
       chrome.runtime.getURL("js/utils/form-configuration-extension.js")
     );
-    
+
     document.getElementById("btnSite")?.addEventListener("click", () => {
       chrome.tabs.create({
         url: "https://portal.facturaelectronica.sat.gob.mx/",
@@ -25,7 +28,7 @@
 
     document.getElementById("formKeys")?.addEventListener("submit", async (event) => {
       event.preventDefault();
-      
+
       try {
         // Obtener elementos del DOM una sola vez
         const elements = {
@@ -34,33 +37,33 @@
           password: document.getElementById("passwordInputCertificado"),
           rfc: document.getElementById("rfcInput")
         };
-    
+
         // Validar que todos los campos requeridos estén presentes
         if (!elements.certificado || !elements.certificadoKey || !elements.password || !elements.rfc) {
           throw new Error("No se encontraron todos los elementos del formulario");
         }
-    
+
         // Guardar archivos
         const savePromises = [];
-        
+
         if (elements.certificado.files.length > 0) {
           savePromises.push(formConfig.saveFile(elements.certificado.files[0], "certificado.cer"));
         }
-    
+
         if (elements.certificadoKey.files.length > 0) {
           savePromises.push(formConfig.saveFile(elements.certificadoKey.files[0], "llave.key"));
         }
-    
+
         // Esperar a que se guarden los archivos
         await Promise.all(savePromises);
-    
+
         // Guardar datos en storage
         const storageData = {};
-        
+
         if (elements.password.value.trim()) {
           storageData.passwordCertificado = elements.password.value;
         }
-    
+
         if (elements.rfc.value.trim()) {
           // Validar formato RFC
           const rfcRegex = /^[A-Z&Ñ]{3,4}[0-9]{6}[A-Z0-9]{3}$/;
@@ -69,7 +72,7 @@
           }
           storageData.rfc = elements.rfc.value;
         }
-    
+
         // Guardar en storage solo si hay datos para guardar
         if (Object.keys(storageData).length > 0) {
           await new Promise((resolve, reject) => {
@@ -82,10 +85,10 @@
             });
           });
         }
-    
+
         // Mostrar mensaje de éxito
         showMessage("Información guardada correctamente", "success");
-        
+
       } catch (error) {
         console.error("Error al guardar la información:", error);
         showMessage(`Error: ${error.message}`, "error");
@@ -171,7 +174,7 @@
         "impuestosTrasladados": "0.16",
         "impuestosRetenidos": ""
       }
-      
+
 
       const jsonInput = document.getElementById("jsonInput");
       if (jsonInput) {
@@ -204,7 +207,7 @@
         "impuestosTrasladados": "0.16",
         "impuestosRetenidos": ""
       }
-      
+
 
       // Copiar al portapapeles
       navigator.clipboard.writeText(JSON.stringify(jsonExample, null, 2))
@@ -220,7 +223,7 @@
     initConfiguration();
     initDataBill();
 
-    
+
     // Función helper para mostrar mensajes
     function showMessage(message, type) {
       // Implementar según tu UI (puede ser un toast, alert, etc.)
@@ -228,7 +231,7 @@
       messageElement.className = `alert alert-${type}`;
       messageElement.textContent = message;
       document.getElementById("alert-container").appendChild(messageElement);
-      
+
       // Remover mensaje después de 3 segundos
       setTimeout(() => messageElement.remove(), 3000);
     }
@@ -243,7 +246,7 @@
         "fileInputCertificadoKeyStatus"
       );
 
-      if(!passwordStatus || !rfcStatus || !inputCertificadoStatus || !inputCertificadoKeyStatus ) return
+      if (!passwordStatus || !rfcStatus || !inputCertificadoStatus || !inputCertificadoKeyStatus) return
 
       formConfig
         .readFile("certificado.cer")
@@ -290,93 +293,93 @@
 
     function initDataBill() {
       chrome.storage.local.get(null, (result) => {
-     
-      
-          const rfc = document.getElementById("rfc");
-          if (rfc) rfc.innerHTML = result.rfc ?? "No RFC";
 
-          // If you have more fields in your HTML, you can display them like this:
-          const razonSocial = document.getElementById("razonSocial");
-          if (razonSocial)
-            razonSocial.innerHTML =
-              result.razonSocial ?? "No Razón Social";
 
-          const codigoPostal = document.getElementById("codigoPostal");
-          if (codigoPostal)
-            codigoPostal.innerHTML =
-              result.codigoPostal ?? "No CP";
+        const rfc = document.getElementById("rfc");
+        if (rfc) rfc.innerHTML = result.rfc ?? "No RFC";
 
-          const regimentFiscal = document.getElementById("regimentFiscalId");
-          if (regimentFiscal)
-            regimentFiscal.innerHTML =
-              result.regimentFiscalId ?? "No Régimen";
+        // If you have more fields in your HTML, you can display them like this:
+        const razonSocial = document.getElementById("razonSocial");
+        if (razonSocial)
+          razonSocial.innerHTML =
+            result.razonSocial ?? "No Razón Social";
 
-          const usoCFDI = document.getElementById("usoCFDI");
-          if (usoCFDI)
-            usoCFDI.innerHTML =
-              result.useCFDI ?? "No Uso CFDI";
+        const codigoPostal = document.getElementById("codigoPostal");
+        if (codigoPostal)
+          codigoPostal.innerHTML =
+            result.codigoPostal ?? "No CP";
 
-          const conceptoDescripcion = document.getElementById("conceptoDescripcion");
-          if (conceptoDescripcion)
-            conceptoDescripcion.innerHTML =
-              result.conceptoDescripcion ?? "No Descripción";
+        const regimentFiscal = document.getElementById("regimentFiscalId");
+        if (regimentFiscal)
+          regimentFiscal.innerHTML =
+            result.regimentFiscalId ?? "No Régimen";
 
-          const conceptoProducto = document.getElementById("conceptoProducto");
-          if (conceptoProducto)
-            conceptoProducto.innerHTML =
-              result.conceptoProducto ?? "No Producto";
+        const usoCFDI = document.getElementById("usoCFDI");
+        if (usoCFDI)
+          usoCFDI.innerHTML =
+            result.useCFDI ?? "No Uso CFDI";
 
-          const conceptoUnidad = document.getElementById("conceptoUnidad");
-          if (conceptoUnidad)
-            conceptoUnidad.innerHTML =
-              result.conceptoUnidad ?? "No Unidad";
+        const conceptoDescripcion = document.getElementById("conceptoDescripcion");
+        if (conceptoDescripcion)
+          conceptoDescripcion.innerHTML =
+            result.conceptoDescripcion ?? "No Descripción";
 
-          const conceptoCantidad = document.getElementById("conceptoCantidad");
-          if (conceptoCantidad)
-            conceptoCantidad.innerHTML =
-              result.conceptoCantidad ?? "No Cantidad";
+        const conceptoProducto = document.getElementById("conceptoProducto");
+        if (conceptoProducto)
+          conceptoProducto.innerHTML =
+            result.conceptoProducto ?? "No Producto";
 
-          const conceptoValor = document.getElementById("conceptoValor");
-          if (conceptoValor)
-            conceptoValor.innerHTML =
-              result.conceptoValor ?? "No Valor";
+        const conceptoUnidad = document.getElementById("conceptoUnidad");
+        if (conceptoUnidad)
+          conceptoUnidad.innerHTML =
+            result.conceptoUnidad ?? "No Unidad";
 
-          const conceptoSujectoImpuesto = document.getElementById("conceptoSujectoImpuesto");
-          if (conceptoSujectoImpuesto)
-            conceptoSujectoImpuesto.innerHTML =
-              result.conceptoImpuesto ?? "No Impuesto";
+        const conceptoCantidad = document.getElementById("conceptoCantidad");
+        if (conceptoCantidad)
+          conceptoCantidad.innerHTML =
+            result.conceptoCantidad ?? "No Cantidad";
 
-          const conceptoIVA = document.getElementById("conceptoIVA");
-          if (conceptoIVA)
-            conceptoIVA.innerHTML =
-              result.conceptoIva ?? "No IVA";
+        const conceptoValor = document.getElementById("conceptoValor");
+        if (conceptoValor)
+          conceptoValor.innerHTML =
+            result.conceptoValor ?? "No Valor";
 
-          const conceptoRetencionIVA = document.getElementById("conceptoRetencionIVA");
-          if (conceptoRetencionIVA)
-            conceptoRetencionIVA.innerHTML =
-              result.conceptoRetIva ?? "No RetIVA";
+        const conceptoSujectoImpuesto = document.getElementById("conceptoSujectoImpuesto");
+        if (conceptoSujectoImpuesto)
+          conceptoSujectoImpuesto.innerHTML =
+            result.conceptoImpuesto ?? "No Impuesto";
 
-          const conceptoRetencionISR = document.getElementById("conceptoRetencionISR");
-          if (conceptoRetencionISR)
-            conceptoRetencionISR.innerHTML =
-              result.conceptoRetIsr ?? "No RetISR";
+        const conceptoIVA = document.getElementById("conceptoIVA");
+        if (conceptoIVA)
+          conceptoIVA.innerHTML =
+            result.conceptoIva ?? "No IVA";
 
-          const total = document.getElementById("total");
-          if (total)
-            total.innerHTML =
-              result.total ?? "No Total";
-          const subtotal = document.getElementById("subtotal");
-          if (subtotal)
-            subtotal.innerHTML =
-              result.subtotal ?? "No Subtotal";
-          const impuestosTrasladados = document.getElementById("impuestosTrasladados");
-          if (impuestosTrasladados)
-            impuestosTrasladados.innerHTML =
-              result.impuestosTrasladados ?? "No Impuestos Trasladados";
-          const impuestosRetenidos = document.getElementById("impuestosRetenidos");
-          if (impuestosRetenidos)
-            impuestosRetenidos.innerHTML =  result.impuestosRetenidos ?? "No Impuestos Retenidos";
-        
+        const conceptoRetencionIVA = document.getElementById("conceptoRetencionIVA");
+        if (conceptoRetencionIVA)
+          conceptoRetencionIVA.innerHTML =
+            result.conceptoRetIva ?? "No RetIVA";
+
+        const conceptoRetencionISR = document.getElementById("conceptoRetencionISR");
+        if (conceptoRetencionISR)
+          conceptoRetencionISR.innerHTML =
+            result.conceptoRetIsr ?? "No RetISR";
+
+        const total = document.getElementById("total");
+        if (total)
+          total.innerHTML =
+            result.total ?? "No Total";
+        const subtotal = document.getElementById("subtotal");
+        if (subtotal)
+          subtotal.innerHTML =
+            result.subtotal ?? "No Subtotal";
+        const impuestosTrasladados = document.getElementById("impuestosTrasladados");
+        if (impuestosTrasladados)
+          impuestosTrasladados.innerHTML =
+            result.impuestosTrasladados ?? "No Impuestos Trasladados";
+        const impuestosRetenidos = document.getElementById("impuestosRetenidos");
+        if (impuestosRetenidos)
+          impuestosRetenidos.innerHTML = result.impuestosRetenidos ?? "No Impuestos Retenidos";
+
       });
     }
 
@@ -387,28 +390,28 @@
     function initTabs() {
       const tabButtons = document.querySelectorAll('#mainTabs .nav-link');
       const tabPanes = document.querySelectorAll('.tab-pane');
-      
+
       tabButtons.forEach(button => {
         button.addEventListener('click', (e) => {
           e.preventDefault();
-          
+
           // Remove active class from all buttons
           tabButtons.forEach(btn => {
             btn.classList.remove('active');
             btn.setAttribute('aria-selected', 'false');
           });
-          
+
           // Add active class to clicked button
           button.classList.add('active');
           button.setAttribute('aria-selected', 'true');
-          
+
           // Hide all panes
           tabPanes.forEach(pane => {
             pane.classList.remove('show', 'active');
           });
-          
+
           // Show target pane
-          const targetId = button.getAttribute('data-bs-target');
+          const targetId = button.getAttribute('data-target');
           const targetPane = document.querySelector(targetId);
           if (targetPane) {
             targetPane.classList.add('show', 'active');
@@ -416,9 +419,9 @@
         });
       });
     }
-    
-    initTabs();
-    
+
+    // initTabs() movido al inicio
+
   } catch (error) {
     console.error("Error importing modules:", error);
   }

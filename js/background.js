@@ -51,4 +51,4 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
- 
+// El popup se abre automáticamente según la configuración de manifest.json (default_popup)

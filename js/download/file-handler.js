@@ -24,9 +24,11 @@ class FileHandler {
         // Add XML files to ZIP
         for (const file of this.xmlFiles) {
             try {
-                // Get the actual file content
-                const fileContent = await this.getFileContent(file.url, 'xml');
-                this.xmlZip.file(file.filename, fileContent);
+                // Use pre-fetched content if available, otherwise fetch it
+                const fileContent = file.content || await this.getFileContent(file.url, 'xml');
+                if (fileContent) {
+                    this.xmlZip.file(file.filename, fileContent);
+                }
             } catch (error) {
                 console.error(`Error adding XML file ${file.filename}:`, error);
             }
@@ -64,7 +66,8 @@ class FileHandler {
         return new Promise((resolve, reject) => {
             // For XML files, we can fetch directly
             if (fileType === 'xml') {
-                fetch(`RecuperaCfdi.aspx?Datos=${url}`)
+                const fullUrl = `https://portalcfdi.facturaelectronica.sat.gob.mx/RecuperaCfdi.aspx?Datos=${url}`;
+                fetch(fullUrl)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
