@@ -25,19 +25,18 @@ class DownloadManager {
             this.startDownload();
         });
 
+        // Go to Portal button
+        document.getElementById('goToPortal').addEventListener('click', () => {
+            this.goToPortal();
+        });
+
         // Cancel button
         document.getElementById('cancelDownload').addEventListener('click', () => {
             this.cancelDownload();
         });
+ 
 
-        // Download ZIP buttons
-        document.getElementById('downloadXmlZip').addEventListener('click', () => {
-            this.downloadZip('xml');
-        });
-
-        document.getElementById('downloadPdfZip').addEventListener('click', () => {
-            this.downloadZip('pdf');
-        });
+     
 
         // Date validation
         document.getElementById('startDate').addEventListener('change', () => {
@@ -92,21 +91,16 @@ class DownloadManager {
         this.showProgressInterface();
 
         try {
-            // Get current active tab
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-            // Navigate to appropriate SAT portal
             const targetUrl = invoiceType === 'emitidas'
                 ? 'https://portalcfdi.facturaelectronica.sat.gob.mx/ConsultaEmisor.aspx'
                 : 'https://portalcfdi.facturaelectronica.sat.gob.mx/ConsultaReceptor.aspx';
 
             this.updateProgress('Navegando al portal del SAT...', 5);
-            await chrome.tabs.update(tab.id, { url: targetUrl, });
+            await chrome.tabs.update(tab.id, { url: targetUrl });
 
-            // Wait for page to load
             await this.waitForPageLoad(tab.id);
 
-            // Automate the download process
             await this.automateDownload(tab.id, invoiceType, startDate, endDate);
 
         } catch (error) {
@@ -115,6 +109,28 @@ class DownloadManager {
             this.hideProgressInterface();
         } finally {
             this.isDownloading = false;
+        }
+    }
+
+    async goToPortal() {
+        const invoiceType = document.getElementById('invoiceType').value;
+        
+        if (!invoiceType) {
+            this.showAlert('Por favor seleccione el tipo de facturas', 'warning');
+            return;
+        }
+
+        const targetUrl = invoiceType === 'emitidas'
+            ? 'https://portalcfdi.facturaelectronica.sat.gob.mx/ConsultaEmisor.aspx'
+            : 'https://portalcfdi.facturaelectronica.sat.gob.mx/ConsultaReceptor.aspx';
+
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            await chrome.tabs.update(tab.id, { url: targetUrl });
+            this.showAlert('Navegando al portal del SAT. Una vez ahí, haga clic en "Iniciar Proceso"', 'info');
+        } catch (error) {
+            console.error('Navigation error:', error);
+            this.showAlert(`Error al navegar: ${error.message}`, 'danger');
         }
     }
 
@@ -148,6 +164,19 @@ class DownloadManager {
 
     async automateDownload(tabId, invoiceType, startDate, endDate) {
         try {
+            // Check if session is expired (redirected to login)
+            const loginUrl = 'https://cfdiau.sat.gob.mx/nidp/wsfed_portalCFDI.jsp';
+            
+            const tab = await chrome.tabs.get(tabId);
+            if (tab.url && tab.url.includes('cfdiau.sat.gob.mx')) {
+                // Session expired, redirect to login
+                const redirectUrl = `https://cfdiau.sat.gob.mx/nidp/wsfed_portalCFDI.jsp?wa=wsignin1.0&wtrealm=https%3a%2f%2fportalcfdi.facturaelectronica.sat.gob.mx&wctx=rm%3d0%26id%3dpassive%26ru%3d%252f${invoiceType === 'emitidas' ? 'ConsultaEmisor' : 'ConsultaReceptor'}.aspx&wct=${new Date().toISOString()}&wreply=https%3a%2f%2fportalcfdi.facturaelectronica.sat.gob.mx`;
+                await chrome.tabs.update(tabId, { url: redirectUrl });
+                this.showAlert('Sesión expirada. Redirigiendo al login del SAT...', 'warning');
+                this.hideProgressInterface();
+                return;
+            }
+
             this.showPageStatus(tabId);
             this.updateProgress('Preparando búsqueda...', 10);
             await this.updatePageStatus(tabId, 'Preparando búsqueda...', 10);
@@ -206,6 +235,9 @@ class DownloadManager {
                 
                 this.updateProgress(statusText, progress);
                 await this.updatePageStatus(tabId, statusText, progress);
+
+
+                console.log('Downloading invoice:', invoice);
 
                 await this.downloadInvoiceFile(tabId, invoice, 'xml');
                 await this.downloadInvoiceFile(tabId, invoice, 'pdf');
@@ -345,24 +377,38 @@ class DownloadManager {
                         const xmlButton = row.querySelector('[onclick*="RecuperaCfdi.aspx"]');
                         const pdfButton = row.querySelector('[onclick*="recuperaRepresentacionImpresa"]');
 
+                        console.log('PDF button found:', pdfButton ? 'yes' : 'no');
+                        if (pdfButton) {
+                            console.log('PDF onclick:', pdfButton.getAttribute('onclick'));
+                        }
+
                         if (uuidCell && xmlButton) {
                             const uuid = uuidCell.textContent.trim();
                             const xmlOnclick = xmlButton.getAttribute('onclick');
                             const pdfOnclick = pdfButton ? pdfButton.getAttribute('onclick') : null;
 
-                            // Extract URL from onclick
+                            // Extract URL from onclick - XML
                             const xmlMatch = xmlOnclick.match(/RecuperaCfdi\.aspx\?Datos=([^']+)/);
-                            const pdfMatch = pdfOnclick ? pdfOnclick.match(/recuperaRepresentacionImpresa\('([^']+)'\)/) : null;
+                            
+                            // For PDF, extract only the token
+                            let pdfUrl = null;
+                            if (pdfOnclick) {
+                                const pdfMatch = pdfOnclick.match(/recuperaRepresentacionImpresa\('([^']+)'\)/);
+                                console.log('PDF match:', pdfMatch);
+                                pdfUrl = pdfMatch ? pdfMatch[1] : null;
+                            }
 
                             invoices.push({
                                 uuid,
                                 xmlUrl: xmlMatch ? xmlMatch[1] : null,
-                                pdfUrl: pdfMatch ? pdfMatch[1] : null
+                                pdfUrl: pdfUrl
                             });
+
+                             
                         }
                     });
                 }
-
+                console.log('Invoices found:', invoices);
                 return invoices;
             }
         });
@@ -372,51 +418,91 @@ class DownloadManager {
 
     async downloadInvoiceFile(tabId, invoice, type) {
         try {
-            const baseUrl = 'https://portalcfdi.facturaelectronica.sat.gob.mx/';
+         
             const url = type === 'xml' ? invoice.xmlUrl : invoice.pdfUrl;
-            if (!url) return;
-
-            // Fetch XML content first to ensure we have it, and because XML downloads can be tricky
-            const [response] = await chrome.scripting.executeScript({
-                target: { tabId },
-                func: async (downloadUrl, fileType) => {
-                    try {
-                        if (fileType === 'xml') {
-                            const resp = await fetch(`RecuperaCfdi.aspx?Datos=${downloadUrl}`);
-                            const text = await resp.text();
-                            return { success: true, content: text };
-                        }
-                        return { success: true }; // Just finding URL was enough
-                    } catch (e) {
-                        return { success: false, error: e.message };
-                    }
-                },
-                args: [url, type]
-            });
+            console.log(`downloadInvoiceFile: type=${type}, url=${url}, pdfUrl=${invoice.pdfUrl}`);
+            if (!url) {
+                console.warn(`No hay URL de ${type} para ${invoice.uuid}`);
+                return;
+            }
 
             const fileName = `${invoice.uuid}.${type}`;
             
-            if (type === 'xml' && response.result.success) {
-                // Use data URL for XML to ensure the content we fetched is exactly what gets downloaded
-                const dataUrl = 'data:text/xml;charset=utf-8,' + encodeURIComponent(response.result.content);
-                await chrome.downloads.download({
-                    url: dataUrl,
-                    filename: fileName,
-                    saveAs: false
+            if (type === 'xml') {
+                // Fetch XML content first to ensure we have it
+                const [response] = await chrome.scripting.executeScript({
+                    target: { tabId },
+                    func: async (downloadUrl) => {
+                        try {
+                            const resp = await fetch(`RecuperaCfdi.aspx?Datos=${downloadUrl}`);
+                            const text = await resp.text();
+                            return { success: true, content: text };
+                        } catch (e) {
+                            return { success: false, error: e.message };
+                        }
+                    },
+                    args: [url]
                 });
+
+                if (response.result.success) {
+                    const dataUrl = 'data:text/xml;charset=utf-8,' + encodeURIComponent(response.result.content);
+                    await chrome.downloads.download({
+                        url: dataUrl,
+                        filename: fileName,
+                        saveAs: false
+                    });
+                }
             } else {
-                // For PDF, we use the direct URL. Chrome shares the session cookies for this origin.
-                // If it's emitted, it might have a different base, but for receptor it's usually this.
-                const downloadUrl = `${baseUrl}${type === 'xml' ? 'RecuperaCfdi.aspx?Datos=' : 'recuperaRepresentacionImpresa.aspx?Datos='}${url}`;
+                // For PDF, use POST method with token in body
+                console.log('PDF download: Starting executeScript for', invoice.pdfUrl);
                 
-                // If the portal uses a complex JS function for PDF, we might still need executeScript for those.
-                // However, let's try direct download first as it's more reliable for multiple files.
-                await chrome.downloads.download({
-                    url: downloadUrl,
-                    filename: fileName,
-                    conflictAction: 'overwrite',
-                    saveAs: false
+                const [response] = await chrome.scripting.executeScript({
+                    target: { tabId },
+                    func: async (pdfUrl) => {
+                        try {
+                            const baseUrl = 'RecuperaRepresentacionImpresa';
+                            const url = `${baseUrl}?Datos=${pdfUrl}`;
+                            console.log(`PDF download: pdfUrl=${url}`);
+                            const activeToken = await fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    datos: pdfUrl
+                                })
+                            });
+                            const pdfResp = await fetch("RepresentacionImpresa.aspx?Datos=" + pdfUrl);
+                            const blob = await pdfResp.blob();
+                            console.log(`PDF blob size: ${blob.size}, type: ${blob.type}`);
+                            // Convert blob to data URL in content script (blob can't be serialized across contexts)
+                            const reader = new FileReader();
+                            const dataUrl = await new Promise((resolve, reject) => {
+                                reader.onload = () => resolve(reader.result);
+                                reader.onerror = reject;
+                                reader.readAsDataURL(blob);
+                            });
+                            return { success: true, dataUrl: dataUrl };
+                        } catch (e) {
+                            console.error(`PDF fetch error: ${e.message}`);
+                            return { success: false, error: e.message };
+                        }
+                    },
+                    args: [invoice.pdfUrl]
                 });
+
+                console.log(`PDF response:`, response);
+                console.log(`PDF response result:`, response?.result);
+
+                if (response.result && response.result.success) {
+                    const dataUrl = response.result.dataUrl;
+                    await chrome.downloads.download({
+                        url: dataUrl,
+                        filename: fileName,
+                        conflictAction: 'overwrite',
+                        saveAs: false
+                    });
+                }
             }
 
         } catch (error) {
@@ -555,11 +641,7 @@ class DownloadManager {
         this.hideProgressInterface();
         this.showAlert('Descarga cancelada', 'info');
     }
-
-    downloadZip(type) {
-        // This will be implemented with actual ZIP download functionality
-        this.showAlert(`Función de descarga ZIP para ${type} próximamente disponible`, 'info');
-    }
+ 
 
     showAlert(message, type) {
         const alertContainer = document.getElementById('alert-container');

@@ -5,9 +5,84 @@ const CONFIG = {
     SHORT_DELAY: 25,
     WAIT_MENU: 200,
   },
+  COLORS: {
+    LOADING: "#fff3cd",
+    PROCESSING: "#cce5ff",
+    SUCCESS: "#d4edda",
+    ERROR: "#f8d7da",
+    COMPLETED: "#d1ecf1",
+  },
 };
 
+function showToast(message, type = "info") {
+  const existingToast = document.getElementById("sat-extension-toast");
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  const toast = document.createElement("div");
+  toast.id = "sat-extension-toast";
+  toast.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 999999;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-width: 300px;
+    animation: slideIn 0.3s ease;
+    background: ${type === "success" ? "#28a745" : type === "error" ? "#dc3545" : type === "warning" ? "#ffc107" : "#17a2b8"};
+    color: ${type === "warning" ? "#000" : "#fff"};
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transition = "opacity 0.3s ease";
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+function setBackgroundColor(color) {
+  document.body.style.backgroundColor = color;
+}
+
+function showCompletedBadge(total) {
+  const existingBadge = document.getElementById("sat-completed-badge");
+  if (existingBadge) {
+    existingBadge.remove();
+  }
+
+  const badge = document.createElement("div");
+  badge.id = "sat-completed-badge";
+  badge.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 999999;
+    padding: 15px 25px;
+    border-radius: 50px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  `;
+  badge.innerHTML = `<span>✓</span> Factura completada: $${total}`;
+  document.body.appendChild(badge);
+}
+
 var bodyElement = document.body;
+var processedItems = new Set();
+
 var FORM_BILL_KEYS = {
   rfc: {
     "view-model": "E1350003PFAC085Descrip",
@@ -582,12 +657,14 @@ async function verifyTotals(expectedValues) {
     !impuestosRetenidosOk ||
     !totalOk
   ) {
-    document.body.style.backgroundColor = "lightsalmon";
+    setBackgroundColor(CONFIG.COLORS.ERROR);
+    showToast("Error: Los totales no coinciden con los valores esperados", "error");
     throw new Error("Los totales no coinciden con los valores esperados");
   }
 
   console.log("Totales verificados correctamente");
-  document.body.style.backgroundColor = "lightgreen";
+  setBackgroundColor(CONFIG.COLORS.SUCCESS);
+  showToast("Totales verificados correctamente", "success");
 
   return true;
 }
@@ -596,11 +673,13 @@ async function FillBillProcess() {
   const storageConfig = await loadConfigFromStorage();
   if (!storageConfig) {
     console.log("No hay datos en el storage, el proceso no se ejecutará");
+    showToast("No hay datos en el storage", "warning");
     return;
   }
 
   if (!bodyElement.classList.contains("client-info-filled")) {
-    document.body.style.backgroundColor = "lightblue";
+    setBackgroundColor(CONFIG.COLORS.PROCESSING);
+    showToast("Llenando información del cliente...", "info");
 
     if (
       !storageConfig.RFC ||
@@ -610,6 +689,7 @@ async function FillBillProcess() {
       !storageConfig.REGIMEN_FISCAL
     ) {
       console.log("Faltan datos del cliente en el storage");
+      showToast("Faltan datos del cliente", "error");
       return;
     }
 
@@ -620,9 +700,13 @@ async function FillBillProcess() {
     await InputFillAutocomplete("regimenFiscal", storageConfig.REGIMEN_FISCAL);
 
     bodyElement.classList.add("client-info-filled");
+    showToast("Información del cliente completada", "success");
   }
 
   if (!bodyElement.classList.contains("concept-info-filled")) {
+    setBackgroundColor(CONFIG.COLORS.LOADING);
+    showToast("Agregando concepto de factura...", "info");
+
     if (
       !storageConfig.CONCEPTO.DESCRIPCION ||
       !storageConfig.CONCEPTO.PRODUCTO ||
@@ -632,6 +716,7 @@ async function FillBillProcess() {
       !storageConfig.CONCEPTO.ID
     ) {
       console.log("Faltan datos del concepto en el storage");
+      showToast("Faltan datos del concepto", "error");
       return;
     }
 
@@ -657,60 +742,75 @@ async function FillBillProcess() {
     await FillBillInput("concepto_noIdentificacion", storageConfig.CONCEPTO.ID);
 
     if (storageConfig.CONCEPTO.IMPUESTO) {
-     
+      
       SelectBillOption("concepto_impuesto", storageConfig.CONCEPTO.IMPUESTO);
       SelectBillOption("concepto_impuesto_2", storageConfig.CONCEPTO.IMPUESTO);
     }
     bodyElement.classList.add("concept-info-filled");
+    showToast("Concepto agregado correctamente", "success");
   }
 
   if (!bodyElement.classList.contains("concept-info-filled-tax")) {
+    setBackgroundColor(CONFIG.COLORS.PROCESSING);
+    showToast("Configurando impuestos...", "info");
+
     if (
       !storageConfig.CONCEPTO.IVA ||
       !storageConfig.CONCEPTO.RET_IVA ||
       !storageConfig.CONCEPTO.RET_ISR
     ) {
       console.log("Faltan datos de impuestos en el storage");
-      return;
-    }
+      showToast("Faltan datos de impuestos", "warning");
+    } else {
+      await waitForVisibility(FORM_BILL_KEYS["concepto_no_impuesto"].id);
 
-    await waitForVisibility(FORM_BILL_KEYS["concepto_no_impuesto"].id);
-
-    const checkbox = document.getElementById(
-      FORM_BILL_KEYS["concepto_no_impuesto"].id
-    );
-    if (checkbox.checked) {
-      checkbox.click();
-    }
-
-    await FillBillInput(
-      "concepto_cobradoIVA",
-      storageConfig.CONCEPTO.IVA + "%"
-    );
-    if (
-      storageConfig.CONCEPTO.RET_IVA !== "" &&
-      Number(storageConfig.CONCEPTO.RET_IVA) > 0
-    ) {
-      await FillBillInput(
-        "concepto_retencionIVA",
-        storageConfig.CONCEPTO.RET_IVA + "%"
+      const checkbox = document.getElementById(
+        FORM_BILL_KEYS["concepto_no_impuesto"].id
       );
-    }
-    if (
-      storageConfig.CONCEPTO.RET_ISR !== "" &&
-      Number(storageConfig.CONCEPTO.RET_ISR) > 0
-    ) {
+      if (checkbox.checked) {
+        checkbox.click();
+      }
+
       await FillBillInput(
-        "concepto_retencionISR",
-        storageConfig.CONCEPTO.RET_ISR + "%"
+        "concepto_cobradoIVA",
+        storageConfig.CONCEPTO.IVA + "%"
       );
+      if (
+        storageConfig.CONCEPTO.RET_IVA !== "" &&
+        Number(storageConfig.CONCEPTO.RET_IVA) > 0
+      ) {
+        await FillBillInput(
+          "concepto_retencionIVA",
+          storageConfig.CONCEPTO.RET_IVA + "%"
+        );
+      }
+      if (
+        storageConfig.CONCEPTO.RET_ISR !== "" &&
+        Number(storageConfig.CONCEPTO.RET_ISR) > 0
+      ) {
+        await FillBillInput(
+          "concepto_retencionISR",
+          storageConfig.CONCEPTO.RET_ISR + "%"
+        );
+      }
     }
     
     await delay(CONFIG.TIMEOUTS.DELAY/2);
-    simulateClick("btnAddItem", "1350001");
+    
+    const itemKey = `${storageConfig.CONCEPTO.ID}-${storageConfig.CONCEPTO.CANTIDAD}-${storageConfig.CONCEPTO.VALOR}`;
+    if (!processedItems.has(itemKey)) {
+      processedItems.add(itemKey);
+      simulateClick("btnAddItem", "1350001");
+      showToast("Impuestos configurados, agregando item...", "success");
+    } else {
+      showToast("Item ya procesado, omitiendo duplicado", "warning");
+    }
   }
 
   if (!bodyElement.classList.contains("totals-verified")) {
+    setBackgroundColor(CONFIG.COLORS.LOADING);
+    showToast("Verificando totales...", "info");
+
     try {
       await delay(CONFIG.TIMEOUTS.DELAY * 2);
       await verifyTotals({
@@ -722,11 +822,19 @@ async function FillBillProcess() {
         total: storageConfig.TOTAL
       });
       bodyElement.classList.add("totals-verified");
-      //sellar
+      
+      setBackgroundColor(CONFIG.COLORS.COMPLETED);
+      showToast("Totales correctos, sellando factura...", "success");
+      
       document.querySelector('a.btn-sellar-factura[tabindex="2002"]').click();
+      
+      showCompletedBadge(storageConfig.TOTAL);
+      showToast("¡Factura completada exitosamente!", "success");
 
     } catch (error) {
       console.error("Error al verificar totales:", error.message);
+      setBackgroundColor(CONFIG.COLORS.ERROR);
+      showToast("Error al verificar totales: " + error.message, "error");
       return;
     }
   }
