@@ -1,7 +1,7 @@
 {
     "name": "SAT Bot Form Fill",
     "description": "Automated form filling extension for SAT Billing.",
-    "version": "1.0",
+    "version": "1.1",
     "manifest_version": 3,
     "permissions": [
         "activeTab",

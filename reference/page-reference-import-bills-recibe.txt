@@ -1,0 +1,1354 @@
+<div id="cuerpo" style="margin-top: 30px">
+                
+    <h2>Consultar Facturas Recibidas
+    </h2>
+    
+    <div id="ctl00_MainContent_PnlConsulta" onkeypress="javascript:return WebForm_FireDefaultButton(event, 'ctl00_MainContent_BtnBusqueda')">
+	
+        <div id="ctl00_MainContent_UpnlBusqueda">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <span class="radio-inline"><input id="ctl00_MainContent_RdoFolioFiscal" type="radio" name="ctl00$MainContent$FiltroCentral" value="RdoFolioFiscal" onclick="javascript:setTimeout('__doPostBack(\'ctl00$MainContent$RdoFolioFiscal\',\'\')', 0)"><label for="ctl00_MainContent_RdoFolioFiscal">Folio Fiscal *</label></span>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input name="ctl00$MainContent$TxtUUID" type="text" maxlength="36" id="ctl00_MainContent_TxtUUID" disabled="disabled" class="aspNetDisabled form-control" placeholder="Folio fiscal" style="text-transform: uppercase;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <span class="radio-inline"><input id="ctl00_MainContent_RdoFechas" type="radio" name="ctl00$MainContent$FiltroCentral" value="RdoFechas" checked="checked"><label for="ctl00_MainContent_RdoFechas">Fecha de Emisión *</label></span>
+                    </div>
+                    <div class="form-group">
+                        
+<script>
+    function ValidateYear() {
+        
+        var ddlAnio = document.getElementById("DdlAnio");
+        var anio = ddlAnio.options[ddlAnio.selectedIndex].value;
+        var ddl = document.getElementById("ddlComplementos");
+        if (anio < 2014) {
+            var hfInicialBool = document.getElementById("hfInicialBool");
+            hfInicialBool.value = "true";
+
+            ddl.selectedIndex = 0;
+            ddl.disabled = true;
+        }
+        if (anio >= 2014) {
+            var hfInicialBool = document.getElementById("hfInicialBool");
+            hfInicialBool.value = "false";
+
+            ddl.disabled = false;
+        }
+
+        asignaDia();
+
+    }
+</script>
+<div id="ctl00_MainContent_CldFecha_UpnlSeleccionFecha">
+	
+        <span id="ctl00_MainContent_CldFecha_LblFecha" style="display:inline-block;width:150px;"></span>
+        <div class="form-group">
+            <div class="col-sm-4">
+                <span id="ctl00_MainContent_CldFecha_LblAnio" class="control-label">Año*:</span>
+            </div>
+            <div class="col-sm-4">
+                <span id="ctl00_MainContent_CldFecha_LblMes" class="col-sm-1 control-label">Mes*:</span>
+            </div>
+            <div class="col-sm-4">
+                <span id="ctl00_MainContent_CldFecha_lblDia" class="col-sm-1  control-label">Día:</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-4">
+                <select name="ctl00$MainContent$CldFecha$DdlAnio" id="DdlAnio" class="form-control" onchange="ValidateYear();">
+		<option value="2011">2011</option>
+		<option value="2012">2012</option>
+		<option value="2013">2013</option>
+		<option value="2014">2014</option>
+		<option value="2015">2015</option>
+		<option value="2016">2016</option>
+		<option value="2017">2017</option>
+		<option value="2018">2018</option>
+		<option value="2019">2019</option>
+		<option value="2020">2020</option>
+		<option value="2021">2021</option>
+		<option value="2022">2022</option>
+		<option value="2023">2023</option>
+		<option value="2024">2024</option>
+		<option value="2025">2025</option>
+		<option selected="selected" value="2026">2026</option>
+
+	</select>
+            </div>
+
+            <div class="col-md-4">
+                <select name="ctl00$MainContent$CldFecha$DdlMes" id="ctl00_MainContent_CldFecha_DdlMes" class="form-control" onchange="asignaDia();">
+		<option selected="selected" value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+
+	</select>
+            </div>
+
+            <div class="col-md-4">
+                <select name="ctl00$MainContent$CldFecha$DdlDia" id="ctl00_MainContent_CldFecha_DdlDia" class="form-control">
+		<option selected="selected" value="0"> </option>
+		<option value="01">01</option>
+		<option value="02">02</option>
+		<option value="03">03</option>
+		<option value="04">04</option>
+		<option value="05">05</option>
+		<option value="06">06</option>
+		<option value="07">07</option>
+		<option value="08">08</option>
+		<option value="09">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option value="23">23</option>
+		<option value="24">24</option>
+		<option value="25">25</option>
+		<option value="26">26</option>
+		<option value="27">27</option>
+		<option value="28">28</option>
+		<option value="29">29</option>
+		<option value="30">30</option>
+		<option value="31">31</option>
+
+	</select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-6">
+                <span id="ctl00_MainContent_CldFecha_Label1" class="control-label">Hora Inicial:</span>
+            </div>
+            <div class="col-md-6">
+                <span id="ctl00_MainContent_CldFecha_Label2" class="control-label">Hora Final:</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-6">
+                <div class="col-md-4">
+                    <select name="ctl00$MainContent$CldFecha$DdlHora" id="ctl00_MainContent_CldFecha_DdlHora" class="form-control" onchange="validaHora();">
+		<option selected="selected" value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option value="23">23</option>
+
+	</select>
+
+                    <div style="position: relative; top: -33px; left: 168px;">:</div>
+                </div>
+
+                <div class="col-md-4">
+                    <select name="ctl00$MainContent$CldFecha$DdlMinuto" id="ctl00_MainContent_CldFecha_DdlMinuto" class="form-control" onchange="validaHora();">
+		<option selected="selected" value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option value="23">23</option>
+		<option value="24">24</option>
+		<option value="25">25</option>
+		<option value="26">26</option>
+		<option value="27">27</option>
+		<option value="28">28</option>
+		<option value="29">29</option>
+		<option value="30">30</option>
+		<option value="31">31</option>
+		<option value="32">32</option>
+		<option value="33">33</option>
+		<option value="34">34</option>
+		<option value="35">35</option>
+		<option value="36">36</option>
+		<option value="37">37</option>
+		<option value="38">38</option>
+		<option value="39">39</option>
+		<option value="40">40</option>
+		<option value="41">41</option>
+		<option value="42">42</option>
+		<option value="43">43</option>
+		<option value="44">44</option>
+		<option value="45">45</option>
+		<option value="46">46</option>
+		<option value="47">47</option>
+		<option value="48">48</option>
+		<option value="49">49</option>
+		<option value="50">50</option>
+		<option value="51">51</option>
+		<option value="52">52</option>
+		<option value="53">53</option>
+		<option value="54">54</option>
+		<option value="55">55</option>
+		<option value="56">56</option>
+		<option value="57">57</option>
+		<option value="58">58</option>
+		<option value="59">59</option>
+
+	</select>
+
+                    <div style="position: relative; top: -33px; left: 168px;">:</div>
+                </div>
+
+                <div class="col-md-4">
+                    <select name="ctl00$MainContent$CldFecha$DdlSegundo" id="ctl00_MainContent_CldFecha_DdlSegundo" class="form-control" onchange="validaHora();">
+		<option selected="selected" value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option value="23">23</option>
+		<option value="24">24</option>
+		<option value="25">25</option>
+		<option value="26">26</option>
+		<option value="27">27</option>
+		<option value="28">28</option>
+		<option value="29">29</option>
+		<option value="30">30</option>
+		<option value="31">31</option>
+		<option value="32">32</option>
+		<option value="33">33</option>
+		<option value="34">34</option>
+		<option value="35">35</option>
+		<option value="36">36</option>
+		<option value="37">37</option>
+		<option value="38">38</option>
+		<option value="39">39</option>
+		<option value="40">40</option>
+		<option value="41">41</option>
+		<option value="42">42</option>
+		<option value="43">43</option>
+		<option value="44">44</option>
+		<option value="45">45</option>
+		<option value="46">46</option>
+		<option value="47">47</option>
+		<option value="48">48</option>
+		<option value="49">49</option>
+		<option value="50">50</option>
+		<option value="51">51</option>
+		<option value="52">52</option>
+		<option value="53">53</option>
+		<option value="54">54</option>
+		<option value="55">55</option>
+		<option value="56">56</option>
+		<option value="57">57</option>
+		<option value="58">58</option>
+		<option value="59">59</option>
+
+	</select>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="col-md-4">
+                    <select name="ctl00$MainContent$CldFecha$DdlHoraFin" id="ctl00_MainContent_CldFecha_DdlHoraFin" class="form-control" onchange="validaHora();">
+		<option value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option selected="selected" value="23">23</option>
+
+	</select>
+
+                    <div style="position: relative; top: -33px; left: 168px;">:</div>
+                </div>
+
+                <div class="col-md-4">
+                    <select name="ctl00$MainContent$CldFecha$DdlMinutoFin" id="ctl00_MainContent_CldFecha_DdlMinutoFin" class="form-control" onchange="validaHora();">
+		<option value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option value="23">23</option>
+		<option value="24">24</option>
+		<option value="25">25</option>
+		<option value="26">26</option>
+		<option value="27">27</option>
+		<option value="28">28</option>
+		<option value="29">29</option>
+		<option value="30">30</option>
+		<option value="31">31</option>
+		<option value="32">32</option>
+		<option value="33">33</option>
+		<option value="34">34</option>
+		<option value="35">35</option>
+		<option value="36">36</option>
+		<option value="37">37</option>
+		<option value="38">38</option>
+		<option value="39">39</option>
+		<option value="40">40</option>
+		<option value="41">41</option>
+		<option value="42">42</option>
+		<option value="43">43</option>
+		<option value="44">44</option>
+		<option value="45">45</option>
+		<option value="46">46</option>
+		<option value="47">47</option>
+		<option value="48">48</option>
+		<option value="49">49</option>
+		<option value="50">50</option>
+		<option value="51">51</option>
+		<option value="52">52</option>
+		<option value="53">53</option>
+		<option value="54">54</option>
+		<option value="55">55</option>
+		<option value="56">56</option>
+		<option value="57">57</option>
+		<option value="58">58</option>
+		<option selected="selected" value="59">59</option>
+
+	</select>
+
+                    <div style="position: relative; top: -33px; left: 168px;">:</div>
+                </div>
+
+                <div class="col-md-4">
+                    <select name="ctl00$MainContent$CldFecha$DdlSegundoFin" id="ctl00_MainContent_CldFecha_DdlSegundoFin" class="form-control" onchange="validaHora();">
+		<option value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option value="23">23</option>
+		<option value="24">24</option>
+		<option value="25">25</option>
+		<option value="26">26</option>
+		<option value="27">27</option>
+		<option value="28">28</option>
+		<option value="29">29</option>
+		<option value="30">30</option>
+		<option value="31">31</option>
+		<option value="32">32</option>
+		<option value="33">33</option>
+		<option value="34">34</option>
+		<option value="35">35</option>
+		<option value="36">36</option>
+		<option value="37">37</option>
+		<option value="38">38</option>
+		<option value="39">39</option>
+		<option value="40">40</option>
+		<option value="41">41</option>
+		<option value="42">42</option>
+		<option value="43">43</option>
+		<option value="44">44</option>
+		<option value="45">45</option>
+		<option value="46">46</option>
+		<option value="47">47</option>
+		<option value="48">48</option>
+		<option value="49">49</option>
+		<option value="50">50</option>
+		<option value="51">51</option>
+		<option value="52">52</option>
+		<option value="53">53</option>
+		<option value="54">54</option>
+		<option value="55">55</option>
+		<option value="56">56</option>
+		<option value="57">57</option>
+		<option value="58">58</option>
+		<option selected="selected" value="59">59</option>
+
+	</select>
+                </div>
+            </div>
+        </div>
+    
+</div>
+<script type="text/javascript" language="javascript">
+    function daysInMonth(month, year) {
+        var dd = new Date(year, month, 0);
+        return dd.getDate();
+    }
+    function asignaDiaFecha(anioObj, mesObj, diaObj) {
+        var year = anioObj.options[anioObj.selectedIndex].value;
+        var month = mesObj.options[mesObj.selectedIndex].value;
+
+            var days = (year == ' ' || month == ' ')
+               ? 31 : daysInMonth(month, year);
+            diaObj.options.length = 0;
+            diaObj.options[diaObj.options.length] = new Option(' ', '0');
+            for (var i = 1; i <= days; i++) {
+                if (i < 10) {
+                    diaObj.options[diaObj.options.length] = new Option('0' + i.toString(), i);
+                } else {
+                    diaObj.options[diaObj.options.length] = new Option(i, i);
+                }
+            }
+
+            var opHora = $(diaObj).find("option[value=0]");
+            $(diaObj).selectbox("change", opHora.attr('value'), opHora.html());
+
+    }
+
+    function ConfiguraCombosMac() {
+        var isMac = navigator.userAgent.indexOf("Macintosh");
+
+        if (isMac != -1) {
+            $(document.getElementsByClassName("calendarCombo")).css("width", "45px");
+            $(document.getElementsByClassName("calendarCombo2")).css("width", "60px");
+        }
+    }
+
+    function asignaDia() {
+        
+        var anioJsObj = document.getElementById('DdlAnio');
+        var mesJsObj = document.getElementById('ctl00_MainContent_CldFecha_DdlMes');
+        var diaJsObj = document.getElementById('ctl00_MainContent_CldFecha_DdlDia');
+        asignaDiaFecha(anioJsObj, mesJsObj, diaJsObj);
+    }
+
+    function validaHora() {
+        var horaJsObj = document.getElementById('ctl00_MainContent_CldFecha_DdlHora');
+        var minutoJsObj = document.getElementById('ctl00_MainContent_CldFecha_DdlMinuto');
+        var segundoJsObj = document.getElementById('ctl00_MainContent_CldFecha_DdlSegundo');
+        var horaFinJsObj = document.getElementById('ctl00_MainContent_CldFecha_DdlHoraFin');
+        var minutoFinJsObj = document.getElementById('ctl00_MainContent_CldFecha_DdlMinutoFin');
+        var segundoFinJsObj = document.getElementById('ctl00_MainContent_CldFecha_DdlSegundoFin');
+
+        var horaJs = horaJsObj.options[horaJsObj.selectedIndex].value;
+        var minutoJs = minutoJsObj.options[minutoJsObj.selectedIndex].value;
+        var segundoJs = segundoJsObj.options[segundoJsObj.selectedIndex].value;
+        var horaFinJs = horaFinJsObj.options[horaFinJsObj.selectedIndex].value;
+        var minutoFinJs = minutoFinJsObj.options[minutoFinJsObj.selectedIndex].value;
+        var segundoFinJs = segundoFinJsObj.options[segundoFinJsObj.selectedIndex].value;
+
+        var segIni = timeToSeconds(horaJs, minutoJs, segundoJs);
+        var segFin = timeToSeconds(horaFinJs, minutoFinJs, segundoFinJs);
+        if (segIni > segFin)
+        {
+            horaFinJsObj.selectedIndex = horaJsObj.selectedIndex;
+            minutoFinJsObj.selectedIndex = minutoJsObj.selectedIndex+1;
+            segundoFinJsObj.selectedIndex = segundoJsObj.selectedIndex;
+        }
+    }
+    
+    function timeToSeconds(horas,minutos,segundos) {
+        return parseInt(parseInt(horas * 3600) + parseInt(minutos * 60) + parseInt(segundos));
+    }
+
+    function DefinePosicionInicial() {
+       
+    }
+
+</script>
+
+                    </div>
+                </div>
+
+                
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <span id="ctl00_MainContent_LblRfcReceptor" class="control-label">RFC Emisor</span>
+                        </div>
+                        <div class="col-sm-4">
+                            <span id="ctl00_MainContent_LblRfcTercero" class="control-label">RFC a cuenta terceros</span>   
+                        </div>
+                        <div class="col-sm-4">
+                            <span id="ctl00_MainContent_LblEstado" class="control-label">Estado del Comprobante</span>
+                        </div>
+                    </div>
+                
+
+                
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <input name="ctl00$MainContent$TxtRfcReceptor" type="text" maxlength="13" id="ctl00_MainContent_TxtRfcReceptor" class="form-control">
+                            
+                        </div>
+                        <div class="col-md-4">
+                            <input name="ctl00$MainContent$TxtRfcTercero" type="text" maxlength="13" id="ctl00_MainContent_TxtRfcTercero" class="form-control" style="width:100%;">    
+                        </div>
+                        <div class="col-md-4">
+                            <select name="ctl00$MainContent$DdlEstadoComprobante" id="ctl00_MainContent_DdlEstadoComprobante" class="form-control" onchange="EstadoComprobante(this);">
+	<option selected="selected" value="-1">Seleccione un valor...</option>
+	<option value="0">Cancelado</option>
+	<option value="1">Vigente</option>
+
+</select>
+                        </div>
+                    </div>
+                
+
+               
+                        <div class="form-group">
+                        <div class="col-sm-6">
+                            <span id="ctl00_MainContent_Label5" class="control-label">Tipo de Comprobante (Complemento)</span>
+                            <input type="hidden" name="ctl00$MainContent$hfInicialBool" id="hfInicialBool" value="false">
+                            <input type="hidden" name="ctl00$MainContent$hfDescarga" id="hfDescarga">
+                        </div>
+
+                        <div id="DivlblEstatusCancelacion" style="display: none;" class="col-sm-6">
+                            <span id="ctl00_MainContent_lblEstatusCancelacion" class="control-label">Estatus Cancelación</span>
+                    </div>
+                </div>
+               
+
+
+                
+                        <div class="form-group">
+                        <div class="col-sm-6">
+                            <select name="ctl00$MainContent$ddlComplementos" id="ddlComplementos" class="form-control" style="width:100%;">
+	<option selected="selected" value="-1">Seleccione un valor...</option>
+	<option value="8">Estándar (sin complemento)</option>
+	<option value="4294967296">Acreditamiento de IEPS</option>
+	<option value="8388608">Aerolíneas</option>
+	<option value="70368744177664">Carta Porte</option>
+	<option value="140737488355328">Carta Porte 2.0</option>
+	<option value="2251799813685248">Carta Porte 3.0</option>
+	<option value="9007199254740992">Carta Porte 3.1</option>
+	<option value="1073741824">Certificado de Destrucción</option>
+	<option value="17179869184">Comercio Exterior</option>
+	<option value="274877906944">Comercio Exterior 1.1</option>
+	<option value="4503599627370496">ComercioExterior 2.0</option>
+	<option value="4">Compra Venta de Divisas</option>
+	<option value="16777216">Consumo de Combustibles</option>
+	<option value="8796093022208">Consumo De Combustibles 1.1</option>
+	<option value="64">Donatarias</option>
+	<option value="256">Estado De Cuenta Bancario</option>
+	<option value="4398046511104">Estado de Cuenta Combustibles 1.2</option>
+	<option value="8589934592">Estado de cuenta de combustibles de monederos electrónicos.</option>
+	<option value="17592186044416">Gastos de Hidrocarburos</option>
+	<option value="68719476736">INE 1.1</option>
+	<option value="35184372088832">Ingresos de Hidrocarburos</option>
+	<option value="1024">Instituciones Educativas Privadas (Pago de colegiatura)</option>
+	<option value="4096">Leyendas Fiscales</option>
+	<option value="524288">Mis Cuentas</option>
+	<option value="67108864">Notarios Públicos</option>
+	<option value="536870912">Obras de artes y antigüedades</option>
+	<option value="2048">Otros Derechos e Impuestos</option>
+	<option value="4194304">Pago en Especie</option>
+	<option value="8192">Persona Física Integrante de Coordinado</option>
+	<option value="1125899906842624">Recepcion de Pagos</option>
+	<option value="549755813888">Recepción de Pagos</option>
+	<option value="128">Recibo de donativo</option>
+	<option value="1048576">Recibo de Pago de Salarios</option>
+	<option value="137438953472">Recibo de Pago de Salarios 1.2</option>
+	<option value="32">Sector de Ventas al Detalle (Detallista)</option>
+	<option value="268435456">Servicios de construcción</option>
+	<option value="16384">SPEI de Tercero a Tercero</option>
+	<option value="2147483648">Sustitución y renovación vehicular</option>
+	<option value="32768">Terceros</option>
+	<option value="65536">Terceros</option>
+	<option value="2199023255552">Timbre Fiscal Digital</option>
+	<option value="16">Turista o Pasajero Extranjero</option>
+	<option value="33554432">Vales de Despensa</option>
+	<option value="134217728">Vehículo Usado</option>
+	<option value="2097152">Venta de Vehiculos</option>
+
+</select>
+                            <small class="form-text">(Criterio de búsqueda aplicable a CFDI emitidas a partir del 01/01/2014)</small>
+                        </div>
+
+                        <div id="DivddlVigente" style="display: none;" class="col-sm-6">
+                            <select name="ctl00$MainContent$ddlVigente" id="ddlVigente" class="form-control" align="left" style="width:100%;">
+	<option selected="selected" value="0">Seleccione un valor...</option>
+	<option value="1">En Proceso</option>
+	<option value="4">Rechazada</option>
+	<option value="5">Plazo vencido</option>
+	<option value="0">Sin proceso</option>
+
+</select>
+                        </div>
+
+                        <div id="DivddlCancelado" style="display: none;" class="col-sm-6">
+                            <select name="ctl00$MainContent$ddlCancelado" id="ddlCancelado" class="form-control" align="left" style="width:100%;">
+	<option selected="selected" value="0">Seleccione un valor...</option>
+	<option value="2">Cancelado con aceptación</option>
+	<option value="3">Cancelado sin aceptación</option>
+	<option value="5">Plazo vencido</option>
+
+</select>
+                    </div>
+                </div>
+                
+
+                <div class="col-md-12">
+                    <div class="clearfix">
+                        <div class="pull-left text-muted text-vertical-align-button">
+                            * Campos obligatorios
+                        </div>
+                        <div class="pull-right">
+                            <input type="submit" name="ctl00$MainContent$BtnBusqueda" value="Buscar CFDI" onclick="ocultaResultados();WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$MainContent$BtnBusqueda&quot;, &quot;&quot;, true, &quot;Fechas&quot;, &quot;&quot;, false, false))" id="ctl00_MainContent_BtnBusqueda" class="btn btn-primary" style="margin-right: 20px">
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    <div style="vertical-align: top" class="erroruuid">
+                        
+                    </div>
+                    <br>
+                    <div>
+                        <div id="ctl00_MainContent_ValidationSummary1" class="errores" style="display:none;">
+
+</div>
+                        <div id="ctl00_MainContent_PnlErrores" class="erroruuid" style="width:390px;">
+	
+                            <div style="vertical-align: top">
+                                
+                            </div>
+                        
+</div>
+                    </div>
+                </div>
+            </div>
+        <div id="ctl00_MainContent_UpnlResultados">
+                <div id="ctl00_MainContent_PnlResultados" style="display:inline;">
+	
+                    
+                    <div class="form-group col-sm-12" id="DivContenedor"><div class="col-sm-12" id="ContenedorDinamico" style="overflow: auto;"><table id="ctl00_MainContent_tblResult" aria-label="Comprobantes" class="table table-responsive"><tbody><tr><th><span style="width: 160px;"><input type="checkbox" id="seleccionador" name="seleccionador" onclick="manejaseleccion();" title="Seleccionar todos">&nbsp;
+                                        Acciones</span></th><th><span style="width: 385px;">Folio Fiscal</span></th><th><span style="width: 150px;">RFC Emisor</span></th><th><span style="width: 350px;">Nombre o Razón Social del Emisor</span></th><th><span style="width: 150px;">RFC Receptor</span></th><th><span style="width: 350px;">Nombre o Razón Social del Receptor</span></th><th><span style="width: 200px;">Fecha de Emisión</span></th><th><span style="width: 200px;">Fecha de Certificación</span></th><th><span style="width: 150px;">PAC que Certificó</span></th><th><span style="width: 150px;">Total</span></th><th><span style="width: 200px;">Efecto del Comprobante</span></th><th><span style="width: 200px;">Estatus de cancelación</span></th><th><span style="width: 200px;">Estado del Comprobante</span></th><th><span style="width: 200px;">Estatus de Proceso de Cancelación</span></th><th><span style="width: 200px;">Fecha de Solicitud de la Cancelación</span></th><th><span style="width: 200px;">Fecha de Cancelación</span></th><th><span style="width: 200px;">RFC a cuenta de terceros</span></th></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="2AE20CBE-A652-4FD6-8E51-41D7DBA747F3" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="llbtFhyjBwyZQ4NhEOoadqvsqqAPQdAPB71yx5R8SQJa05DiuzmJTmMMiboOLXYxjLkxsDA/myeBpyrUTNPNry09rnK1kRGzorxfKXRMBWYsYBess4GwsqXGrnQLyhdHi8Yopz7YDUmm0VoT5+o0EZaTufYaiNFuWpAlvvlW6wrcwdnNZnd+PEPwNJhx57390OzVhbNDWWi2NE9XEgV1H7NtfGCjCKJjUi7Wr/bzz/vL+SHDs1RyJgfjZ1i6qZBQINnXzZIF50Byiim1QjGES2THQkbMR1pRG2IynB5CpuMIh5UtTMCvbz04iz/WoaiM5/RSJo6+ybT56gglzZJkM1TSvvsJFZxxlpaS34XkB1xlsNPyjNbeZ0u/PozdSJTfe7fpZVENnXeovBDUhiGKw+CUlJBx+qarU01ZC2gzDtY="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=U+rupo55Qwds7a7jAVm0dcF5i5TX0TcL1+7vRDKk+aUUxFC2sE3WUiGuoTJ3GuRF0Rpx4RTnVguxB22/RexcwLfjjK1KepgwJ0/ep4t6iuryOCqZvXIB3x0UKvd4tWVuWKPbN9yY3eg8d/9LSBVYp3jUiGMc9B9ZjSpKlR2MvjFBNZtrMKcDnS2Uid9IMT9dVB8Redrk4AKaNrD/wzkVGAx0jvSDV9HgdjQkUqBbmja7Ra0H/ZYFO+lfG3nJAe7XSnP9Gd0Mnod8Ms7ZU5RAEzEdQcRPEBpKupu7ce62kfroRHu3fNIxuSQGPH6DR6Y5Qr5bmR6eMgoa4mWHi7clm3+iznKEA/PiXH9nJ6TXCo2MjBhhzn8S3hmmkTWwM1TL26TZ00YHM76E6yeb+Pzrik/Z9Qa18JcC8ymcxeohbEiCG+Td4QnO5zVxsTq+OVD+uLwEJrC3rpxghJddQ+Hyz8NnOU4+snKtRLf1BJznfEv4vzx4183A8f9x8Ym/XXGX9dNHS96+N9ZH3Jf37HWRIIVDiQxtYIfKCHZDW/VN32HhYChQthVD7moCA7LEvnYyh3HbuzLLCfedVMX3hyS3RNZyKxbzdMacym/ReVwASgTs2thxY2WWoVt3xzgJnxww','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=uxUO/GSNtknmnxni3k/8+qYY7LWHT23VOMQlN6Tpldf5qY3gQT85vaTnB3Dsb9lBweXRNhh4N0cS2VgO5iyvmHlui5t38QPmyImfNr91vsTYmRisWZHNXcjm2/Nk4luSvkfEc4U06IFVmTEI0PCQmITUQXsdlu4nNsQiVAJDYzYt3UaEtIWOzzGu0WbMCuyiyOCiKoZrqDp/KTrnIiJCgxNSwImipFz/gRAZjujBHaWFrTuyeX3WzqNdeYOZlJzgJBpFpEMt/Vk4/wuaU7ysieVLHBipdJwGui3jRaxJlYdUgevB81qN+5sOLF8JjjBf2Dtc37JPoVCY4dUIW63UESABJm9FCIpIEHvwC1kHXc/7/u9CdvHolbaPyEe9o00kH86+Q3mRjYgcSdaO119o+cmu30q8xZbTdlxNJvaIaccPxuCBU+zonRbqncQ85/AsN4AlsRHRfWgcMfYs2GIsyDiFDQVxMWWOwKXPdkhaCymyvxyoh6yxfZdjjHb4shClnSjDHsiyPJOPCM7zDnAjoU0MmGfIlOyg4OWn56+XVkcbsHgOx2C01Px3AAiFuPpPigDL+0DcXz46kHIhW8sG00XRAXUwTWgwR+jrbxC+3jk=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('RKOVewmWxlqLCF3MrEA3cXz2jZ7jtEGdSLZ0CglM/12AqgKL9ZHClavDLVSeiHk1ICe0OZCnIWjhPWRAJsJqdm6QEBDs3AqUX+BTI/PRcv18NA1KSnajjKuz44lC4SWUkO0k9l9mx5hBoVUgutI9yQO2jPO4fcocCBt5OQ2u881lrEQw7A1ACQ6rr3NZArujAECQ4uwmgQGeSzwAxIz5CJUNyKCWv4ySebHDaKY9KRMhfEGBS4CVjExK/NhrVpVSEqfnWkyk6kYhnU8NrgDNQykCE5+w1wQYz9dd5Oin1aBhTXXoinHoHM5AG430URIFyKq0jHlkxRQxVu4K6a0DhkKPl00wOI0/mAgEH1L5T5EW2dmCp0cMZfsKlxSYkOWjx7CCcMO5vbcJ/9ViXVlWlPRlE+5tiI7Y1wfkrRiapfX6YTF6KHhr10AuVpucPzFfJYu7FUrnmon32GUIVkmH4RtXXMG6RjLGBuFIUNbIGbJX8U7BIWMehrk9lqhiL3g7Q7D+k0SmLcqQ7qwaLRwVz1eTzL10Zjs+yEt+sqZZ7EQ/8lGaULMc6lvQJbgAqXy/6GVR/ruOJt+uTbr1dmzI5eoJn2pLrBGlgh3Ck4GTc0UdxtApVNmI6DgRaNpLD0UnSO3fgT1l16zZyaPN2JmmyQ==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">2AE20CBE-A652-4FD6-8E51-41D7DBA747F3</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">BBA830831LJ2</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">BBVA MEXICO, S.A., INSTITUCION DE BANCA MULTIPLE, GRUPO FINANCIERO BBVA MEXICO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-01T20:03:15</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-01T22:14:57</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">SFE0807172W8</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$0.00</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Ingreso</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable sin aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="683E9318-C791-4905-8E13-2C7CE8BCBE18" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="Stv8/cO9coRUp02JMoVT2m/TXayHokGFHzDZn76GIHd7S2ooSnoo9Y6r81Jr2zDJioOvqDhPh7B2foJB7qsCnH3Gpy8vg6QrDN+58lCA9UcSzsW4qAqtzGpQwWSzDw1ydGMKhyN6N+SMqt7Au7+8T6I1I/s/740/ys7NxdspQNt8RhPXGEW213oSvfseuN5hc5VpJCC4Sbcbsk3VdXgxZzBi9J1P4fMJFfibMTR3TJhVK2cA7R+tXv7INfQn329QnQ46l/uWbf14MD7FGCi81bP2uckvjklrbHGOKnB7OwzdEZcKm4hPttpjuoKH8OsSKLUHC4jfmac2ZdiXii5qb8f7bySyQPCwQoB0ILYEDn8jM9CYpb697k59NFgV8vxMm8Q/n6cQXhxsLXGZP3BFlvRCdDViS7VqEkmjSrD47Qo="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=R7flGulcO52qNifWJnGJeedNHJFmbXr91hL7REY1qY4vnUESCN+CKzJFT2/HdGg295fh1AdSGmrs3uVPYIH8qrdvJgzD4JIs7QovytNcYLNkbK5/abRCHtxG8ncib/N3el1dnppi4Mrp+LCVKEp9Q/Hf0DNA94iawZZaLCpX5BJB35+k4h1mw+IIPBevtKeS/0F7zFo9sFMfzYrLHJ22eSKXoEsf10GIca19fT8Bjk5H9qXp9shMR/Vu2lva3pTIi6NRE5werlJc513zGVG92T1DxtfMTMciTBp6akbjY++Tn68q/YqtUY7GVjnhGzJ5F45eV6RFzayRY3MrfLWhO/0yyniL578tpnX4Q9pH51pkGNI4ChLJwWvXZZqYv9AMI/ZBf0SErttjElPgeECT2OzPjBqiVKB67CR6kJs/MxIaMPcfkMz6AB/5aJfmjb4z/SRPMTUJHeDphM/UlffO5nxzfKCS/V8FY3DiYn2nMydbS/WXDcjwe8NsegLozyusSCQxHiuii/E/UrqjlIW5EIG7r6p+5veRhBtYXeEeeVW9zDEqDk5/tf0e09ui2fgAsT598wh6TUdVVRtcXdXCx2LIpyuLHta6qO0/B1BunnopJw1SZbiub64Emk4FinjUgrxvaGwM+gUjfqITisHj+Q==','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=f1sx7ODZyID5Rr3SIrHwd9ypnIAnVTjP8jflkdqdCgUqHn0lw5GUOL2RQCudPvM/NMBAhBdYXroHta+1UwyPngn4Ebw62ulgjNjY1Xpy99TYvDVi4Wl9eqmCIHomzqB1i0KLn4/OIXns5Vx7MlJEFDN67muN1ExP6jfsZE70404fspONMlAA61kQLqvtGUh3Ef5AQTPlPn9ovIdL4LGpbPdKGbWzRINGw3cH9dBIYQUteCOwoTejSORm/foX7DWyHnLpeNk7pxLxDkvMNIcrCm30VekXi0aUC0PZzerUoImOZNWJ7cixGVjL7pAS2+7mvdy3IYfWYUZgMswc6kxpGCv1imEyie6zYUwaP2ZtYsEEU9/NDr7PlEttrPdJmYPU9zcgUze3Ro1t9LPF1ilykITatsAPdJaPHvaQGD+IesMJgSI3kIR65RMQ/5nhKFtWdrSsGZugFj8i0EL2iNTmCxsFkp0FyxIggWwqTYYCDkGzJlXaVMCvHrhBlQ9kJ5kxnOYUWJ+QzyHiCH7g+eLAqJI9DavCQEny3PLj9jACRR+GrOhDSgyILZw4kz7CilOVhAEAVRdMp/WMvJ5idZr7wWMX3a96duExqud+D3NXdPc=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('vDFn6cu/Vf+yqXKqhxkA+OujhyZvtNEhbfal1kIwSlMDXjwldZN0ffFid2m3p8bPUximDojmA76JfnQ08UbUsScNIYs063DbAJwRX8xXxnvvkGMQk73GvBiBJHf+CDFmjAdhH+ov4BcMYKDmCz/IzFGd2f8fbBI2FlRP3DJcQE624hO+K0NXlJtQZPaMi3HJUUAem2JihffUDRWx9Uu9/m5uIQ23N672/+A0c/k0vga64/KR7YmwCY3T13K4OZUndkYyxzpiBqWc0c+K1dR0BhAcbztJo1UH8T2jN0ui1pOu5K/bpxCKQkGYSaHLWiW2QuF0CHRCPPM0rutZsJ1r7qPiiied06BzRmgX+5vQTMeOfuCDdqBKL/j0joUxAXt1GWaE+Ps/COiS/4XE55s4B3TpC/NdqZ4289x2qe9o6fvgmsaa34iiXVOSbscQMOI6HDF2KJR2DPlUKqmFVk9h61QdK4XlrBFzeDOe4UFTjBoKnPJINU1qMayHzHnIRs0daRbqjqELu7pNCTNvYAf5vfyGbzSnrrjK5LoljhzJzCC9PqeeCtACutn+4IbYqh9arWuAb7KHJMY9KGctT8ZjaIB/+81iOS/uXzI0zGQXPyy4I+RFKxXomLbA89i3ZgZSMYP0i1LQzLY/aqPagjVKEA==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">683E9318-C791-4905-8E13-2C7CE8BCBE18</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">BBA830831LJ2</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">BBVA MEXICO, S.A., INSTITUCION DE BANCA MULTIPLE, GRUPO FINANCIERO BBVA MEXICO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-03T05:12:54</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-03T09:33:01</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">SFE0807172W8</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$0.00</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Pago</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable sin aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="AE62F8DC-5444-4667-AD9D-70D30E50C4F5" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="VjX/O80tfKmqP6UfhtLg7BPIWzah3hvk4HSuGooi1sx1Jw0csLSlq8+cvCx0lS7JJ2O0Qs7Tct3uX8VGFc/VLC7QqrsRPcSz4Dt6ATR3mOWVgA02vkiAxzIDrmFk3UZhnELUlgRLOgqKhJq9kdYVIXY1rYdIXN4KSq8GZTpNh06BB8ilrv7UtYQjtPsR5qp1H3+0bXe9kIdN5PvCzU/Ih94/dB7bxZtrvfFZ/Z60slj65EzU9ZvKXeNqAN5vrtt0f4GyuFJ9hUDAllAPBxhtlw/YPaO/3tgN003a8S0YcQjskX6gbtGr4wDU3EZjyKt6+LJotHmC4Uj1bzU4xaBaCt8dIELRhy0ejIoxdjlaUjVRQ7OeP3RMOTqj9dsOX08DTLn8MzLUvt5KN8Lq7jYlsmUEK8bB0oBNB1SzDftiMd8="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=oDLDd8y+o5td1ZbKLdb1+qaGi9E4V5UNpAW2rd6CJZvzXx2iGSnJo8hLqSFTE3TbVZZEC4C8M0XYnOQ6HlAwFAuf0KE4QrdF0+chYbCfbfPLGK0OO6qzfrjQgZUM6tpLMSFUdk+bWuLWVFls9eMj6RvYvCv/gorQUu3cCxUbnkXfm+T2Ybe8oTC0f9XUlCH8F6DpAwoq1nYHeqxMTJpcvMWuKaKEHFcrpC+bQS4ZyL2OrFttre2Bj1Qr3f9DMC/GAOIb0NsQnYcaOFAEAKr5Phtddum45l2QPEYexhFLiv07R6gRuxZ0Efr6Eddgyx3rggGFhHq9YS9ly2Jhk24Sowj/JI0Jh8jIOtjfI8YuR0ghgw/99x4ske5SaKO7O5jPp4qz1W0GKbKNSY3VIUxesa1PZp/Sl63vbpLmw6Gm01RYA+gFL3tkjVuac05dm9J0ln5KDSm7c6ZQ8A2F6uyJolhW9hUqBQzsLKerGK5WXiTYHYCEIqG79SRnoLVOEMHgaIoFC53rm0umN8z+au20Ha/Bd6VWuM//FrLQlaOAzHi7CJLu67NsKwZeyNgNlnKX18ttE47hO8nxzMZttQS02clQzprKS0NngzHvP0KWlqFp6aZl9476kTSyVpxL5ODRKFO8ddKns/1FgMZ1zbO/1g==','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=ajJaQk/1+VOVwOdQMCuzCIgBXu42iez8/4ynWy9HcqQqx5xZFn2mHd4FSVyBvi9eOoVISgyV522sG+zYNeU8iQzzFRBVM7JgpjgFNn5r/ZzUonKbcHYfWfxCzmSQrIVmm3DDEhjKYh24MEBqdS5W9A1DfPy/HWHeug5LlZybvgiIzLXxEzmNv0TzlCWLTWr1ahhYKHgcpwf0LQgrOCJBRA/iu1SZwCKU9QCsz22D4cLXQiCkL5ENzUbCV4yZc6whXL8yuIK+2N9ubwcZlwAz/0VERe1+Yxn6FClaJpRA6+JrepFfzxcVAeepIfo/G/NX/8ada428yvUdSOYzqA9Zzt88gLP6+kM7T76yVOME/b7LQ70CyFldfSE/Vzl1rQreVkXKGUgjAR/2Vl7hl00DinPRRBIZjaCs31RkMdbKjD0v/WrUgnMBWCyR6CM7/qqugGMsehhYK0n1ZPuYinX40dPjbTKKzLod0pvDyt6vqz64dNxzxQsmrrj7nQAGk+2zETETPyQFJzawjU6U/jyERtoF7ul0Y96F+wuW6sxCfg3qjL6yUCkQSRIo+VIl2iDcNwttlMYbP/QkqKhPFYCzJ+PlOAXVlK33cpA2PEaLmrA=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('RXMHePYuyruVQcn9IfP1obNsE2/x+ePjHfbYoPsbD5DeP/TeN8/NnuOF+dcn7HHBppt7rLCkdvjfPMiG4nRJg2bsjpYwbwvaBgTshEm+sCdvjMMgM1hRRBP0V6p088SHwISQsDRID1Gu2xMk2SdnVxfCFhIcStT70lyyhSVl+sIQuU6h7ljCxJUjlSWTv7HEsB6vprerT+7fTtpXgAS6uEj3wJzTAnWm5Kh5I3GmHYA6JAkhKCAE/7kloRqxPGfU7sXYvpBXg/iXBG62vc8nyOnKa1lFiI9VcKKbCdz737g+BRTmxgDtSkVJrY1QZ6gd+Qkpu+2d586OrTMfD6+7p64rN5Ui1HkQYj7NEX/IOuSBfg93Bnqt/7OElb7E3rS68CjsN/EJQHcbw1GEOqZTdlFCPUiWCPQmNVNoxvDuu9vkABg/L02IfWaGtYHaw/I10ohzj5qEkaN8yNS8erNXqoL3QqMT428b8LDYIQVv8zRVMrOinqKG3Z1VaaLksy5NwBfU0Yr0x3pbZHkL5woN9ce+IbYDu0TR4Qek2z6sm9VnO5PMIL3rViZg1ebZPdqB7F+8Uf51Sl9ilZrdJJtEZKQ5E+wubVBpGwWo9ki2DvW9IwDCcsZdLvmVChyA+k/NcqaKJ+tuoPBsAPLyoRXIjw==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">AE62F8DC-5444-4667-AD9D-70D30E50C4F5</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">BBA830831LJ2</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">BBVA MEXICO, S.A., INSTITUCION DE BANCA MULTIPLE, GRUPO FINANCIERO BBVA MEXICO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-03T09:27:32</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-03T12:16:21</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">SFE0807172W8</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$0.00</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Ingreso</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable sin aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="A053AE68-49E1-4F86-AC8A-94357F377165" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="8azWX2xv9EExtEy38FR3JePXVZYjJaH0JTSm8ELjvFHOYnRgQivyGFe81KAsrzeU7jcW2Ku4qBOAGPYeCdXQ5YTjZds81ULcSMi3mN32pFIoCRsrrtxcSLMinnRr02xn2Rse+FG4V6OWfbgYnLf96uTJYhoo/YahYcrY/kXijjVrMXdcJ2ep8nyGT+CBujvdnvZy6Zg+lqF4FhPOlRlInuWYSZM7YtT1XpqgBAuBWmz26Ke+JyUlGZ8O5pbpsyEBWJTOqnhn16qB2S5F0kwDfRNUFU8VdsRc2T7hm7P5VVQkj0PbTY5KGuDdtmXdIJX5FaeeN/e2SXvrcTHpcdQhHMcAjRx8Mv8uYFSRBv2G35b/Q3n2GCZUC/OyAq1/xWnrCXGQQbfb8XulGRsOxv0EoTKL/dc9ljb/DmznMy+mkC8="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=zuYa48VqAAEHmutN0HcmSSlMY7JYruNJ75puP39m/ibivkPLFa2KfBNPvRsiVjcukTJUApFN8rv+w5Kx5eadGl3l4Bq5ChSq3muvF1vj9T/Z7xqyK1cG1OwSg0dT4cMZxjvqVrjMemp5NIeYmkQdbepDcutmpxVwW0R6Twf8gZ+qNCf+c1SPyFL/0xivNx7WWG8lDGI29hXdRNBJAOT16cAyuq87vSVpv9g/TRS0hmnwYSGJxfF/0mj8oavWW0DP79J1Bw3bE/is6WRKaGvmhdTJUrIO5o6c7j3V158K75CoXN2c2+hyeCct3sySRsLIoVyrbJpeIv5pnIy/FE8QTEQ07/wsyw7AtAcQFklUEhf1ClBqLTR/6EEJMquOjtyNbyiymbgMQhul8r1Kuetc8TyH32I4pGi/bjrrRENuZF6X7IYqFeIN9PMxPdJlwFzwQkVA+NKIZLyQAZWH2MGJ4sGYEs5BQy4XMsSNHlU+j2PEeThGnH7QfMOl38UxiIabDeYGhganefXdjKfrKUgNh5bwx0BZOfJ0VXPh9nE/vzC2NHyxnXCN3ACeUgtutE1H7QFSL3VmRppkybFZhYF5Rpk4aH3THunF67v2/h0eGBys7xtKwf/VQ/VjYRB7pqdwx3yp0gWOdo7i/fjngE5WxQ==','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=Ga+bxZvZVyf6fjDuj+JmGxqhf6HITzDpJchhsAvm6W5u9WZVsLKZCBwkRq0DqWvASw5tLn6Mt5o0mFBqDi4cGqjwHrWPBTl7kM/LKVxiavwCgycCpTPbj1Ab4CINEBT5enroIsIBcTcvTAcGFL0iXn2Ba9uG5eNw2f5Mf+fgQWB0UozmcV1wjPmcfvTF0KplRhyAVMtxWylVv5Ny09daBh2dQSbmle1Q0ufCeSVR0T9GiuE1+nQTyFl5pRRQXidIqi/Yk9Q3D+1DN+vaqFf2QRUNwlgGoiWIJ6pZIPBK9H8JroS2xxJkY58jCBF2vd+w8k5eY+CKk35FCexTH0MsSyANFas3FhgVYUqUiCp1w0Yxx1/lQGpL1UpRJd7Dn4gA8+NArG3boHzsf0MRuibIMv4d9I7OPg3z7VxEvSfcSiqbqn1DSrm7cQm4qJaYA7loyWeWfzl6batwa5SkPb5Z2Hh7lNogbe14gxCdCILJ+nBs2i8bRLFDD3ef+Rz3d2FPLbR/3cSTcUf4DunCzdB3E+qR5TAqAxPEl8hUe1UvVlazbDba7RqIkWKI5mIaZxh8QEMb9ICjujEKcFcj+4UXrvYCUO8F0QAnRdbvLlWKrTE=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('gQUX1dRf2x9qkfN1dZl2amWsE0qvT+WD563OJS13paSBer6xGcX/bsIoptFLp8oHvWOYg2WcjzFVAUNd/BeIQNgIBIACKiOsAt1fVwOIaXDh/2QHalc/Lz/qGvJOpEgOBB5ZQu2ORWaXruKCLRFMthoFUjfdqRrLrJVMXjquOZotyMvrFbzT0eQ4/mIaW5oKhmScvpv6oM+YxpBxxIO2MRZLBTHVfIcZev3aG69aNE5gSZy8dJ3r1PfEl9wANJz6NSLDyymcZvJia/zoRAeJmBpXfIop4FfEUrzGGM2jDgR84OHRBZ6oXUtVcaAIQpIrZBlePmmoQ4Dukm99kpMg33b5+k8bo5LAak3+vPzTlngsnNPX9Xwog0GjbjRSpW0sglwXN/XtYk+dt4iDjs9jZnpPwqbVoQFcYp4zG2DDN5D9N20xY+g8q1q7tTde2+lMoITJeJbzrDjQr+XFYovQJwXlyvPVex2UMDBZ7qy53IGfByru0lnGIR/31yY2Y3uDjqkz/tvO3YNbP+oeWoX/La4/K7jIDxCp+ceNtGpKIqqk3eo/5ql67CnCqtxPpA7mN+ohcwJtuILjTMrG2zsE1xkOulftQ37DehMmPE21HRKBYx9Fr7jufCvyTAKXa3R67Q8SKWUoHu/ggkHzWlfsaA==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">A053AE68-49E1-4F86-AC8A-94357F377165</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RTR2010024N0</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RAJO TRANSPORTES</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-09T21:39:02</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-09T21:38:46</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">TSP080724QW6</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$6,979.18</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Nómina</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable sin aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="6C9E6090-6154-45D2-B689-66C5BB16C548" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="RFFUCk5xp7dunTDMAqJqVE7FcKDovsakEqRdkUYj+npWfpNprQ5V4+FcoItFTQ+Ouz081/G9o8WycU934zm4DsaInfH/XchdooAbwDcMC3EPZUntRzjxigiiNX9QnSSUVrBT+XAtQ3CQFGucVjRTPbNLi4ghTDSG1FLtp2iTs5Cid1EGQK9PHEopUKUXS1FijIMZhTaTeKdV4zeoC3wLfS8X0tEuJyGzN3QJChDSpBexjzsm17fnmEC5ijJywQnz3ghEjAMnjehY97dliaUaw3KRcGt5gesKAGm+5l0Yqj7kmFrP1DUB7vOm5z7/1vd7ws8jqsw9shBX4psXlqIh4PkDDf7r3WLOMoqgpaPDqAZNtSPz+wmVZEPMzJ8pBI82bjUoAdd09JjoSnIvIt74j/JWNOzibAPwiZMEL5yZ8k0="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=ZEUMEQaGXdQTx0fcUH1WgyEHmVa7Y/J5jkGv2rYogKkXPHu/uPfeM9wxTaER0wCfVwXSz3fA5fhLPRweLm9/art1A80NUNopLTyhzobUun+ATfuwBKRkH6agN4dR8rqyiangr9dZClBNUEQBfM4rsRqhCEufZVMSpS0lRA+K3G+bkQLpqGHtrxVtMkcWpX1NJUrEaKnoVdURVXAFCguadgj9myTC4T0N2R06LVw+xg5jkGIl1LUqMSxsxc0vWz16nfaRmOSzAQZWkN5YcAPdXTnmQ76ai9sfinJEDCLhpn0MfPGdMRdhOZRBs6u0VVRrWlGM5MCe+dqQkWqcOPXVti1WKwVdA359gG4g8YNLuWoqcME8h0AaphOTa/euKR8o3Ali/00DtpHmSzBi0RQH6/NT0KXAFHPfp/fFTpWs7DCcB58KTZqeIJPgzHQ1J89G+/xTWKNjYnGMcRoGunQJ6Y7xeaisdHUuaYT/K4W0UPoBIjEpzHC9GCqGIpK1SJy6kIEJyYT3fQdnnlvsQbBiqiaS1UfBnSLtoT9WBsgXI7jpgNP83HZok5xmVhAJkyMivgRFZlxRUWyEfdywS53dnXhYT9GgwUWUe6SjmgulJlWIunda8euQsdb217u1IzgMD71o9ZeIqYl/AWgVi3tsww==','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=GR6WGfQGort43h3JyW3ZatUo3/vKXEdyEXQf9VagHn0UntzYZ+gZyqC9z10aVWbM2TYmISRXmNpKyNjvLA/x+JHElIsBChxMfcZ32pJnOd7efZe3B8rZ8RKSBvr9nygZXFHbb5rwIilaV7ymdYMXc1MKUGg58mYnrFtDJJN3FD1cy5eitSI/kn6/ZWoO9vkhLM5uc7XpBWtYbgnV3y/AIAFiBOvFIbnA7QpRsx1g2c6yMsHUU6u/TK6vQ78T67F5hw6dkthvVfw6ObJ9TRPOu2HPXh7PvuFub3MJSrPGkFNa8zrJGmtAvoD4DJlEcOJCklD3++3C9sJNJyziSh9XjkR7t5pza7zWYL5URIP55sZ1Bes6WDhnxQQQ4vUnHOi+C+COj4jySo+H80f6G2bsUOaP8/tRerGMD3vgHmPl1RvlbiW4eP103sUTidJ57oDMfGlzoxgAhCLPnP210/Cf9EDM/sVhCUhSvN36V+cKj/wJJ3ItMWsbVPs8pCcVQbNlYSNjR7uQ+2RdNFV4WXACL46Aa5/EE9LEovrRyDUzwZuIUW1+kFSISCHqfOn3AF68Fr4OJII92A8I7a0Hs7w8cePOzKeU196lfv/Jq+w2zaM=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('cEUuTUbaTytBhNLcR4UcoIcusPuYizFD+MvPj+3RGUlugSaM39fhvO0MInFlp+wUYEKXG12psZA5SrU5koCNI/pOWM83CxqePffzJiaY2WzTfAxdL+oAxTz2zKfu/UQG9e7jzTY7H68f3eqZ/g8D8rd5BvKPCFuaSdStWv9CBhjmAQr81QH6MQQLwuX/Lu7fSeTLdkCQ7QSK/NvHKXD9tLgYG1XTbpFLGfDNFKWO4g21ylHQkk5MwrjPBz7aKIyDiZ4qLUuqvLx7Uah6QJvT99XtLdOiWtqhqtmi/jbZmxZOaOlAsfPk9DPoNyMrdcR2r9ejXQqwqbBn/QSbY+8ibO2YhfQROcUJtoXbflMzhqbGXK4/oTDlCNBGMxOOypR5hmCn7AY+KHO+qRVajSLj6qXuKw/oDrCIOKAS2KvX0VrqC27KFhfUuCJ0+TX7s//dc/y/JPEhFfNMs3C3cgNs8VqqVV6uwnQRMIrSiZE9PMwljocWr/103dxjoYp277cy8+8KTWXpbtSXhOzogyvVNG1wzgWli9xX9z0G6oKYKF3qtYqlqTqJLvpkcSu2a/Mj7wlxDcyqTTavN4MX7KhYXpwlUCcr1tRcPtKjkyjh0EJhR1QYijWpD3ekx7t5yQH8D2Ly0X/+7mr8bp9b3nq0gw==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">6C9E6090-6154-45D2-B689-66C5BB16C548</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">BNC061114TQ4</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">UALA, SOCIEDAD ANONIMA, INSTITUCION DE BANCA MULTIPLE</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-11T06:42:49</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-11T06:42:50</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">MAS980812UK1</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$0.93</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Egreso</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable sin aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="BE65F8A1-5EAE-4FEF-B752-F6BF64434A45" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="DfjO9WjnOMI29r/tHjI+4bNmol1hf2ayuUZYU/HMBSDl6Z7GrpkU6YS5nZYGX937tLolZavlyKQMbgf12phmjOycL4HDtKKpb469/JMkuadTBLrC0rRppqURWmBkrFe/TuyF3/sL7jC0NtEtXZmOaNfWe9gncRTAgf/SQWwhR9N2levuoUA4NF9gXl4MRnpEjOuxWOAt0fCpqV1iEWvsCLc1AreiX7tKREFdLxbMai+TEdVXk+e2Vt9lxFb+agiXLG1HzFpKOXxUUsKvgRPSbIY0I+5AHnfdXnG+IW2oUKpieMU+A7/UxVcQUXr6JIgt+IvnO72UJMloRCllXDcrg7Wx77xsDhiUT5HDvDfZB8yLoSQCubZFkoow3bz3F6hZI8EqD4n/YggwTagKGESYtWaQC0GWhnZRI8CHWcLDMqo="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=Kw2y6Kg6a3VBhg2p0DMPemheWERrDBo0zsJcSW3XeBF4rCrhACH2aFl1Lqm1yqrjxROZ6A3tyikpgZ5xkl9MDYMGH+DiaFVVD+jD/ZRUihXU7gwM/68VIRwQm6g6Ir0nhhSXbB02Q4i4yLAztG4Mk09jOFkPN+Veba1uIFZ09TZomvTOUe6fSQ9HTMz+dL/gtzhhh0g6ZX7GtFoKj6seKwT9192H04ZXi1Y7t/vOTGNP4Lkjv6aKurnKj6/xas3362M7aZZEGblPiGnitVivdkANTkTRoNByBdVH7UUA2lU1TMQolsLZVqZKzY+5slxhuuYVb5AxC6r5bCnnTL5KsEyvAUyg60iouhSpqa5s/0cJiiP5v9iK+raxk+yjN5WL72Y0EMGjXEUJBt8vjN31+n7PrqE6wrrkdvg7WeAdiRK3laoF1DCnT38KwlmWew0FouvaP6qWWixSvZI2hNef14RH6ReTVKyOHAKiOpG5uzH6qQlYLrdmp6uZHv/x33VfTostVgO4nD6dKjTRjI7sBPBXZS6csYffELJIZyky4gTzQShppPgvppPwAQKbKU0clnAmD6Dr7dM8nnehKvXGGzlg4f0ouhPRTDwsuRciI2BIKsV5IO/Y+TCsm4YSJ4LwFTraqWdUiAI+2vsFAv+abA==','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=ZRQ6Gk5QCJIXa7U3mG4ftRG8TQ+Xd6mhaZ0USDB2F8P9sG3tnBdIkaVbeYnYo+zX/gJLm74vyZSFXCyuRXNNLkgFVjlUBKMqMdk3C3H33QGRW8iISKetPAFMvOB9ru7omk65obH497g45m+QBzUOG9fQFv/0qykAtFYF8HLqEhgRMEvQ2NDn930tbTOVkzl0lh9ufHnGReHCumv3nnkdz9+Gu2d6hlC9LL/RgaQ9VeSoEH8EWYqk3IpbAuRIM9HpOMLTE3tpQrTOEMw6tm/CYR6CZX5RfKb/j3BQqTknie96O0CaJ4lE2C0l20TG/gz5Xo/VmFSss4ydv2S6ILV81rkiSz4icv4oRyFa/1QyoPkX2Aq+EKSHto8ZyVMLBzzlRIL0U8sS84cPg01wg6aVtNWYsvq0zYy7xKpPZo81WRtzZnjOxCBl3dntXQWyc+9A69Fd4VYTN38aGUVQQHTdkerHLUeWrV4FU3KXREjTvbGUbOVs8JCuGMAzHUsaSWWmyqfPsB/55ODIdCcgLbCcb1zqrqRGlbTmXbqLlOn7nL6qDBuT7uJENN0U3yhvRob3MNjckDgcGAJms+GlOcQy/Y1pnFI31kHYWWkDgHwA1sA=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('sglQiwD6PDAhmsEqk5w/LS/YbHpEN0/aaFxOWZCrxtnEmugx8+LBZnRJxYUDeXSxRDqXIfQAMTQzSIYi/TG6HVZ2Pd8S4PlhP2hd8nYlKEXX00dkhxCtAnGhV+NOOH6nF5ujCkmoYRhM5IRmbw4bRVu6PlPVDQim2BpGkiEIrdcM+TLZD/A7crPsG6jwYm3EIQ/8fwiwUBmBRHgTP17P5PqS9k9M7W+YxpsC2CxgbkUuHsFtezZI0yiAV+y2gYglicJUDsH6I08oLuaK24xYNWeICWHUZjhapfHjBxT7xLKy1qSBpU1ZgmH5zX/RgyIW3OKVPzEHGqlpelnughbzAvjEzGgA0VEVTxVofvNFrjtcsQKqK210c5AtO8vPSXVbDgPwNb5v6z6sZsWE6Soi11aXr9IHAKHALrY13qpBxIZtlbHSdyzLClbxV8fwHT7gNeZ/4tk6vDmcqpf7bl8g7ByDXMpRqXqxmjfBxLPzYalgRVwFVYen0aaxZzhHONwutbzhKQzK5ddqjN3vO4vhAs7TKuPg8I3AJWcYdPgpgNLPqev9PG+ljTWudvG0z7hEa48wykvErxdC/vuuiVNZPP35km4h7PPYsogV+7odZLBI+MTUMxicZtnefhdafF8+N7Q/VAuKS8cNtmeAnkdLJg==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">BE65F8A1-5EAE-4FEF-B752-F6BF64434A45</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RTR2010024N0</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RAJO TRANSPORTES</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-16T16:09:50</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-16T16:08:26</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">TSP080724QW6</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$6,979.18</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Nómina</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable sin aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="4AA8C7B7-2F05-4B99-87FE-0C4C040FC653" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="YQOsSXnQcwDrKhDfWxWARO+K3Q+dkeCuPEwjOKvC0RzvA/9oSBtqgTqQDnTQq1yHh/IRqbg7XxzhUe2+IkBSYUKjx0a2CbOO2yHbtteRTTveIfiryC/dp35aF5pjj33pv3wVmhp5Ogc+dcqlozl+rfkE5Y2lJm5hp3oDlXanA56w93PeQ+RhLQlRERzgS7Pj4NIHRiIySxjckT0GrUnHwW0MJ5lkss3Vkx91zbRBXatTYBxeCNsG/z4bw+PvBuUkje1LEMpByePPgyWt5gNynEM3HgwWg0z0eCex/gvECMZ8Fv/A+GSCJinEOI4XAk4p5RzlD99fg5ca8FrOOzOA4wXbno5iY9Yf6vxeBKfPPL/6KuFMamkZPNgYAISUa5Kw+9y/1/m7Krdki8DxCp3B4byyAVpnLEZgfPBBbi1k1FI="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=vcBTRF/xCvfx7/dyAZW3PZYh6rgcPeFZ5QWJ1JEvf7I3I1TH8r4F2NXtDTe1YJHNVhceW4nFjSUQR37h3Ym062hJzbyWcWuyNU52cBmbtv7+fKWz6QYIpPdGssQx83CFOCJJWnzQOkoiKQLrUf2wc6VQdDGLw1xNAhllEDz7dbnzptDDyPUGFVmfJZ2ZHV8eIZTco5WmOm8+9+vxh1K66I1IH7qpkQtiL2u0UdZuIhx+/cQQnsluNPMccLU93ORdq0SaKVxSOQZprobP6W6jW+7CuW3LBq+YzbjvzND1LXIlC8yBVuyN/jB/g/l2LOGRS5FBzY1BCKfyso8UFxHR15cCgjsQkT4JDcGnaqKmkycS0dpE2OZT5u3Hl0q6vGx1UapC0dZoOPNkJ9xQFUFsPATWf+WQJPjCE8dfddz3tj75LB3MwoVXZOzMQAJ7lcIKNfUR0RqBcX/fxcoZDEOy5ud++i3Xw3NOSN64LzIqb6NoPZ5SYMk5Hdu0wa8TfVA0GF50BelAwZdAiop7rcENAIaBLc4Gb898WIrGRq4l9S+F7ZSQkvIKiLYfaReF+sm4AuzzjA4tA4uB1Ve0m8bEJJ+pFKqy0hEEuYwMSUn82axsbZsmP+viG4wj04sMontM','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=qKV107BzGbhlVaI5zZeaP1y3e6mfQlnyxxjqfKt8Z8A+5JAIGSB8oJdI7GO3SFyNNsuqAocKswtKiaEbfO7AZwRPBf9iCssgNpFYvxNFDuMzq5jerSgA1Okbl7RUgGJ3bXBCv9Oohh6mcJ2aP+RJ3iiiPJoZaGPQk3ZVf6KsUmeCx0ON/FKm9HUvnmbJGxbkQgpYLmZRS9tQ5cVsslxnqkoQKXSLngltOzn3aqzZHacShNKp2G92Lnz23a5NPXids5Upvh4zHMAybnzA6v4mifCoG7oPwllT9Om8DAzenx24Co3AuQjG3FV4AGiFOAnqTMdEySockbW0nVi6U+TZu8vxThpS2ZOuSzh9I3PfPHwR5nqxgF12aPmdjqWd0oNyKr5HBVRWriq4RTTKkdwalvwoNJOd+//GICr8498KQWUMH/3SOMi8MJ3SMSEGHmSXp1FOHt31D9BJuaqCkbcZ7U2Ip0gbGuhce5UFmJChnC7bospLbmMXN7pW1qvFzHYw++1J2NayVL4JBebYZCXiNWDaVtokzTx1C+NaW1qTfTGD6fo6WnhcQz7+fOybVrj/YdXecCrOSgnLvyVUZfUOC2LedQcMj1MwlKO39pMMpZk=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('QyjjucGaZU1N+3Gi112P+0dKtpZwuR9HesItiarbeBwTC6+8YGYEuPkrmILZZ8JzvvgA+GHQynk4PkRmaAU04WVXoG0wyHNdFkZJWLlz60C/CW9oNpboAPhiOYja4D25tmb1sP6SpItLKtz0mDJimA5cnlPKj/BIfyE5y6veVLQMXC7ItnDXfuvkFjrxcFeSA9GTfpIcYbN/cVkoKOyWy47X1vvxuT981yOjw82Y8ctOWoJi/WVNttKZ1Fg8qt+ZKXb+Uc/nPlqtA7Rf/PvlUHqLqp2e2YSH+EGvNgV0JWuhKEJ8LHtABLvYw+PWicH8A6IeyPojw+qgYLxEpr39IBVNO8BdUTU1vwLvdtOtRAATaeBozWMqoFigJ8nYrUOUDN3RE+eEOyoj+ap1JTvUxCZ3M5IZKC+IUpAKeSa9Hpkylq5D+Upbqw8pa/iIAla5AI/5H15nKKylyHvqjj1CaLsOEsQyMz56Yx+0jTumvGVMCUSKLWevQ2ttq7QHKhw+zyfOztDVEWUQQq3jj9HdeXpuNkDvYcSjX/v+qHMOl8pcCMAqVgK6/LkmX2AaMgTVkLi0xoQksU7tcuBt7gWAcM113B0oDaYMH9sbOy5yzHwqsrQg3z/tkq9UMslftxzWgCHCNUpgXdPZoFp8/apoNA==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">4AA8C7B7-2F05-4B99-87FE-0C4C040FC653</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RTR2010024N0</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RAJO TRANSPORTES</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-23T14:47:40</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-23T14:47:40</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">TSP080724QW6</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$6,979.18</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Nómina</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable sin aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="64C72777-1DA9-4FD1-95C6-73C05DD41698" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="eWvJD8JRPsWgdXOQLprDQuEjeRFTUYD7BqBDgNqABeOhfABWW4fkcZCs3AX8MFsvedZ2H43rEaTiYhVcZtYr8jAdRNlWmWagfZb395YvWKXHxJlifEw8kafRlR1cl/ck0BLckY6Z5Wm9A/izMBfTwsFPNGB1WS6rmXgxsb5GgFA+s2zLX1CX1cYkBAdn+5mTR2qhdmjSPUqx/zDmA+YNzVYawOPYsbYsvDYgEDK08rqtyP4hO6YyMbSC1lhlOj17oTOaSr1MA1bs1OuCBXQ9fBK8n+rQT3xdUISnEMwjOXyEbm/a6c8hAZpKCXRHP3+xO7SDZnHxrKos7PEI0Enee7B5zEl0pMCHuLbzDnIap9vK8F30R//tissL8ykrzM7s4nINLIYto94XOoClIHdPfkUlBBvc6cWP42/vah1zGfc="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=DdMyZ8kGdTKdDXd5IXnlqhyOnIgXqBEaPeeLeTqef8/5TREXdd0817oa2Kis7mohszvuUSqAmbVwswes7M7Lorxdr+96wueqBgcQrWjlmvwfWqM4b7pwjHmlV8SXbJaoaqpAg1lM0t4ytyKEY23LgdH7P0X2A3NgLCldWD0Lxirmvpj+xXMj/oQupJkvHfEU1dhavEhqy7KGhj9lKQTevHrkoqlCCHI623CmqTjVhIbvziDXd0WctK5RscPpVDSU/4pe9BsnYYYyAZSZPJYUFH4e2Q7/DZTBLRR8qbkQ8g3g617E+PDl1O4Tl+noM3swxKH9QXk4kZHaWklbmQMM7ZrU8JDHL1nem6CfBG1BpfwKLw7DodEJPRI4aMVfg9HuU+/mEJuIoQRpCrKMAnd0ob0pf92v7WOZ8caIxJsb+dSUZ2zCxxzi7QGVCQxNwHxhLzI1cJaX43vljALXtpd/Mpyvxnymm1uYiQtZzC3w44Hi2p2Bb8YJRbeGIQ6IEbkk5rVnEBmvn3Xu2j8PwJ3jNxqDyWu4nlfFuRvU56gtMOLAFXEPClN6PtqdJmvDboON+50pMjBWRLwolfiETNdexPJEHKvaZvxbszf2nnEE+a1eL+SbZYGJzONlbLXWjxLXDsAKMlarJk4I0xwByxXkjA==','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=J1Rc7jQxapVH0Oa8qcSJYGkwefSd2/OrhcHmyBozI8el9k01Bp115z495hJlmRvDt23UpvYZEwTEqGORrJIzhh/Nn0LsRJ+BtT0gkCZLGR/736JtrZMchKzfEPwREdDPRr/Rl7SC6hwiaHqR71P38Tt7D4Ainykn55SU5/MQ+x7i9lmBLX1u4QGXO2pLSNxSXhxO+wOyZZAJyg6bO4QOcAAgNUuO0brynzmypnGWqD8yM+RSWW8mE/Qlz1nVh1E1k3u71196CzTFQWp3V0JaiwLbYZDVFjGO6FnA7h+jslTKaRsKp28ohm0hdPXF6rhzTJaFWTMmz0aB1XePDzOCaDRAv1BElwysjn/hUPIa+SKQSeo9S88/V5NbGZ4x3tR7CWrXngG8tfDifnZ/BWA+3ITBPiCAo5GRbaHfX+k0Z6EWkCHXwLVaSVrXBy8N7IrkBVS/M/HUxkVR6dl3roegP65gqnDNnzM7Axcvza6kjy9W1YhMeGzAXiBvbSopGCJluCQVF3kDBHFZOOFo18AK1mDXdrF8mupL51I0+i0OzjTbVTXs4JeigZsIcojYZ2m2nMFbnGu7wmtaaSJS1V6sOU0Nu09XToDSb73vjXZ5d8g=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('ByTcMiwIiz1JyiB3Amxb8OcILcHJTI27SfAi8LQHNL237CovrDhG2sHLnJtGZSjjf2bxMSpjBi7pylNNWo/QKDkW37sLZDPVcOy1ORj7Hj87j0d/WqXK7TCtzoOKkcW52eQL0yLm4iEQUAroTDUhJO2wanbe4hPoCGnE1KYEWt3VY+aoZpiTFh4+HEK+nm7mKxszY8C5i41iKuu8BEfmmj6KIiZQH3SbW00/R8/kE/j7Nqu6Nhgr4CB/r9xhe8aeFqqLt5QRi7Te2jAF8QCzuIIirOSRmkf8cSW82TicyvsSOXYRGDWbbKtZzscQ7+ZsbFDwP4CKD7idiKNcFc8CjayPp3Nxin9BmfwsbsWEVRplvO8LO/a/ZaPrjVT7maU/gvgm3sZornI32An8qCGqPJalM/NOt7QfNNwBnMwOplf4PXO6pGBLui+7aeq0rettysWjroqtYuOf+ZjG5lG06eMNC4XuOLNipEO3RwwjlYXEScUmvF63qJQOLlckB2CHFoYCoeOrrq+fOnCsEuHWxpXkyQYxNHEvjKnBFEf1ebPTZnnjTUz54+r3DNy1QmeZCw8CURCZmtHnQ/W4QqDKIASihLoHBoqfz4B6YKLH/AcxvNFmF6BQmeVQd/+Ix4ibOsKVIWUERNW0AUNtAP7q0A==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">64C72777-1DA9-4FD1-95C6-73C05DD41698</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">BBA830831LJ2</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">BBVA MEXICO, S.A., INSTITUCION DE BANCA MULTIPLE, GRUPO FINANCIERO BBVA MEXICO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-24T12:34:49</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-24T19:09:08</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">LSO1306189R5</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$0.00</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Ingreso</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable sin aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="97D63FE9-6924-4FE5-B191-770367FF522E" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="CRBMFCSZJRIBL7GQXDOG/qwGiwV5mvQoErYTmxUuwYFKwS4h/UaUqkuVXOF5DX9MH7WXFlMFYjfjKHCGZ2DIELh8TlL5+VVZwcQQORx9ksXESnX6Jnx//9T6fQflxNhhQmsI+/B9MUifG6o8TrDQ93H8Ga3pHB1e6kw+ePbt9DAjcXi55F7JdZ2eZVb+tCmRC2SjKx5zeclOYyDu/FywaMBqK42gWNIuP6tijGbD6SDQalr7V2NccPDrIiVje+WYSbams8bkCsQrmt+EfTH0rQQxH1RTku5OKw8JCja3YjrXjauUoW2clvCCudejgA27BUdZseCc0HqOk0Os8eiE4wk1eaU2FqkiYvw8Svy22fwQkbuL7JbcZlmV3Qja10+7iEdlKxy5WyjBIDWozBE/tjAX2EN5N8c0OlZ9RoX0N80="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=zemym6mC+IK7cA5yCD/VMe4ZrCeR/wgRPtR7SsL8BYKPsDEPhcK8jkDwNA6aLtRLsH6WDa+GNK8rmDE4ZxyBP2g65YUSig0YPkzaKijE2IOGiP2URlAfhZyLoRfvi+eko0eoRBxSkeo9WT0Sxbkmg3LNu08oAUrYb0hI1npkhd0DqwWXMEuDGcwtymUsRjBh7X7mmVVdvybEx8smpr3lKCCnEdfdd4iJIN5T9zLff9Ak9yvJ7VTwF1wzU4ALjgPNDte8SFgT48ekoUZtSRptIoBgJE5BHPJYIlVCLiGZEjp98oCCJG4eS7j+FwyuTXk2ZdmudxI+to9kTWb9D69i6tj9gC/Erudllhbe/0m1M/X4yBNa93xlLkRQPuvA7H4HMFl97fzYgEb2B/l9YIy7BycKVKqVm9aWi3GH6VmVNVPLXSnKRCQhdSGqaqsMe6AGfg/VceqBWp+BDD0776qSOXU9JxOqhEzUgX2r9Bq2Sp1JGydBVWMLp+BiUYStLU5YqwplUP52X4DsgxNsFwMlGXS02PTOvBvntgl5CQ6XKYxndArmLBSSarokRPVFlbjabka80alGygTSTF3zHSfm0YRci9WTqz0FqO7BVjwJNGOpfwyuc9j5BzQS/VVf2OPK+M9AF8E0m1xSL6X9uGg0Ng==','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=GhDrlUZ9KFT7ghhi1aRzaxKkiyFkhteq8s0bKWcUFE9u2FJP3f7Xh10+r47nG8k15CRKPrV5KDFZTRaYq4b3Uw5DJ6VHa+7MEDnzb49TUjCPN6EGX8KUR+OFZ2PGpaq1dWff1rr0cAF3CmMw/cXu0jwKFhdDwGe3GwLdH/eapU7HTGXpCN6FoHTm9xjQgGPLDsgGIySrFeD/6AaTCOOo8G1DfRlNM8zFRvOVfGEo3MfijAAtqG5dZV8ujxa7ai3akHZUFAHGyi08XATEePp2R4Arf92fw/xW7LopNHKpn2XhZOyUsgS3mefYaa/6VzUrX9lnn5bw/VNWi41pc+ftu95SAFFND72wvhPZmGDwKFxgByDsBVsX8HZWVx6ehacH6tIXGQ4/f1s18V6dta2z/aADF3LmZlAYnH1BCTx/h3As1OeXXvXt8y+ufsr3az19qsamM+o7FQH/Co09wLRuFIpRBG+VlvRJHXWQdPL5aGUX/WdcR50wj6QjW56QY3kIejDsztX7w8xOcOL8ubi7H4hFrHoPStftLMhuIO6F3X6jZ6OBqLjAgsPAAI/ynwd16nceqt0Hw8jiQNf5pJ4/yFb5/ClrEW6K0JB/fBW+qnM=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('Zs/j+urEuRFGczQJ5kp7zPD37WFkSaKOto11KZH2syVk0JHs1xDqctuT8XuXUp9co0Hr23e9RqKoSCcerG70r7waRwoJBB9dIBZplR6wntTM2bZ95B7w4e5ph0AZW6g3ARS5xLhrpVJmMpHti3IyRITZbP9DxDYcp1El93y525yKuGvskL9fIcX92/+6BQAGD6I8ZCJ4bL3N/tiPnYe8fdso4JqXm+itaJ460FWZL2nD0t5OBbMjHixUZRrrZkYH0UhVNAfOQelDr1Qqtx1h5f4RDKfEK1grZiol0ILKpxNlQPOT3/20KMCw6/cBTKltbnwcbygKlFnPYEqQFryMZkOGKvcY8+CuxvjmYD7kDNSSbIyT6D2bM+3GWBHv5lev6iMgI5++DAqB6qsNTehyQspNYkhEFdLvY5GJdalA45kTsl798iMtLdCs7J/YsaUwfNNKqtpN6jQKl8NSECZsvstAEi8/2JLLmMwtVmr2blcc5MY9r4cm0EVIyWy6PS2N60UMR+s1fxBPCv7G6BVi7RUHN7l5Sqp5eC0geUNwUuLs3LwfuRx1cknHA3QFOTGSKUs1GCMAHNkc5gU8Kq0Qc5dTvfbYFlIA9Li+/h1duF4sF+RT73Cc9xy9mxB98OlLONeMUjP2OxLiPMxwTTDLeA==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">97D63FE9-6924-4FE5-B191-770367FF522E</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">BBA830831LJ2</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">BBVA MEXICO, S.A., INSTITUCION DE BANCA MULTIPLE, GRUPO FINANCIERO BBVA MEXICO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-27T04:32:34</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-27T05:12:59</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">SFE0807172W8</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$875.21</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Ingreso</span></td><td style="WORD-BREAK:BREAK-ALL;"><a></a><a style="text-decoration:none" href="AcuseDocumentosRelacionados.aspx?Datos=GcwbIV2uElp6pJ4jiPaURZNa07JJL6FlBhsFzDuh/YVEWB1xtdxsnMCrvEvtexDMAiyTUSSxBht6U/AxRWv0KEJXrPC7c0m66GRONR0H4tfNTbDNqtrR0n0gSLAN8j2olP6dyJMmVDmURxfnxdFaR0WDDojtE3Fl+9bxnA98P0mrd15oZvm3/FymPmleB5w9tYKEIJ7N1JES7h5kKi1Y1vngJL4n/1xMVHui+vyCYmg=" target="_blank" "="">No cancelable</a></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="B478575A-B507-4F38-AC1E-D70C21EBF1A2" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="GOk+J7hwxOZWfqxYDSYoa/UY8xRv5blGNoFnfkjntC0cfTdLim9+BTGShHY/FizvM/TxLw79XhzmxGo8bYVVSaa36wam6VlEJyj8cwliD5BVsya9wzpylvf6ADP3UwkpOkEGV0gtLqzGiS3ifmPYV759WIvdLuM8hXij08btEI7xFhmPMg6P198z14ljF0vr/bS5lzfhavz26BVLSzxRP1yApcPjxCx9e/0HvgB3OiQBSabIV2bsUJhRzluZkNyEDNkMzOfTVwCGN9jj7h0dB6+oG9jiasq/ElKn9tEEhvycNiJdpB3PwkCQ7qUqyXlzCP0nRJVZ15rSnw+x5yR80slReOnNVIsfMD52Qv7dlnoffKAs7+TVqQLx8QzXu1lqPlotAZlm5jxyMt+voZiaxz1Iek2lJRrF3t4KswudIPA="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=4YQj7zh/ydMRQKXiX3if6quAAIpma3sqQbfBxP1a1WlOYJ/S6UqrZNsw3NX5Z3Px776dVyQFhXXfe5dfpKBBKKIJOxrvcE8Hlancnws+yNi0FqGyS+NschLb6dIfQZqrUn360Dy/WI6HJh0Bxo3uqHabP4+P2BUCCfhpQb8b/DBerV2actjR2WXk44kSyT5EsqknAJAV0fdRg2PgqUVqWmNR/qAuuIkwvFVeUJsdkvQyN5j28Cde755325wqeYF3kiX7bQT9YgGFKeLckYAod5GpXAT4m1rd0376eu9VvQKtfv+Z5G6Ax1mT6FVngIxwUVi9QvOMyATTMc8b0zh9LjvDfZM8z7U3+zqcBkz2jfaCvoFrqjxpdqUCBvVJ12TvsKmHMh26zQkBAA9GhezwQNvPp7fnNgjAGc9kIM27Q+MQa7rqb/UdRTlW+WZDJTmvHIPzz8gXYXVD81trHtVmteulKUyqKm0xMiGPA1Frhoz19vvw8HiYWC8RhXrMXH4SY+MKbzD/YEyIzarnCEk6FQxJvKYttwFFjCpRR5IcoKY7muUeZAbj3iHVt1J8UO7+YoVBUvo0OCEPbB/0jWX9wywcIWW/JU6cxvOvmPB9vQm4OtQStHCd4LvpbHk3Q0Uqcr/huyb1xVSAgpzPQtFgWg==','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=R8lcfoAQdXvNIMe15hFfZi+1BKbi8ms4RvYLfzcaL7R9sHmTmJJZfvcFTXVY7Q1rmKyx6bFA+36PSJFMBUDCoyG7jJdWu92O7MPpCnSJF6C6Vv6P58i34twxA9TiEkaItROXLKafLrCnhnvw1NWUBeTkzMaklKpgHPPvKhpEGNTYMs5q7PrTaM04Kp5Dvq2V0b8ilgWN88tEJKjrpmi44aAOb7HaeRqqod4QvpbQUu8wGFqtMbOgV6GHRhOZFvF73axG1iuNJOoLAxApQ8d8fniEPixMbqtVX9HI3WqwJAO8elPBcAtJII8npUCCn6V2QpmX8Ce4GyHVJr3CaNLXoSE6tTjMz7f9CGXgKEdHfOiBqdU/FWZgbaHqs8fBEytniuskkFijNuWR8nGANlxDuK1xkukkbkAzbc4Yob4ASvlyITT+cbepOpuXSbzl3ha+1VJezSDck6TLUtRWNvR+RH34NMqfnq+OAWYFJ7CjxqcKdB3AJ1Jxw7y7TdznKWx7brU9coh6vng9TV+98/cHFK2gZ4Ces0QUTiSiiBCC4GEw7WSZm//bdtuq/ts6avtLvqXDIKMr1/YHyxAPwWqaEQN60hU8jdTbVvspDVnQXHQ=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('6rRez4SPmbNafHx7Yj60EZN1EkRShlPdrAD/CrUMwQ9r1RfWhcMGQYF9ML8paarCIy6hPkyrIwRaQn4yr0Oin0Ln77ram/4Iqpbc3T6BCntLL3dxvzx/ogrFoaCnaO1XnJP3cZKmsmBBkDYVaTcPPp47Q824z/sdcz7K4OIW/5H3EM4OH7arw8fL80vmJc/4x+MABSWyubbBF4eqo7yC0HtM108udpv4tNqoq3zuxO8IxMrTBUWO3Jq0JgJp3IH24/MyjRmfhzqhwGs3F/RmQnFNoWdmT3m8kFst+8nI/9fAw+nEKRMWGYaZbhu22E/j7u+HLbI2urAkIjHnFBcdQOvAGqavpzml8Q5LjbP+a29lBJ8/a9iLof1MIjDLfAYz3Rf8PaEWy76u/sl6YrlRL+tBOVI5kBI5UGEMGTdBTtUU2eUQ9cQlGpmyGiwEtnl7YjqAihYE3m+YYBpBbLnivdg+VR1z0cHYTgXwPFuSa8bePuIrheruySXZOr1RZ/LewxIz50EtaKyZ4bHl1G1jPMUYmY7eSCMNe+ucOwgmbDq52gB9DPiULkhj1+pzL3Ile+dOFf9Vo5gIwGwznH0WuLhdde0FFyg+KbKqTBn1ZbQrTbHzdaqUcceah1JbDinrDk5RBLPVLvNG3P2rlZyhjg==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">B478575A-B507-4F38-AC1E-D70C21EBF1A2</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">GNP9211244P0</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">GRUPO NACIONAL PROVINCIAL</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-27T23:59:00</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-28T05:50:44</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">ASE0201179X0</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$0.00</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Pago</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable sin aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="6D037C08-12EC-4F1D-A0D1-B9EF7C438096" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="U3pZ+7HnT9DgnAAlT+jPBokZldZQBruaR4ccfP8CbuE0KJRPDz1l6jqjFf8lw7T/ewoqsEMW4TFEneogrEXtGx+9Um3t538XkFOocKeuXmqQQvPU16C/OBPpkkuzVG1O1n2/ZEz9zzrj0I/OiUFmWpuf/fyD9pZDWsZ5y7pRmijyafQvE1FpzqiGBl4eB+ywkehxSWIJBsuAeAcAyCR0XKxX98z6+dWtjR7NaowsCLUivcIApcJ5uKSVtMYCKwtFtlQrqs0912LjnQR2H+ZHC4zMMTR+HvA1BPLvkyz2dycIH0WIsdtL19fDsG3KG8IJLgjxJFrOMXKFuc162LOqu3jvfg+B0BE292aVfJqryarhfuNsUb+vACI2xEcoBCj17Iw5Ndq/SbXTsTzhR/TeoOa/npjn/YvYY9g2nRVjmlg="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=hb9H2GwERFEM1DYYTBRpzjzx+G9Xn8fQsj4+K7nCWjBBpHV5+lzQd+pIn8r1a4WBD8D5xnS0ruQbl0iLh74x7x5UJUqNciIrGjrreS4LlpUfLlkuX9pesWWjgiXHqrWF1h/FYt1jUvTjNivpj+pI5MiHCMRSKubu8/Cm8uzYD3bdO/VF/j4fF0EtvCw/tIcC6ZPUKUgCZOBZMynLikMgu5Bf7zXdEQng6SbgcOZYvbJHY2QLZAmOcgqYIcmkN/u7eyz5d4RcmBHQoqGEmEquURzOlDOuklYegzBAqqXYQVqI/uThly+Wahi7r8OqCFDrFFrRWJvsrZUGFKC9w64vjh59/QNOjpH8zXI9iPWl4CWP8eOUdaxykw7cI3PST8oqLy434BtEs5+BxD4Xu9QLLnXGMpz/xbOKy9dHSEQuIZeKG7SuWI6LT30yjX5rcGSYzzGGZjFOMj3BLfUTSHWgwEBj9rPdg8wpIiLQMPzoY/U8TSwh64zdNGJHmCj7BiTawEEkJ7g0hFDytYZYPr7QIMo2sSVURzX9PumQCFo7YLMSAvJvRu7FREk8Ou1YC0xQaEq6VWmkzpsNzMFoCN7ofVlMIs5qGQ6+ZoWxXQn+KNJsTIW8ixjof8uIGmaXVQ/tHB2Bg6AGushKez7/5uC/ew==','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=jiNrzoFAn3ptX84Mg5aRj4g43y0IibHS8v0LH1/zou319+rlnr0uIKcuDmEyiX2sO3RaPJMDn+OK/LgobtbWANvvcWh+y2SF214w5LbFKFL+SM954L+E/CXjyj5L8JQOJyAJSNFy/elrrcs2RW2krDlYQ+BmOsEBMT9Z0DrZrnsX9cP4gu4bigbOlMtiyCTsctaStMOVqaFZU1WcC+KoL0pct/fXtcQHSk6vvJzE3fKEArtXNN53IQW5PgY1fRkAU1BLhyHGb4ARE0MFo5TdioYfngooke/v7rbsipSWdJviuuwrDDtsWmpAUoT9e0ivf0hlZeMHgkEk633K1idsbrJpZQyGOnXwBIwi8B5KRW9Owj5v99QUKhTdMfxBjPwjGovH0gL3AtuqvmeMiU8H8TIb9fhICevlQOlhMXTH1+cEbp59r6M08z1qBzcK4N+lrs5XfSFkTm0pIpRN4rKDWdznwU1y1QAeyZfPgO1jkFS2ZK9rON92tRMOw2Pe85bHpHg2IKSn8bAeZebivvVNoLjNnr8kkH1GDrEvNxjNTZ4FLrNu8ABzXVPDvO4B6xcLxqEHrrCxZ+2xH5U4qEK2EOFgUC28vQ8WJ/6vKonLilQ=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('wbo7bxDHtDJ9p7sz8JenrzE5c5Yjb3qtqNjUUO1l8uNKyboSmXoDK8N+CpX3pPwC8JsLj9BnkTrqd/9Ey+GWykXgJqW3RkQ5cixhAIbothAqvxC1jUfwSk9EHsjHH2XmOjq0NMyQbfKLWQrarFX7v7ZxxGhZbEx72d2nDCW9uAnEcCu77BpYqqw/xQyw+UjRIWHIKUFOo2B7qrLdvhaAKVkXkIuCOXwA5hIQk3IRTMka6USOwpYzC4iKakKzsw1aA/vkNYAXzcxVbzTR0yhm1l0VQvWeTR2kh/Dr3BZ9hQnvGTB8OLs0vGxJWRJCRkTN8xDQTaTinY1hibAqoDa4ODrF3/XrdvnVCNh6AObOFCohAX1KaYq0eWZZjDtpn871SV4pS7k0SYhRMCwHt2l9GD/x69ESFybig3A1KJY/hy1pESQD1TdK/5zcjbW3ONnQbbOeK9PYXRsj11HnL6z91qcP0N9drHTAHGYNzK6aJ07jwXqyrIwF5wHLhMXH7mvEgKbuNHIQWqnU4igsHD+D4c0hyylLma4rm58PmZUtHVAQev5HmuwhBQjTaarfp7h5DI0wpq3y8Z0+No6WdHCBUoUYPTB2hbBx5huvnBbNJuos8Qzhaj6vRMFBWI1GWC1w/sEbUTx0VGzrCQtOlE3NDA==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">6D037C08-12EC-4F1D-A0D1-B9EF7C438096</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RTR2010024N0</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RAJO TRANSPORTES</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-30T23:59:28</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-30T23:59:28</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">TSP080724QW6</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$6,979.18</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Nómina</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable sin aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:center;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" value="F95D003A-55EE-47B5-A8E7-81FFB8C18920" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="gYJOOKS4sVyAKhz119qLwCM02qNFDj2Mvjmbz2aR6C44nxJU/d2bKX6sG2JlOt/kER7fS7vkK0i9ZS1BBuLShmbF9xtdn3U1QBdFaaMKQBKtET66H5b14aRabe/lz4VNIFhoNkB5iaCrrJJxMVEA3UZ1V90n1zbltqE9ddHhFrLBlY6M3cniK3OvgvUKwWq8xwO6aVSTDAXolmmFxCYT5i53Opc71PwsqVLslfvHPFEB/i2ScmKcBVMUvAx41SqbwRHyi5r4Xmb+efkCC2zsBsQig0Y7jQDQfBIl+cBvxAoN6+LkI41LCaGnp+SrR8JOK1q9yYtMjWZ+5uzKNAUmrsJwrTNY2X3rUZVPyiJLQsr+hNL/DGqwxmgXgawwc9ilg1uvGMy92dj6sgxv6JQiuuhs+cVmw4F4ZsJ652DuBR8="></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=Qs63J2dDWrVVJl0jcmPrAzVYA/Kj4RnjyEGr8WkNQmJQwzN/JMdNgwCr6nRwgyl7Sj2dvJCmcP9Al3h48j3Tbu1VRFrjdOIK4p6Li/BUdbsn5AKP5ZuHAP0+2WN3QnfHfgDz1kvTr5mBzbGvt3l2B4UL3HYjAl34DKHGzRFOjY8h85liEqKf5oBOrZsHCGI7UZ5nJqh+UtXOF9a2NKoM/QV+njk+YD3XcLaxE6EsPfahtNsSuzakbfM5TeJtvg5vJ+3UhDq7ZroB8q3SbLiH6rvG/MaP7/3o3pvd5Go3HOUEIwKOSG2LrXrr8KA+v+Kahm9fs5sfHd8u2eIZLxMelcNszbr4guL/LNsdLzeRrTzfzlo8s1+j5YJo7zdSu/zWjMgWJNdJLf4r9UFHcDAQc27jqzj3YQG6rrg0MhclyYDw3faIa3Q1qhA2V5gshZOEwiG3CMzUvMJeWzrFazkYnruFMRzqV1YS4mSE77WLoCo2gNNEAo8+0ToDAPpR/rleQ4NdCPP5OK/8Bxn2ICmjOcFyZ1yeoWgpDYOuVBffnyA1f3o+VgYIHNqB8daXPvmECxEnweVQJ219V82zR1Ys7yCbCtIjdx6njk37Tl5tgdDnzMPJ23sk5S+QS7Xe3RdwrmJQqt3qZV0jIBBeRr0+1Q==','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=sE2ieOMp9txCC2WmHJhHnBamEaYwNi981GH+gVvlUnBSmw2tVNuUMrawQ2KKPjxl8HXep4/ZmIKCDFKazBVL+EqRgmD7JhENkYXwmY2YxgezL/y2VsKO1qGGswoY58zbpOVqzvWWrT8UX5Vfklt67m8J7p2hWqf0V0nMACDErGgddLMvsC91Teci/1Do6Tneki6va/Dn8Bg8slVPzkX98SPc9jXe7GR4BuW3uBhFO7VOy/DyXs+rMyBvovf5v59imOP/QWdPE2veHZdkihZlqwanxxmGMJ8CTXldsfraui5q+JSFdOQVAqErxloyONtljGY+2CQsvWcP7Qb3c5FMvyQ593ka9rMPyyHazWj2if52EAbXTSz05byddz+QlfLGHg4uzQv/Gf5gDeCMUyrwl2x/efkmXhCRAM8AbWPEZnxZPGnfj/BSoVEecSdt36BrwVHCjaUydp+NztGnFxVs5kEuc/K5VQxvxtK3yDEER+VDBLBFGxXsGpiYzDeP29i3buqHYwb/J1Pgh/pyWlrvGfjIugftulPe2OltEzNY5/5Q6DJcILibZdfWATaGXKOaq8Fe+BZs4El6BVr2g+VoW2a6qh0TuZ8pSgDbxz6lYtk=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" src="Images/RI.png" height="25" width="25" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('zNzG1OmcUxOpfOjNG5NWcP9oO4Rd9gAvjR/ffqP1vH6cGt1/fTKwgPQUEPsiNfwgdnr3/ccQMygrpr6iu2J+AOC6EHfXickVURbdU/ap1Ge1y71orfdTFmTAsBr07M1SJ/aubATL1XfCx1/ApRRI1dowCYWiwAO4bsc/+WEOrBIxADUve0DE4TEafYOiva1MOd0uG3T/iU04sv9mnQikehlvAZr0JY0pdKOYLSSM1AAyxCrnKjFgOswNMfQM272qu29XF8t9PpPLPXxGRGTqxDgbc8YAzKMAOTu6Ug4xyjFIeLG+i2Pu7nJ5f2AOVSKQTXM1QkuEtqz6eHlepu/CEfbrt3xWdWyMm8eGsY0TggqYQALp+PPZVZaUidsn9w5YmYC21SvNpuVDg/Ka50f+AaAdPqgwOLl/wBhEE4OwB6aQus5woyI2XbCDVhKGduJ2g/5Zs343WhI3tXbn4Z2NSDWYqLJtuFRv5XrXZQ1jZWczjXOhe0V7Abh1Mk5dSE1xXbuaCxXcsg+n8ZLpAQFQdDOnYOGeL626I+kMRqTUvpTS82s6aTZf6dZkoqGqH7ML6OXE/XY7RdPhKqslM9G20uHLhJusgClG7MfekZj3lKHY2lOsbx/UaghpvxPbHmmr5LlY2Wp5Pp5G6Y6af1sfXg==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;">&nbsp;</td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">F95D003A-55EE-47B5-A8E7-81FFB8C18920</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">BBA830831LJ2</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">BBVA MEXICO, S.A., INSTITUCION DE BANCA MULTIPLE, GRUPO FINANCIERO BBVA MEXICO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-31T18:55:03</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-01-31T22:00:47</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">SFE0807172W8</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$0.00</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Ingreso</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable sin aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr></tbody></table></div></div><div id="ctl00_MainContent_pageNavPosition" class="form-group"></div><br><br><div class="form-group"><div class="btn-group" style="padding-right: 25px; float: right"><input type="submit" name="ctl00$MainContent$BtnDescargar" value="Descargar Seleccionados" onclick="return validarSeleccionDescarga();" id="ctl00_MainContent_BtnDescargar" class="btn btn-primary"><input type="submit" name="ctl00$MainContent$BtnMetadata" value="Descargar Metadata" onclick="return MetadataDescarga();" id="ctl00_MainContent_BtnMetadata" class="btn btn-primary"><input type="submit" name="ctl00$MainContent$BtnImprimir" value="Exportar Resultados a PDF" id="ctl00_MainContent_BtnImprimir" class="btn btn-primary"></div></div><br><br><div id="ctl00_MainContent_pnlLeyenda" style="height: auto; display: block; padding-right: 25px; float: right; padding-left: 35px;"><span>Importante: Para cualquier aclaración sobre el contenido o estado de  los comprobantes listados, favor de verificar directamente con su emisor.</span></div><br><br><div class="form-group" id="dvAlert"></div>
+                
+</div>
+                <br>
+                <br>
+                <div id="ctl00_MainContent_PnlNoResultados" style="text-align:center;display:none;">
+	
+                    <h2 class="subtitle" style="text-align: center;">No existen registros que cumplan con los criterios de búsqueda ingresados,
+                        intentar nuevamente.</h2>
+                
+</div>                 
+                <input type="hidden" name="ctl00$MainContent$hfParametrosMetadata" id="hfParametrosMetadata" value="G4sTsGxSbbjDTSOViaMYq7iTAbQh1RI+SqpFylhs5ZyjEKQbT7r4BSVG37s/Vvi/0vJvkmX3U9LW3xpDtVE7z6T42shhuHWDwKJwTw1cTc5+EMB5btJzeD0Y2FZ6oBAHgmQuT+73QCSsvb/phR5cM1EXt6jKwcb0hzmWibOgpxJVqL2kogvWj6OrO4UqFuzrAV4pTWO/PTusKkXYX9DoVOquwLJN7PY7Pwem/K4Ijrqj7YkNQQ3RujDbVrpzM++MxBuVS5IsnxooScL7iVs7CWHMpM6UPad6f31YpYbAXEA=">
+            </div>
+    
+</div>
+    <input type="hidden" id="hdnValAccion" clientidmode="Static">
+    <div id="ctl00_MainContent_UpdateProgress1" style="display:none;" role="status" aria-hidden="true">
+	
+            <div class="progresofondo">
+            </div>
+            <div class="progreso">
+                <img src="Images/ajax-loader.gif" style="float: left; margin-top: 5px;">
+                <h2 style="width: 250px; float: left; font-size: 12pt">Espere un momento...</h2>
+            </div>
+        
+</div>
+
+    <!--    Modal cuenta a terceros  -->
+    <div class="modal fade" id="modalCuentaTerceros" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">RFC a cuenta de terceros</h4>
+                </div>
+                <div class="modal-body" style="max-height:50%;  margin-top: 10px; margin-bottom:10px;">
+                   <div class="alert alert-danger" role="alert" display:="" none="" id="divErrorTerceros">
+                            No fue posible obtener la información de los RFC a cuenta de terceros
+                    </div>
+                    <div class="clearfix" id="divResultadosTerceros">
+                        <div class="container">
+                            <div class="col-md-4">
+                                <p>UUID Consultado :</p>
+                            </div>
+                            <div class="col-md-8">
+                                <p id="uuidConsultado"></p>
+                            </div>
+                        </div>
+                        <table aria-label="Cancelaciones" class="table id=" tablacancelaciones"="">
+	                        <thead>
+		                        <tr>
+			                        <th scope="col">RFC Tercero</th>
+                                    <th scope="col">Nombre Tercero</th>
+		                        </tr>
+	                        </thead>
+                            <tbody id="datosTerceros">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnAlertDCCerrar" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+     <script type="text/javascript" src="Scripts/Jquery/jquery.cookie.js"></script>
+    <script type="text/javascript">
+        /// Variables
+        var validCookieInterval;
+        var validSesionInterval;
+        var downloadCookie = 'DownloadedFile'
+
+        /**
+        * Función que muestra el update progress y crea 2 Intervals uno para validar que la descarga del archivo 
+        * se haya realizado y el otro mantiene la sesión.
+        */
+        function ShowProgress() {
+            validSesionInterval = setInterval(function () {
+                MantieneSesion();
+            }, 60000);
+            $get('ctl00_MainContent_UpdateProgress1').style.display = 'block';
+            validCookieInterval = setInterval(function () {
+                if ($.cookie(downloadCookie) != null && $.cookie(downloadCookie) == "OK") {
+                    $.cookie(downloadCookie, null);
+                    $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+                    clearInterval(validCookieInterval);//delete interval
+                    clearInterval(validSesionInterval);
+                }
+
+            }, 2000);
+        }
+
+        /**
+        * Función valida que al menos este seleccionado un registro. 
+        * Se toman los valores de los registros seleccionados (blobUri) y los guarda en un hidden
+        **/
+        function validarSeleccionDescarga() {
+            if ($('.ListaFolios').filter(':checked').length == 0) {
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-info alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong> Favor de seleccionar registro(s)";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                //alert("Favor de seleccionar registro(s)")
+                return false;
+            } else {
+                ShowProgress();
+                validarDescargaMasiva();
+                return false;
+            }
+        }
+
+
+        function MetadataDescarga() {
+            $('#hdnValAccion').attr('value', 'DescargaMetadata');
+            //ValidaCaptcha();  // Se habilita cuando este captcha
+            AccionCaptcha();  // Se quita cuando este captcha
+            return false;
+        }
+
+        function DescargaMetadata() {
+
+            document.getElementById('dvAlert').innerHTML = '';
+            ShowProgress();
+            Metadatos();
+            return false;
+        }
+
+        function Metadatos() {
+            var urlValidaDescarga = "ConsultaReceptor.aspx/DescargaMetadatos";
+            var Parametros = document.getElementById('hfParametrosMetadata').value;
+            var data = encodeURIComponent($.base64.encode(Parametros));
+
+            $.ajax({
+                url: urlValidaDescarga,
+                type: "POST",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: "{'Parametros':'" + data + "'}",
+                cache: false,
+                async: true,
+                success: function (respuestaValidacion) {
+
+                    $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+
+                    document.getElementById('dvAlert').innerHTML = '';
+                    var newDivSuccess = document.createElement('div');
+                    if (respuestaValidacion.d.startsWith("Error:")) {
+                        newDivSuccess.className = "alert alert-danger alert-dismissible";
+                        newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Error! <br/></strong>" + respuestaValidacion.d.replace("Error:", "");
+                    }
+                    else {
+                        newDivSuccess.className = "alert alert-success alert-dismissible";
+                        newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Descarga realizada con éxito! <br/></strong>" + respuestaValidacion.d;
+                    }
+                    document.getElementById('dvAlert').appendChild(newDivSuccess);
+                    $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+
+                },
+                error: function (errorDetail) {
+                    $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+
+                    document.getElementById('dvAlert').innerHTML = '';
+                    var newDivSuccess = document.createElement('div');
+                    newDivSuccess.className = "alert alert-danger alert-dismissible";
+                    newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Error! <br/></strong> Ocurrio un error al procesar su solicitud. Por favor intentelo más tarde";
+                    document.getElementById('dvAlert').appendChild(newDivSuccess);
+                    $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                },
+            });
+        }
+
+        function ValidaCaptcha() {
+            $("#ventanaModalCaptcha").modal("show");
+        }
+        function AccionCaptcha() {
+            //$("#ventanaModalCaptcha").modal("hide"); // Se habilita cuando este captcha
+            var accion = $("#hdnValAccion").val();
+            if (accion.split('¬')[0] == "DescargaMasiva") {
+                validarDescargaMasiva();
+            } else if (accion.split('¬')[0] == "DescargaMetadata") {
+                DescargaMetadata();
+            }
+            else {
+                var uriblob1 = accion.split('¬')[1];
+                validarDescargaUnitaria(uriblob1);
+            }
+
+
+        }
+
+
+        function validarDescargaMasiva() {
+            var urlValidaDescarga = "ConsultaReceptor.aspx/ValidarDescarga"
+            $.ajax({
+                url: urlValidaDescarga,
+                type: "POST",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: "{ id: " + $('.ListaFolios').filter(':checked').length + " }",
+                cache: false,
+                async: true,
+                success: function (respuestaValidacion) {
+                    if (respuestaValidacion.d) {
+                        respuestaValidacion = respuestaValidacion.d;
+                    }
+                    if (respuestaValidacion.Codigo == 0) {
+
+                        var folioUriDescaga = [];
+                        var descargaMasivaUrisModel = {};
+                        var indiceFolio = 0;
+                        $("input.ListaFolios:checked").each(function () {
+                            var folioDescarga = $(this).val();
+                            var uriDescarga = $(this).parent().find("#ListaFoliosUrl").val();
+
+                            folioUriDescaga[indiceFolio] = { Folio: folioDescarga, Uri: uriDescarga };
+                            indiceFolio = indiceFolio + 1;
+                        });
+
+                        descargaMasivaUrisModel.FolioUriList = folioUriDescaga;
+                        var data = encodeURIComponent($.base64.encode(JSON.stringify(descargaMasivaUrisModel)));
+
+                        $.ajax({
+                            url: "ConsultaReceptor.aspx/Descargar",
+                            type: "POST",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            cache: false,
+                            async: true,
+                            data: "{'param':'" + data + "'}",
+                            success: function (respuestaDescarga) {
+
+                                $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+
+                                document.getElementById('dvAlert').innerHTML = '';
+                                var newDivSuccess = document.createElement('div');
+
+                                if (respuestaDescarga.d.startsWith("Error:")) {
+                                    newDivSuccess.className = "alert alert-danger alert-dismissible";
+                                    newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Ocurrió un Error en la Descarga! <br/></strong>" + respuestaDescarga.d.replace("Error:", "");
+                                }
+                                else {
+                                    newDivSuccess.className = "alert alert-success alert-dismissible";
+                                    newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Descarga realizada con éxito! <br/></strong>" + respuestaDescarga.d;
+                                }
+
+                                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                                $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                                //alert(respuestaDescarga.d);
+                            },
+                            error: function (errorDetail) {
+                                document.getElementById('dvAlert').innerHTML = '';
+                                var newDivSuccess = document.createElement('div');
+                                newDivSuccess.className = "alert alert-danger alert-dismissible";
+                                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Ocurrió un Error en la Descarga! <br/></strong> Ocurrio un error al procesar su solicitud. Por favor intentelo más tarde.";
+                                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                                $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                                //alert('Ocurrio un error al procesar su solicitud. Por favor intentelo más tarde');
+                            }
+                        });
+                    } else {
+                        $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+
+                        document.getElementById('dvAlert').innerHTML = '';
+                        var newDivSuccess = document.createElement('div');
+                        newDivSuccess.className = "alert alert-warning alert-dismissible";
+                        newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Precaución! <br/></strong>" + respuestaValidacion.Mensaje;
+                        document.getElementById('dvAlert').appendChild(newDivSuccess);
+                        $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                        //alert(respuestaValidacion.Mensaje);
+                    }
+                },
+                error: function (errorDetail) {
+                    document.getElementById('dvAlert').innerHTML = '';
+                    var newDivSuccess = document.createElement('div');
+                    newDivSuccess.className = "alert alert-danger alert-dismissible";
+                    newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Ocurrió un Error! <br/></strong>" + errorDetail.responseJSON;
+                    document.getElementById('dvAlert').appendChild(newDivSuccess);
+                    $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                    //alert('error occured');
+                    //alert(errorDetail.responseJSON);
+
+                },
+            });
+        }
+
+        function validarDescargaUnitaria(blobUri) {
+            var urlValidaDescargaUnitaria = "ConsultaReceptor.aspx/ValidarDescarga";
+            var dataParam = 1;
+            $.ajax({
+                url: urlValidaDescargaUnitaria,
+                type: "POST",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: "{ id:1 }",
+                cache: false,
+                async: true,
+                success: function (respuestaValidacion) {
+                    if (respuestaValidacion.d) {
+                        respuestaValidacion = respuestaValidacion.d;
+                    }
+                    if (respuestaValidacion.Codigo == 0) {
+
+                        var opcionesUnitaria = "width=5,height=5,scrollbars=yes,menubar=no,status=no,directories=no,location=no,toolbar=no,resizable=yes,titlebar=no";
+                        window.open(blobUri, "RecuperacionCFDI", opcionesUnitaria);
+                    } else {
+                        $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+
+                        document.getElementById('dvAlert').innerHTML = '';
+                        var newDivSuccess = document.createElement('div');
+                        newDivSuccess.className = "alert alert-warning alert-dismissible";
+                        newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Precaución! <br/></strong>" + respuestaValidacion.Mensaje;
+                        document.getElementById('dvAlert').appendChild(newDivSuccess);
+                        $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                    }
+                }
+            });
+        }
+
+
+        //Se agrega manejador de evento para cuando se termine la llamda del UpdatePanel
+        Sys.WebForms.PageRequestManager.getInstance().add_endRequest(endQueryRequest);
+
+        //Funcicón que Forza la corrección del renderizado de tablas en IE9
+        function endQueryRequest(sender, e) {
+            var hfInicialBool = document.getElementById("hfInicialBool");
+
+            if (hfInicialBool.value == "true") {
+                var ddl = document.getElementById("ddlComplementos");
+                ddl.selectedIndex = 0;
+                ddl.disabled = true;
+            }
+            if (hfInicialBool.value == "false") {
+                var ddl = document.getElementById("ddlComplementos");
+                ddl.disabled = false;
+            }
+
+            CorregirTablaResultados(document.getElementById("ctl00_MainContent_PnlResultados"));
+        }
+
+        var rfcetiqueta;
+        var rfcvalido;
+
+        $(document).ready(function () {
+
+            var hfDescarga = document.getElementById('hfDescarga');
+            if (hfDescarga.value == "CuotaParcial") {
+
+                document.getElementById('dvAlert').innerHTML = '';
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-warning alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong> Estás intentando descargas más documentos de los permitidos.";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+
+                //alert("Estás intentando descargas más documentos de los permitidos.");
+            }
+            if (hfDescarga.value == "CuotaCompleta") {
+                document.getElementById('dvAlert').innerHTML = '';
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-warning alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong> Ya no puedes descargar más documentos, espera hasta mañana.";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                //alert("Ya no puedes descargar más documentos, espera hasta mañana.");
+            }
+
+
+            $('#ctl00_MainContent_BtnBusqueda').live('click', function () {
+
+                $("#ctl00_MainContent_PnlErrores").empty();
+                $("#ctl00_MainContent_PnlErrores").css('display', 'none');
+
+            });
+
+
+            $("#ctl00_MainContent_RdoFolioFiscal").live('click', function () {
+                validaRfcAutenticado();
+            });
+
+            $("#ctl00_MainContent_BtnBusqueda").live('mouseover', function (event) {
+                validaRfcAutenticado();
+            });
+
+            $("#BtnImprimirVisible").live('click', function (event) {
+                validaRfcAutenticado();
+            });
+
+            $("#ctl00_MainContent_BtnImprimir").live('mouseover', function (event) {
+                validaRfcAutenticado();
+            });
+
+            $("#ctl00_MainContent_BtnMetadata").live('mouseover', function (event) {
+                validaRfcAutenticado();
+            });
+
+            $("#ctl00_MainContent_RdoFechas").live('click', function () {
+                validaRfcAutenticado();
+            });
+        });
+
+        function AccionCfdi(blobUri, argumento) {
+            //if (rfcvalido) {
+            MantieneSesion();
+
+            var event = window.event;
+            var opciones = "";
+            if (argumento == "Detalle") {
+                opciones = "width=5,height=5,scrollbars=yes,menubar=no,status=no,directories=no,location=no,toolbar=no,resizable=yes,titlebar=no";
+                window.open(blobUri, "DetalleCfdi", opciones);
+            }
+            else if (argumento == "Recuperacion") {
+                validarDescargaUnitaria(blobUri);
+            }
+            else if (argumento == "Acuse") {
+                opciones = "width=5,height=5,scrollbars=yes,menubar=no,status=no,directories=no,location=no,toolbar=no,resizable=yes,titlebar=no";
+                window.open(blobUri, "AcuseCancelacion", opciones);
+            }
+            if (event.stopstopPropagation) {
+                event.stopPropagation();
+            }
+            else {
+                event.cancelBubble = true;
+            }
+            // }
+        }
+
+        function consultaCuentaTerceros(parametros) {
+            var urlConsultaCuentaTerceros = "ConsultaEmisor.aspx/ConsultaCuentaTerceros";
+            var Parametros = parametros;
+            var data = encodeURIComponent($.base64.encode(Parametros));
+            $("#divResultadosTerceros").hide();
+            $("#datosTerceros").html("");
+            $('#divErrorTerceros').hide();
+            $.ajax({
+                url: urlConsultaCuentaTerceros,
+                type: "POST",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: "{'Parametros':'" + data + "'}",
+                cache: false,
+                async: true,
+                success: function (respuestaStr) {
+                    respuesta = JSON.parse(respuestaStr.d);
+                    if (respuesta.Estatus == 1) {
+                        listaTerceros = respuesta.ListCuentaTerceros;
+                        var contendTable = "";
+                        for (var indice = 0; indice < listaTerceros.length; indice++) {
+
+                            contendTable = contendTable + "<tr>";
+                            contendTable = contendTable + '<td>' + listaTerceros[indice].RfcACuentaTerceros + '</td>';
+                            contendTable = contendTable + '<td>' + listaTerceros[indice].NombreACuentaTerceros + '</td>';
+                            contendTable = contendTable + "</tr>";
+                        }
+                        var params = parametros.split("|");
+                        $("#uuidConsultado").text(params[0]);
+                        $("#datosTerceros").html(contendTable);
+                        $("#divResultadosTerceros").show();
+                        $('#modalCuentaTerceros').modal('show');
+                    }
+                    else {
+                        $('#modalCuentaTerceros').modal('show');
+                        $('#divErrorTerceros').show();
+                        $("#divResultadosTerceros").hide();
+                    }
+                },
+                error: function (errorDetail) {
+                    alert("Error en la consulta de terceros");
+                },
+            });
+        }
+
+        ////Función que maneja la seleccion y deseleccion multiple global para cancelación
+        function manejaseleccion() {
+            var s = document.getElementById("seleccionador");
+            var estado = s.checked;
+            $('.ListaFolios').each(function (i, obj) {
+                obj.checked = estado;
+            });
+        }
+        ////Función que maneja la seleccion y deseleccion multiple por elemento para cancelación
+        function validaseleccion() {
+            var estado = true;
+            $('.ListaFolios').each(function (i, obj) {
+                if (!(obj.checked)) estado = false;
+            });
+            var s = document.getElementById("seleccionador");
+            s.checked = estado;
+        }
+
+        ////Función que oculta los panelers de resultados 
+        function ocultaResultados() {
+            $("#ctl00_MainContent_PnlResultados").css('display', 'none');
+            $("#ctl00_MainContent_PnlNoResultados").css('display', 'none');
+
+        }
+
+        ////Función que invoca al metodo de recuperación de acuse.
+        function recuperaAcuse(datos) {
+            if (rfcvalido) {
+                MantieneSesion();
+
+                PageMethods.RecuperaAcuse(datos, onRecuperaAcuseSucceed, onRecuperaAcuseFailed);
+            }
+        }
+
+        function validarCaracteres() {
+            supressUpdatePanelRequestErrorCharacters("#ctl00_MainContent_TxtRfcReceptor");
+        }
+
+        function recuperaRepresentacionImpresa(datos) {
+            PageMethods.RecuperaRepresentacionImpresa(datos, onRecuperaRISucceed, onRecuperaRIFailed);
+        }
+
+        function onRecuperaRISucceed(result, userContext, methodName) {
+            opciones = "width=5,height=5,scrollbars=no,menubar=no,status=no,directories=no,location=no,toolbar=no,resizable=no,titlebar=no";
+            window.open(result, "RecuperacionRepresentacionImpresa", opciones);
+        }
+
+        function onRecuperaRIFailed(result, userContext, methodName) {
+            document.getElementById('dvAlert').innerHTML = '';
+            var newDivSuccess = document.createElement('div');
+            newDivSuccess.className = "alert alert-danger alert-dismissible";
+            newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Ocurrió un Error! <br/></strong> No se ha podido recuperar la representación Impresa, por favor intentelo más tarde.";
+            document.getElementById('dvAlert').appendChild(newDivSuccess);
+            $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+            //alert("No se ha podido recuperar la representación Impresa, por favor intentelo más tarde.");
+        }
+
+        function onRecuperaAcuseSucceed(result, userContext, methodName) {
+            opciones = "width=5,height=5,scrollbars=yes,menubar=no,status=no,directories=no,location=no,toolbar=no,resizable=yes,titlebar=no";
+            window.open(result, "RecuperacionAcuseCancelacion", opciones);
+        }
+
+        function onRecuperaAcuseFailed(result, userContext, methodName) {
+            document.getElementById('dvAlert').innerHTML = '';
+            var newDivSuccess = document.createElement('div');
+            newDivSuccess.className = "alert alert-danger alert-dismissible";
+            newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Ocurrió un Error! <br/></strong> No se ha podido recuperar el acuse de cancelación, por favor intentelo más tarde.";
+            document.getElementById('dvAlert').appendChild(newDivSuccess);
+            $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+            //alert("No se ha podido recuperar el acuse de cancelación, por favor intentelo más tarde.");
+        }
+
+        function Pager(tableName, itemsPerPage) {
+            this.tableName = tableName;
+            this.itemsPerPage = itemsPerPage;
+            this.currentPage = 1;
+            this.pages = 0;
+            this.inited = false;
+
+            this.showRecords = function (from, to) {
+                var rows = document.getElementById(tableName).rows;
+                // i starts from 1 to skip table header row
+                for (var i = 1; i < rows.length; i++) {
+                    if (i < from || i > to)
+                        rows[i].style.display = 'none';
+                    else
+                        rows[i].style.display = '';
+                }
+            }
+
+            this.showPage = function (pageNumber) {
+                if (!this.inited) {
+                    alert("not inited");
+                    return;
+                }
+
+                var oldPageAnchor = document.getElementById('pg' + this.currentPage);
+                oldPageAnchor.className = 'pg-normal';
+
+                this.currentPage = pageNumber;
+                var newPageAnchor = document.getElementById('pg' + this.currentPage);
+                newPageAnchor.className = 'pg-selected';
+
+                var from = (pageNumber - 1) * itemsPerPage + 1;
+                var to = from + itemsPerPage - 1;
+                this.showRecords(from, to);
+            }
+
+            this.prev = function () {
+                if (this.currentPage > 1)
+                    this.showPage(this.currentPage - 1);
+            }
+
+            this.next = function () {
+                if (this.currentPage < this.pages) {
+                    this.showPage(this.currentPage + 1);
+                }
+            }
+
+            this.init = function () {
+                var rows = document.getElementById(tableName).rows;
+                var records = (rows.length - 1);
+                this.pages = Math.ceil(records / itemsPerPage);
+                this.inited = true;
+            }
+
+            this.showPageNav = function (pagerName, positionId) {
+                if (!this.inited) {
+                    alert("not inited");
+                    return;
+                }
+                var element = document.getElementById(positionId);
+
+                var pagerHtml = '<ul class="pagination">';
+                pagerHtml += '<li onclick="' + pagerName + '.prev();"><a>&laquo;</a></li>';
+                for (var page = 1; page <= this.pages; page++)
+                    pagerHtml += '<li id="pg' + page + '" class="pg-normal" onclick="' + pagerName + '.showPage(' + page + ');"><a>' + page + '</a></li>';
+                pagerHtml += '<li onclick="' + pagerName + '.next();"><a>&raquo;</a></li>';
+                element.innerHTML = pagerHtml;
+            }
+        }
+
+    </script>
+     
+                <div id="dvAlertMaster"></div>            
+            </div>

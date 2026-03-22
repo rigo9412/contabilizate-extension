@@ -24,212 +24,348 @@
         </header>
 
         
-        <div class="row">
-            <div class="col-12">
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Configuración</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="formKeys" class="d-flex flex-column">
-                            <div class="mb-3">
-                                <label for="fileInputCertificado" class="form-label">Certificado 
-                                    <span id="fileInputCertificadoStatus" class="badge bg-secondary">No Cargado</span>
-                                </label>
-                                <div class="input-group">
-                                    <input type="file" class="form-control" id="fileInputCertificado" placeholder="Certificado">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="fileInputCertificadoKey" class="form-label">Llave 
-                                    <span id="fileInputCertificadoKeyStatus" class="badge bg-secondary">No Cargado</span>
-                                </label>
-                                <div class="input-group">
-                                    <input type="file" class="form-control" id="fileInputCertificadoKey" placeholder="Llave">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="rfcInput" class="form-label">RFC 
-                                    <span id="rfcStatus" class="badge bg-secondary">No Cargado</span>
-                                </label>
-                                <div class="input-group">
-                                    <input class="form-control" type="text" placeholder="RFC" id="rfcInput" name="rfcInput">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="passwordInputCertificado" class="form-label">Contraseña 
-                                    <span id="passwordStatus" class="badge bg-secondary">No Cargado</span>
-                                </label>
-                                <div class="input-group">
-                                    <input class="form-control" type="password" placeholder="Contraseña" id="passwordInputCertificado" name="passwordInputCertificado">
-                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                        Mostrar
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-between mt-3">
-                                <button type="button" class="btn btn-outline-danger">
-                                    Borrar Registros
-                                </button>
-                                <button type="submit" class="btn btn-success">
-                                    Guardar
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="config-tab" data-bs-toggle="tab" data-bs-target="#config" type="button" role="tab" aria-controls="config" aria-selected="true">
+                    Configuración
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="download-tab" data-bs-toggle="tab" data-bs-target="#download" type="button" role="tab" aria-controls="download" aria-selected="false">
+                    Descargar Facturas
+                </button>
+            </li>
+        </ul>
 
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0">Configuración JSON</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="jsonForm">
-                            <div class="form-group mb-3">
-                                <label for="jsonInput" class="form-label">Datos en formato JSON:</label>
-                                <textarea id="jsonInput" class="form-control code-area" rows="6"></textarea>
+        <!-- Tab Content -->
+        <div class="tab-content" id="mainTabContent">
+            <!-- Configuration Tab -->
+            <div class="tab-pane fade show active" id="config" role="tabpanel" aria-labelledby="config-tab">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">Configuración</h5>
                             </div>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <button type="submit" class="btn btn-primary">
-                                    Guardar JSON
-                                </button>
-                                <button type="button" id="loadJsonExample" class="btn btn-secondary">
-                                    Cargar Ejemplo
-                                </button>
-                                <button type="button" id="copyJsonExample" class="btn btn-info text-white">
-                                    Copiar Ejemplo
-                                </button>
+                            <div class="card-body">
+                                <form id="formKeys" class="d-flex flex-column">
+                                    <div class="mb-3">
+                                        <label for="fileInputCertificado" class="form-label">Certificado 
+                                            <span id="fileInputCertificadoStatus" class="badge bg-secondary">No Cargado</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="file" class="form-control" id="fileInputCertificado" placeholder="Certificado">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="fileInputCertificadoKey" class="form-label">Llave 
+                                            <span id="fileInputCertificadoKeyStatus" class="badge bg-secondary">No Cargado</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="file" class="form-control" id="fileInputCertificadoKey" placeholder="Llave">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="rfcInput" class="form-label">RFC 
+                                            <span id="rfcStatus" class="badge bg-secondary">No Cargado</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <input class="form-control" type="text" placeholder="RFC" id="rfcInput" name="rfcInput">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="passwordInputCertificado" class="form-label">Contraseña 
+                                            <span id="passwordStatus" class="badge bg-secondary">No Cargado</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <input class="form-control" type="password" placeholder="Contraseña" id="passwordInputCertificado" name="passwordInputCertificado">
+                                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                                Mostrar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <button type="button" class="btn btn-outline-danger">
+                                            Borrar Registros
+                                        </button>
+                                        <button type="submit" class="btn btn-success">
+                                            Guardar
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">Factura Cargada</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <h3>Información del Cliente</h3>
-                            <table class="table table-striped table-hover">
-                              
-                                <tbody>
-                                    <tr>
-                                        <td class="fw-bold" width="30%">RFC</td>
-                                        <td id="rfc" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">Razón Social</td>
-                                        <td id="razonSocial" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">Código Postal</td>
-                                        <td id="codigoPostal" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">Regimen Fiscal</td>
-                                        <td id="regimentFiscalId" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">Uso CFDI</td>
-                                        <td id="usoCFDI" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-
-                                </tbody>
-                            </table>
                         </div>
 
-                        <div class="table-responsive mt-4">
-                            <h3>Información de la Factura</h3>
-                            <table class="table table-striped table-hover">
-                              
-                                <tbody>
-                                    <tr>
-                                        <td class="fw-bold" width="30%">Descripción</td>
-                                        <td id="conceptoDescripcion" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">Producto/Servicio</td>
-                                        <td id="conceptoProducto" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">Unidad de Medida</td>
-                                        <td id="conceptoUnidad" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">Cantidad</td>
-                                        <td id="conceptoCantidad" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    
-                                    <tr>
-                                        <td class="fw-bold">Valor Unitario</td>
-                                        <td id="conceptoValor" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">Sujeto a Impuesto</td>
-                                        <td id="conceptoSujectoImpuesto" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">IVA %</td>
-                                        <td id="conceptoIVA" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">Retención IVA %</td>
-                                        <td id="conceptoRetencionIVA" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">Retención ISR %</td>
-                                        <td id="conceptoRetencionISR" class="data-field">XXXXXXXXXX</td>
-                                    </tr>
-
-
-                                </tbody>
-                            </table>
-                            <div class="table-responsive mt-4">
-                                <h3>Totales</h3>
-                                <table class="table table-striped table-hover">
-                                    <tbody>
-                                        <tr>
-                                            <td class="fw-bold">Subtotal</td>
-                                            <td id="subtotal" class="data-field">XXXXXXXXXX</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-bold">Impuestos Trasladados</td>
-                                            <td id="impuestosTrasladados" class="data-field">XXXXXXXXXX</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-bold">Impuestos Retenidos</td>
-                                            <td id="impuestosRetenidos" class="data-field">XXXXXXXXXX</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-bold">Total</td>
-                                            <td id="total" class="data-field">XXXXXXXXXX</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">Configuración JSON</h5>
                             </div>
+                            <div class="card-body">
+                                <form id="jsonForm">
+                                    <div class="form-group mb-3">
+                                        <label for="jsonInput" class="form-label">Datos en formato JSON:</label>
+                                        <textarea id="jsonInput" class="form-control code-area" rows="6"></textarea>
+                                    </div>
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <button type="submit" class="btn btn-primary">
+                                            Guardar JSON
+                                        </button>
+                                        <button type="button" id="loadJsonExample" class="btn btn-secondary">
+                                            Cargar Ejemplo
+                                        </button>
+                                        <button type="button" id="copyJsonExample" class="btn btn-info text-white">
+                                            Copiar Ejemplo
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
 
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">Factura Cargada</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <h3>Información del Cliente</h3>
+                                    <table class="table table-striped table-hover">
+                                      
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-bold" width="30%">RFC</td>
+                                                <td id="rfc" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Razón Social</td>
+                                                <td id="razonSocial" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Código Postal</td>
+                                                <td id="codigoPostal" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Regimen Fiscal</td>
+                                                <td id="regimentFiscalId" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Uso CFDI</td>
+                                                <td id="usoCFDI" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="table-responsive mt-4">
+                                    <h3>Información de la Factura</h3>
+                                    <table class="table table-striped table-hover">
+                                      
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-bold" width="30%">Descripción</td>
+                                                <td id="conceptoDescripcion" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Producto/Servicio</td>
+                                                <td id="conceptoProducto" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Unidad de Medida</td>
+                                                <td id="conceptoUnidad" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Cantidad</td>
+                                                <td id="conceptoCantidad" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            
+                                            <tr>
+                                                <td class="fw-bold">Valor Unitario</td>
+                                                <td id="conceptoValor" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Sujeto a Impuesto</td>
+                                                <td id="conceptoSujectoImpuesto" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">IVA %</td>
+                                                <td id="conceptoIVA" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Retención IVA %</td>
+                                                <td id="conceptoRetencionIVA" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Retención ISR %</td>
+                                                <td id="conceptoRetencionISR" class="data-field">XXXXXXXXXX</td>
+                                            </tr>
+
+
+                                        </tbody>
+                                    </table>
+                                    <div class="table-responsive mt-4">
+                                        <h3>Totales</h3>
+                                        <table class="table table-striped table-hover">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="fw-bold">Subtotal</td>
+                                                    <td id="subtotal" class="data-field">XXXXXXXXXX</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Impuestos Trasladados</td>
+                                                    <td id="impuestosTrasladados" class="data-field">XXXXXXXXXX</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Impuestos Retenidos</td>
+                                                    <td id="impuestosRetenidos" class="data-field">XXXXXXXXXX</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Total</td>
+                                                    <td id="total" class="data-field">XXXXXXXXXX</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                            </div>
+                        </div>
+
+                       
+                        <div class="action-buttons mt-4 d-flex gap-3 flex-wrap p-4">
+                            
+                            <button id="btnSite" class="btn btn-primary btn-lg w-100">
+                                Ir al Sitio SAT
+                            </button>
+                            
+                            <button id="btnStartProcess" class="btn btn-success btn-lg flex-grow-1">
+                                Iniciar Sesión (Firma)
+                            </button>
+                            <button id="btnStartProcessBill" class="btn btn-primary btn-lg flex-grow-1">
+                                Llenar Factura
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-               
-                <div class="action-buttons mt-4 d-flex gap-3 flex-wrap p-4">
-                    
-                    <button id="btnSite" class="btn btn-primary btn-lg w-100">
-                        Ir al Sitio SAT
-                    </button>
-                    
-                    <button id="btnStartProcess" class="btn btn-success btn-lg flex-grow-1">
-                        Iniciar Sesión (Firma)
-                    </button>
-                    <button id="btnStartProcessBill" class="btn btn-primary btn-lg flex-grow-1">
-                        Llenar Factura
-                    </button>
+            <!-- Download Tab -->
+            <div class="tab-pane fade" id="download" role="tabpanel" aria-labelledby="download-tab">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0">Descargar Facturas</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="downloadForm">
+                                    <div class="mb-3">
+                                        <label for="invoiceType" class="form-label">Tipo de Facturas</label>
+                                        <select class="form-select" id="invoiceType" required>
+                                            <option value="">Seleccione un tipo...</option>
+                                            <option value="emitidas">Facturas Emitidas</option>
+                                            <option value="recibidas">Facturas Recibidas</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="startDate" class="form-label">Fecha Inicial</label>
+                                                <input type="date" class="form-control" id="startDate" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="endDate" class="form-label">Fecha Final</label>
+                                                <input type="date" class="form-control" id="endDate" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-success" id="startDownload">
+                                            <i class="bi bi-download"></i> Iniciar Descarga
+                                        </button>
+                                        <button type="button" class="btn btn-danger" id="cancelDownload" style="display: none;">
+                                            <i class="bi bi-x-circle"></i> Cancelar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Progress Card -->
+                        <div class="card mb-4 shadow-sm" id="progressCard" style="display: none;">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">Progreso de Descarga</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span id="progressStatus">Iniciando...</span>
+                                        <span id="progressPercent">0%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h6>Detalles:</h6>
+                                    <ul class="list-unstyled" id="progressDetails">
+                                        <li id="currentFile">Esperando inicio...</li>
+                                        <li id="filesCount">0 archivos procesados</li>
+                                    </ul>
+                                </div>
+
+                                <div id="downloadResults" style="display: none;">
+                                    <h6>Archivos Descargados:</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <button class="btn btn-outline-success w-100" id="downloadXmlZip">
+                                                <i class="bi bi-file-earmark-zip"></i> Descargar XML ZIP
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button class="btn btn-outline-primary w-100" id="downloadPdfZip">
+                                                <i class="bi bi-file-earmark-zip"></i> Descargar PDF ZIP
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Instructions Card -->
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Instrucciones</h5>
+                            </div>
+                            <div class="card-body">
+                                <ol>
+                                    <li>Seleccione el tipo de facturas (Emitidas o Recibidas)</li>
+                                    <li>Elija el rango de fechas deseado</li>
+                                    <li>Haga clic en "Iniciar Descarga"</li>
+                                    <li>La extensión navegará automáticamente al portal del SAT</li>
+                                    <li>Se descargarán todos los archivos XML y PDF encontrados</li>
+                                    <li>Al finalizar, podrá descargar los archivos ZIP organizados</li>
+                                </ol>
+                                <div class="alert alert-info mt-3">
+                                    <strong>Nota:</strong> Asegúrese de estar correctamente autenticado en el portal del SAT antes de iniciar la descarga.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="/js/download/file-handler.js"></script>
+    <script src="/js/download/download-manager.js"></script>
     <script src="/js/popup.js"></script>
 </body>
 

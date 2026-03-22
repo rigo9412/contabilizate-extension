@@ -1,0 +1,3243 @@
+<div id="cuerpo" style="margin-top: 30px">
+                
+
+    <h2>Consultar Facturas Emitidas</h2>
+    
+    <br>
+    <div id="ctl00_MainContent_PnlConsulta" onkeypress="javascript:return WebForm_FireDefaultButton(event, 'ctl00_MainContent_BtnBusqueda')">
+	
+        <div id="ctl00_MainContent_UpnlBusqueda">
+                <div class="col-md-12">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <span class="radio-inline"><input id="ctl00_MainContent_RdoFolioFiscal" type="radio" name="ctl00$MainContent$FiltroCentral" value="RdoFolioFiscal" onclick="javascript:setTimeout('__doPostBack(\'ctl00$MainContent$RdoFolioFiscal\',\'\')', 0)"><label for="ctl00_MainContent_RdoFolioFiscal">Folio Fiscal *</label></span>
+                        </div>
+                        <div class="form-group">
+                            <input name="ctl00$MainContent$TxtUUID" type="text" maxlength="36" id="ctl00_MainContent_TxtUUID" disabled="disabled" class="aspNetDisabled form-control" placeholder="Folio fiscal" style="text-transform: uppercase;">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="col-md-1">
+                            <span class="radio-inline"><input id="ctl00_MainContent_RdoFechas" type="radio" name="ctl00$MainContent$FiltroCentral" value="RdoFechas" checked="checked"></span>
+                        </div>
+                        <div class="col-md-5" style="float: left !important;">
+                            <input type="hidden" name="ctl00$MainContent$hfInicial" id="hfInicial" value="2026">
+                            <input type="hidden" name="ctl00$MainContent$hfInicialBool" id="hfInicialBool" value="false">
+                            
+<style type="text/css">
+   
+    
+    /* the div that holds the date picker calendar */
+    .dpDiv
+    {
+        /*No implementado*/
+    }
+    
+    
+    /* the table (within the div) that holds the date picker calendar */
+    .dpTable
+    {
+        font-family: Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
+        font-size: 18px;
+        line-height: 1.4285;
+        text-align: center;
+        color: #333;
+        background-color: #fff;
+        box-shadow: 0px 2px 7px rgba(0,0,0,0.2);
+        border-radius: 0;
+        width: 300px;
+        height: 300px;
+    }
+    
+
+  
+    /* the top table row that holds the month, year, and forward/backward buttons */
+    .dpTitleTR
+    {
+        background-color: #222;
+    }
+    
+    
+    /* the second table row, that holds the names of days of the week (Mo, Tu, We, etc.) */
+    .dpDayTR
+    {
+        border-bottom: 1px solid #111;
+    }
+    
+    
+    /* a table cell that holds a date number (either blank or 1-31) */
+    .dpTD
+    {
+        /*	border: 1px solid #ece9d8;*/
+        color: #003399;
+    }
+    
+    
+    /* a table cell that holds a highlighted day (usually either today's date or the current date field value) */
+    .dpDayHighlightTD
+    {
+        background-color: #ffdf88;
+    }
+    
+    
+    /* the date number table cell that the mouse pointer is currently over (you can use contrasting colors to make it apparent which cell is being hovered over) */
+    .dpTDHover
+    {
+        background-color: #ffffff;
+        border: 1px solid #888888;
+        cursor: pointer;
+        color: red;
+    }
+    
+    
+    /* the table cell that holds the name of the month and the year */
+    .dpTitleTD
+    {
+        /*No implementado*/
+    }
+    
+    
+    /* a table cell that holds one of the forward/backward buttons */
+    .dpButtonTD
+    {
+        /*No implementado*/
+    }
+    
+    
+    /* the table cell that holds the "This Month" or "Close" button at the bottom */
+    .dpTodayButtonTD
+    {
+        /*No implementado*/
+    }
+    
+    
+    /* a table cell that holds the names of days of the week (Mo, Tu, We, etc.) */
+    .dpDayTD
+    {
+        /*background-color: #FFFFFF;*/ /*border: 1px solid #AAAAAA;*/
+        text-transform: uppercase;
+        font-weight:300;
+        color: #9d9d9d;
+        font-size: 10px;
+    }
+    
+    
+    /* additional style information for the text that indicates the month and year */
+    .dpTitleText
+    {
+        font-size: 18px;
+        color: #fff;
+        line-height: 1em;
+        text-align: center;
+    }
+    
+    
+    /* additional style information for the cell that holds a highlighted day (usually either today's date or the current date field value) */
+    .dpDayHighlight
+    {
+        /*color: 4060ff;
+	font-weight: bold;*/
+        color: #003399;
+        text-decoration: none;
+    }
+    
+    
+    /* the forward/backward buttons at the top */
+    .dpButton
+    {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 8pt;
+        color: gray;
+        background: #d8e8ff;
+        font-weight: normal;
+        padding: 0px;
+    }
+    .dpButtonExtra
+    {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 8pt;
+        color: gray;
+        background: #d8e8ff;
+        font-weight: bold;
+        padding: 0px;
+        margin-left: -8px;
+    }
+    
+    /* the "This Month" and "Close" buttons at the bottom */
+    .dpTodayButton
+    {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 7pt;
+        color: gray;
+        background: #d8e8ff;
+        font-weight: bold;
+    }
+    
+    
+    .surveyTable, .surveytd
+    {
+        border-color: #000000;
+        border-style: solid;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 10pt;
+    }
+    
+    .surveyTable
+    {
+        /*border-width: 0 0 1px 1px;*/
+        border-spacing: 0;
+        /*border-collapse: collapse;*/
+        font-family: 'Montserrat', sans-serif;
+        font-size: 10pt;
+    }
+    
+    .surveytd
+    {
+        margin: 0;
+        padding: 4px;
+        /*border-width: 1px 1px 0 0;*/
+        font-family: 'Montserrat', sans-serif;
+        font-size: 10pt;
+    }
+    
+    .surveyButton
+    {
+        border-top: solid 1px #CCCCCC;
+        background-color: #E5E5E5;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 10pt;
+    }
+    
+    
+    #DivCalendario
+    {
+        position: absolute;
+        top: 1px;
+        width: 220px;
+        display: none;
+        margin-top: 10px;
+        z-index: 1000;
+        background: white;
+    }
+    
+    #DivTexto
+    {
+        display: block;
+        width: 200px;
+    }
+</style>
+<div id="ctl00_MainContent_CldFechaInicial2_UpnlSeleccionFecha">
+	
+        <div id="ctl00_MainContent_CldFechaInicial2_SeleccionFecha">
+            <div class="form-group">
+                <span id="ctl00_MainContent_CldFechaInicial2_LblFecha" class="control-label" style="display:inline-block;width:230px;">Fecha Inicial de Emisión *</span>
+            </div>
+            <div class="form-group" style="display:flex;">
+                    <input name="ctl00$MainContent$CldFechaInicial2$Calendario_text" type="text" id="ctl00_MainContent_CldFechaInicial2_Calendario_text" class="form-control" disabled="disabled" dependiente="ctl00_MainContent_CldFechaFinal2" value="01/03/2026">
+                    <span id="ctl00_MainContent_CldFechaInicial2_RvFecha" style="display:none;"></span>
+                    <img id="ctl00_MainContent_CldFechaInicial2_BtnFecha2" class="icon-calendar" habilitado="true" src="/Images/Calendar.png" style="height:35px;width:35px;cursor:pointer;">
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <select name="ctl00$MainContent$CldFechaInicial2$DdlHora" id="ctl00_MainContent_CldFechaInicial2_DdlHora" class="form-control" style="width:100%;">
+		<option selected="selected" value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option value="23">23</option>
+
+	</select>
+                </div>
+                <div class="col-md-1">:</div>
+                <div class="col-md-3">
+                    <select name="ctl00$MainContent$CldFechaInicial2$DdlMinuto" id="ctl00_MainContent_CldFechaInicial2_DdlMinuto" class="form-control" style="width:100%;">
+		<option selected="selected" value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option value="23">23</option>
+		<option value="24">24</option>
+		<option value="25">25</option>
+		<option value="26">26</option>
+		<option value="27">27</option>
+		<option value="28">28</option>
+		<option value="29">29</option>
+		<option value="30">30</option>
+		<option value="31">31</option>
+		<option value="32">32</option>
+		<option value="33">33</option>
+		<option value="34">34</option>
+		<option value="35">35</option>
+		<option value="36">36</option>
+		<option value="37">37</option>
+		<option value="38">38</option>
+		<option value="39">39</option>
+		<option value="40">40</option>
+		<option value="41">41</option>
+		<option value="42">42</option>
+		<option value="43">43</option>
+		<option value="44">44</option>
+		<option value="45">45</option>
+		<option value="46">46</option>
+		<option value="47">47</option>
+		<option value="48">48</option>
+		<option value="49">49</option>
+		<option value="50">50</option>
+		<option value="51">51</option>
+		<option value="52">52</option>
+		<option value="53">53</option>
+		<option value="54">54</option>
+		<option value="55">55</option>
+		<option value="56">56</option>
+		<option value="57">57</option>
+		<option value="58">58</option>
+		<option value="59">59</option>
+
+	</select>
+                </div>
+                <div class="col-md-1">:</div>
+                <div class="col-md-3">
+                    <select name="ctl00$MainContent$CldFechaInicial2$DdlSegundo" id="ctl00_MainContent_CldFechaInicial2_DdlSegundo" class="form-control" style="width:100%;">
+		<option selected="selected" value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option value="23">23</option>
+		<option value="24">24</option>
+		<option value="25">25</option>
+		<option value="26">26</option>
+		<option value="27">27</option>
+		<option value="28">28</option>
+		<option value="29">29</option>
+		<option value="30">30</option>
+		<option value="31">31</option>
+		<option value="32">32</option>
+		<option value="33">33</option>
+		<option value="34">34</option>
+		<option value="35">35</option>
+		<option value="36">36</option>
+		<option value="37">37</option>
+		<option value="38">38</option>
+		<option value="39">39</option>
+		<option value="40">40</option>
+		<option value="41">41</option>
+		<option value="42">42</option>
+		<option value="43">43</option>
+		<option value="44">44</option>
+		<option value="45">45</option>
+		<option value="46">46</option>
+		<option value="47">47</option>
+		<option value="48">48</option>
+		<option value="49">49</option>
+		<option value="50">50</option>
+		<option value="51">51</option>
+		<option value="52">52</option>
+		<option value="53">53</option>
+		<option value="54">54</option>
+		<option value="55">55</option>
+		<option value="56">56</option>
+		<option value="57">57</option>
+		<option value="58">58</option>
+		<option value="59">59</option>
+
+	</select>
+                </div>
+            </div>
+        </div>
+    
+</div>
+<script type="text/javascript" language="javascript">
+    //DataPicker
+
+
+    var datePickerDivID = "datepicker";
+    var iFrameDivID = "datepickeriframe";
+
+    var dayArrayShort = new Array('DOM', 'LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB');
+    var dayArrayMed = new Array('Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab');
+    var dayArrayLong = new Array('Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado');
+    var monthArrayShort = new Array('Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic');
+    var monthArrayMed = new Array('Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic');
+    var monthArrayLong = new Array('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre');
+
+    // these variables define the date formatting we're expecting and outputting.
+    // If you want to use a different format by default, change the defaultDateSeparator
+    // and defaultDateFormat variables either here or on your HTML page.
+    var defaultDateSeparator = "/";        // common values would be "/" or "."
+    var defaultDateFormat = "mdy"    // valid values are "mdy", "chadmy", and "ymd"
+    var dateSeparator = defaultDateSeparator;
+    var dateFormat = defaultDateFormat;
+    var idCajaTexto = 'ctl00_MainContent_CldFechaInicial2_Calendario_text';
+
+    var _CustomAction = null;
+
+    /**
+    This is the main function you'll call from the onClick event of a button.
+    Normally, you'll have something like this on your HTML page:
+
+    Start Date: <input name="StartDate">
+    <input type=button value="select" onclick="displayDatePicker('StartDate');">
+
+    That will cause the datepicker to be displayed beneath the StartDate field and
+    any date that is chosen will update the value of that field. If you'd rather have the
+    datepicker display beneath the button that was clicked, you can code the button
+    like this:
+
+    <input type=button value="select" onclick="displayDatePicker('StartDate', this);">
+
+    So, pretty much, the first argument (dateFieldName) is a string representing the
+    name of the field that will be modified if the user picks a date, and the second
+    argument (displayBelowThisObject) is optional and represents an actual node
+    on the HTML document that the datepicker should be displayed below.
+
+    In version 1.1 of this code, the dtFormat and dtSep variables were added, allowing
+    you to use a specific date format or date separator for a given call to this function.
+    Normally, you'll just want to set these defaults globally with the defaultDateSeparator
+    and defaultDateFormat variables, but it doesn't hurt anything to add them as optional
+    parameters here. An example of use is:
+
+    <input type=button value="select" onclick="displayDatePicker('StartDate', false, 'dmy', '.');">
+
+    This would display the datepicker beneath the StartDate field (because the
+    displayBelowThisObject parameter was false), and update the StartDate field with
+    the chosen value of the datepicker using a date format of dd.mm.yyyy
+    */
+    function displayDatePicker(dateFieldName, displayBelowThisObject, dtFormat, dtSep) {
+      
+        var targetDateField = document.getElementById(dateFieldName);       
+       
+
+        //    this._CustomAction = CustomAction; 
+        //       
+        // if we weren't told what node to display the datepicker beneath, just display it
+        // beneath the date field we're updating
+       
+        
+        if (!displayBelowThisObject)
+        {
+            displayBelowThisObject = targetDateField;            
+            }
+
+        // if a date separator character was given, update the dateSeparator variable
+        if (dtSep)
+            dateSeparator = dtSep;
+        else
+            dateSeparator = defaultDateSeparator;
+
+        // if a date format was given, update the dateFormat variable
+        if (dtFormat)
+            dateFormat = dtFormat;
+        else
+            dateFormat = defaultDateFormat;
+
+        var x = displayBelowThisObject.offsetLeft;
+        var y = displayBelowThisObject.offsetTop + displayBelowThisObject.offsetHeight;
+
+        // deal with elements inside tables and such
+        var parent = displayBelowThisObject;
+        while (parent.offsetParent) {
+            parent = parent.offsetParent;
+            x += parent.offsetLeft;
+            y += parent.offsetTop;
+        }
+
+        drawDatePicker(targetDateField, x, y);
+    }
+
+
+    /**
+    Draw the datepicker object (which is just a table with calendar elements) at the
+    specified x and y coordinates, using the targetDateField object as the input tag
+    that will ultimately be populated with a date.
+
+    This function will normally be called by the displayDatePicker function.
+    */
+    function drawDatePicker(targetDateField, x, y) {
+        var dt = getFieldDate(targetDateField.value);
+
+        // the datepicker table will be drawn inside of a <div> with an ID defined by the
+        // global datePickerDivID variable. If such a div doesn't yet exist on the HTML
+        // document we're working with, add one.
+        if (!document.getElementById(datePickerDivID)) {
+            // don't use innerHTML to update the body, because it can cause global variables
+            // that are currently pointing to objects on the page to have bad references
+            //document.body.innerHTML += "<div id='" + datePickerDivID + "' class='dpDiv'></div>";
+            var newNode = document.createElement("div");
+            newNode.setAttribute("id", datePickerDivID);
+            newNode.setAttribute("class", "dpDiv");
+            //newNode.setAttribute("style", "visibility: hidden;");
+            document.body.appendChild(newNode);
+        }
+
+        // move the datepicker div to the proper x,y coordinate and toggle the visiblity
+        var pickerDiv = document.getElementById(datePickerDivID);
+        pickerDiv.style.position = "absolute";
+        pickerDiv.style.left = x + "px";
+        pickerDiv.style.top = y + "px";
+        pickerDiv.style.visibility = (pickerDiv.style.visibility == "visible" ? "hidden" : "visible");
+        //pickerDiv.style.visibility =  "visible";
+        pickerDiv.style.display = (pickerDiv.style.display == "block" ? "none" : "block");
+        pickerDiv.style.zIndex = 10000;
+
+        // draw the datepicker table
+        refreshDatePicker(targetDateField.name, dt.getFullYear(), dt.getMonth(), dt.getDate());
+    }
+
+
+    /**
+    This is the function that actually draws the datepicker calendar.
+    */
+    function refreshDatePicker(dateFieldName, year, month, day) {
+        // if no arguments are passed, use today's date; otherwise, month and year
+        // are required (if a day is passed, it will be highlighted later)
+        var thisDay = new Date();
+
+        if ((month >= 0) && (year > 0)) {
+            thisDay = new Date(year, month, 1);
+        } else {
+            day = thisDay.getDate();
+            thisDay.setDate(1);
+        }
+
+        // the calendar will be drawn as a table
+        // you can customize the table elements with a global CSS style sheet,
+        // or by hardcoding style and formatting elements below
+        var crlf = "\r\n";
+        var TABLE = "<table cols=7 class='dpTable'>" + crlf;
+        var xTABLE = "</table>" + crlf;
+        var TR = "<tr class='dpTR'>";
+        var TR_title = "<tr class='dpTitleTR'>";
+        var TR_days = "<tr>";
+        var TR_todaybutton = "<tr class='dpTodayButtonTR'>";
+        var xTR = "</tr>" + crlf;
+        var TD = "<td class='dpTD' onMouseOut='this.className=\"dpTD\";' onMouseOver=' this.className=\"dpTDHover\";' ";    // leave this tag open, because we'll be adding an onClick event
+        var TD_title = "<td colspan=5 class='dpTitleTD'>";
+        var TD_buttons = "<td class='dpButtonTD'>";
+        var TD_todaybutton = "<td colspan=7 class='dpTodayButtonTD'>";
+        var TD_days = "<td class='dpDayTD'>";
+        var TD_selected = "<td class='dpDayHighlightTD' onMouseOut='this.className=\"dpDayHighlightTD\";' onMouseOver='this.className=\"dpTDHover\";' ";    // leave this tag open, because we'll be adding an onClick event
+        var xTD = "</td>" + crlf;
+        var DIV_title = "<div class='dpTitleText'>";
+        var DIV_selected = "<div class='dpDayHighlight'>";
+        var xDIV = "</div>";
+
+        // start generating the code for the calendar table
+        var html = TABLE;
+
+        // this is the title bar, which displays the month and the buttons to
+        // go back to a previous month or forward to the next month
+        html += TR_title;
+        html += TD_buttons + getButtonCode(dateFieldName, thisDay, -1, "&lt;") + xTD;
+        html += TD_title + DIV_title + monthArrayLong[thisDay.getMonth()] + " " + thisDay.getFullYear() + xDIV + xTD;
+        html += TD_buttons + getButtonCode(dateFieldName, thisDay, 1, "&gt;") + xTD;
+        html += xTR;
+
+        // this is the row that indicates which day of the week we're on
+        html += TR_days;
+        for (i = 0; i < dayArrayShort.length; i++)
+            html += TD_days + dayArrayShort[i] + xTD;
+        html += xTR;
+
+        // now we'll start populating the table with days of the month
+        html += TR;
+
+        // first, the leading blanks
+        for (i = 0; i < thisDay.getDay(); i++)
+            html += TD + "&nbsp;" + xTD;
+
+        // now, the days of the month
+        do {
+            dayNum = thisDay.getDate();
+            TD_onclick = " onclick=\"updateDateField('" + dateFieldName + "', '" + getDateString(thisDay) + "');\">";
+
+            if (dayNum == day)
+                html += TD_selected + TD_onclick + DIV_selected + dayNum + xDIV + xTD;
+            else
+                html += TD + TD_onclick + dayNum + xTD;
+
+            // if this is a Saturday, start a new row
+            if (thisDay.getDay() == 6)
+                html += xTR + TR;
+
+            // increment the day
+            thisDay.setDate(thisDay.getDate() + 1);
+        } while (thisDay.getDate() > 1)
+
+        // fill in any trailing blanks
+        if (thisDay.getDay() > 0) {
+            for (i = 6; i > thisDay.getDay(); i--)
+                html += TD + "&nbsp;" + xTD;
+        }
+        html += xTR;
+
+        // add a button to allow the user to easily return to today, or close the calendar
+        var today = new Date();
+        var todayString = "Today is " + dayArrayMed[today.getDay()] + ", " + monthArrayMed[today.getMonth()] + " " + today.getDate();
+        html += TR_todaybutton + TD_todaybutton;
+        //html += "<button class='dpTodayButton' onClick='refreshDatePicker(\"" + dateFieldName + "\");'>this month</button> ";
+        html += "<button class='dpTodayButton' onClick='updateDateField(\"" + dateFieldName + "\");'>cerrar</button>";
+        html += xTD + xTR;
+
+        // and finally, close the table
+        html += xTABLE;
+
+        document.getElementById(datePickerDivID).innerHTML = html;
+        // add an "iFrame shim" to allow the datepicker to display above selection lists
+        adjustiFrame();
+    }
+
+
+    /**
+    Convenience function for writing the code for the buttons that bring us back or forward
+    a month.
+    */
+    function getButtonCode(dateFieldName, dateVal, adjust, label) {
+        var newMonth = (dateVal.getMonth() + adjust) % 12;
+        var newYear = dateVal.getFullYear() + parseInt((dateVal.getMonth() + adjust) / 12);
+        if (newMonth < 0) {
+            newMonth += 12;
+            newYear += -1;
+        }
+
+        return "<button class='dpButton' onClick='refreshDatePicker(\"" + dateFieldName + "\", " + newYear + ", " + newMonth + ");'>" + label + "</button>";
+    }
+
+
+    /**
+    Convert a JavaScript Date object to a string, based on the dateFormat and dateSeparator
+    variables at the beginning of this script library.
+    */
+    function getDateString(dateVal) {
+        var dayString = "00" + dateVal.getDate();
+        var monthString = "00" + (dateVal.getMonth() + 1);
+        dayString = dayString.substring(dayString.length - 2);
+        monthString = monthString.substring(monthString.length - 2);
+
+        switch (dateFormat) {
+            case "dmy":
+                return dayString + dateSeparator + monthString + dateSeparator + dateVal.getFullYear();
+            case "ymd":
+                return dateVal.getFullYear() + dateSeparator + monthString + dateSeparator + dayString;
+            case "mdy":
+            default:
+                return monthString + dateSeparator + dayString + dateSeparator + dateVal.getFullYear();
+        }
+    }
+
+
+    /**
+    Convert a string to a JavaScript Date object.
+    */
+    function getFieldDate(dateString) {
+        var dateVal;
+        var dArray;
+        var d, m, y;
+
+        try {
+            dArray = splitDateString(dateString);
+            if (dArray) {
+                switch (dateFormat) {
+                    case "dmy":
+                        d = parseInt(dArray[0], 10);
+                        m = parseInt(dArray[1], 10) - 1;
+                        y = parseInt(dArray[2], 10);
+                        break;
+                    case "ymd":
+                        d = parseInt(dArray[2], 10);
+                        m = parseInt(dArray[1], 10) - 1;
+                        y = parseInt(dArray[0], 10);
+                        break;
+                    case "mdy":
+                    default:
+                        d = parseInt(dArray[1], 10);
+                        m = parseInt(dArray[0], 10) - 1;
+                        y = parseInt(dArray[2], 10);
+                        break;
+                }
+                dateVal = new Date(y, m, d);
+            } else if (dateString) {
+                dateVal = new Date(dateString);
+            } else {
+                dateVal = new Date();
+            }
+        } catch (e) {
+            dateVal = new Date();
+        }
+
+        return dateVal;
+    }
+
+
+    /**
+    Try to split a date string into an array of elements, using common date separators.
+    If the date is split, an array is returned; otherwise, we just return false.
+    */
+    function splitDateString(dateString) {
+        var dArray;
+        if (dateString.indexOf("/") >= 0)
+            dArray = dateString.split("/");
+        else if (dateString.indexOf(".") >= 0)
+            dArray = dateString.split(".");
+        else if (dateString.indexOf("-") >= 0)
+            dArray = dateString.split("-");
+        else if (dateString.indexOf("\\") >= 0)
+            dArray = dateString.split("\\");
+        else
+            dArray = false;
+
+        return dArray;
+    }
+
+    /**
+    Update the field with the given dateFieldName with the dateString that has been passed,
+    and hide the datepicker. If no dateString is passed, just close the datepicker without
+    changing the field value.
+
+    Also, if the page developer has defined a function called datePickerClosed anywhere on
+    the page or in an imported library, we will attempt to run that function with the updated
+    field as a parameter. This can be used for such things as date validation, setting default
+    values for related fields, etc. For example, you might have a function like this to validate
+    a start date field:
+
+    function datePickerClosed(dateField)
+    {
+    var dateObj = getFieldDate(dateField.value);
+    var today = new Date();
+    today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+ 
+    if (dateField.name == "StartDate") {
+    if (dateObj < today) {
+    // if the date is before today, alert the user and display the datepicker again
+    alert("Please enter a date that is today or later");
+    dateField.value = "";
+    document.getElementById(datePickerDivID).style.visibility = "visible";
+    adjustiFrame();
+    } else {
+    // if the date is okay, set the EndDate field to 7 days after the StartDate
+    dateObj.setTime(dateObj.getTime() + (7 * 24 * 60 * 60 * 1000));
+    var endDateField = document.getElementsByName ("EndDate").item(0);
+    endDateField.value = getDateString(dateObj);
+    }
+    }
+    }
+
+    */
+
+    function SetDDL(targetField, dateFieldName, dateString)
+    {
+        
+        var StartDate = 2014;
+        var EndDate = 2014;
+
+        var IsInicial = dateFieldName.indexOf("FechaInicial");
+        var IsFinal = dateFieldName.indexOf("FechaFinal");
+        
+        var hfInicial = document.getElementById("hfInicial");
+        var hfFinal = document.getElementById("hfFinal");
+
+        if(IsInicial > -1)
+        {
+            hfInicial.value = dateString;
+            hfInicial.value = getFieldDate(hfInicial.value).getFullYear();
+        }
+
+        if(IsFinal > -1)
+        {
+            hfFinal.value = dateString;
+            hfFinal.value = getFieldDate(hfFinal.value).getFullYear();
+        }
+
+        if(hfInicial.value != "")
+        {
+            StartDate = hfInicial.value;        
+        }
+
+        if(hfFinal.value != "")
+        {
+            EndDate = hfFinal.value;
+        }
+
+        //var dt = getFieldDate(targetField.value);
+        //var year = dt.getFullYear();
+        //alert(targetField.id);
+        var ddl = document.getElementById("ctl00_MainContent_ddlComplementos");
+        
+        var passed = true;
+
+        if(StartDate < 2014 || EndDate < 2014)
+        {
+            passed = false;
+        }
+
+        if(!passed)
+        {
+            var hfInicialBool = document.getElementById("hfInicialBool");
+            hfInicialBool.value = "true";
+
+            if(ddl != null)
+            {
+                ddl.selectedIndex=0;
+                ddl.disabled= true;
+            }
+
+        }
+        if(passed)
+        {
+            var hfInicialBool = document.getElementById("hfInicialBool");
+            hfInicialBool.value = "false";
+
+            if(ddl != null)
+                ddl.disabled= false;
+        }
+    }
+
+    function updateDateField(dateFieldName, dateString) {
+        var targetDateField = document.getElementsByName(dateFieldName).item(0);
+        if (dateString) {
+
+            //var Contenedor = $('#'+ dateFieldName);
+            var idDependiente = '#' + $(targetDateField).attr('dependiente');
+            if (false) {
+                $(idDependiente + '_Calendario_text').val(dateString);
+                
+                //$(idDependiente + '_DdlHora').val("23");
+                var opHora = $(idDependiente + '_DdlHora').find("option[value=23]");
+                $(idDependiente + '_DdlHora').selectbox("change", opHora.attr('value'), opHora.html());
+                
+                //$(idDependiente + '_DdlMinuto').val("59");
+                var opMinuto = $(idDependiente + '_DdlMinuto').find("option[value=59]");
+                $(idDependiente + '_DdlMinuto').selectbox("change", opMinuto.attr('value'), opMinuto.html());
+                
+                //$(idDependiente + '_DdlSegundo').val("59");
+                var opSegundo = $(idDependiente + '_DdlSegundo').find("option[value=59]");
+                $(idDependiente + '_DdlSegundo').selectbox("change", opSegundo.attr('value'), opSegundo.html());
+                
+            }
+            targetDateField.value = dateString;
+            if (this._CustomAction != null)
+                this._CustomAction(dateString);
+
+            SetDDL(targetDateField, dateFieldName, dateString);
+        }
+        // targetDateField.fireEvent('onchange');
+
+
+
+        var pickerDiv = document.getElementById(datePickerDivID);
+        if(pickerDiv != null)
+        {
+            pickerDiv.style.visibility = "hidden";
+            pickerDiv.style.display = "none";
+
+            adjustiFrame();
+
+            // after the datepicker has closed, optionally run a user-defined function called
+            // datePickerClosed, passing the field that was just updated as a parameter
+            // (note that this will only run if the user actually selected a date from the datepicker)
+            if ((dateString) && (typeof (datePickerClosed) == "function"))
+                datePickerClosed(targetDateField);
+        }
+    }
+
+
+    /**
+    Use an "iFrame shim" to deal with problems where the datepicker shows up behind
+    selection list elements, if they're below the datepicker. 
+    */
+    function adjustiFrame(pickerDiv, iFrameDiv) {
+        // we know that Opera doesn't like something about this, so if we
+        // think we're using Opera, don't even try
+        var is_opera = (navigator.userAgent.toLowerCase().indexOf("opera") != -1);
+        if (is_opera)
+            return;
+
+        // put a try/catch block around the whole thing, just in case
+        try {
+            if (!document.getElementById(iFrameDivID)) {
+                // don't use innerHTML to update the body, because it can cause global variables
+                // that are currently pointing to objects on the page to have bad references
+                //document.body.innerHTML += "<iframe id='" + iFrameDivID + "' src='javascript:false;' scrolling='no' frameborder='0'>";
+                var newNode = document.createElement("iFrame");
+                newNode.setAttribute("id", iFrameDivID);
+//                newNode.setAttribute("src", "javascript:false;");
+                newNode.setAttribute("scrolling", "no");
+                newNode.setAttribute("frameborder", "0");                    
+                document.body.appendChild(newNode);
+                
+            }
+
+            if (!pickerDiv)
+                pickerDiv = document.getElementById(datePickerDivID);
+            if (!iFrameDiv)
+                iFrameDiv = document.getElementById(iFrameDivID);
+
+            try {
+                iFrameDiv.style.position = "absolute";
+                iFrameDiv.style.width = pickerDiv.offsetWidth;
+                iFrameDiv.style.height = pickerDiv.offsetHeight;
+                iFrameDiv.style.top = pickerDiv.style.top;
+                iFrameDiv.style.left = pickerDiv.style.left;
+                iFrameDiv.style.zIndex = pickerDiv.style.zIndex - 1;
+                iFrameDiv.style.visibility = pickerDiv.style.visibility;
+                iFrameDiv.style.display = pickerDiv.style.display;
+            } catch (e) {
+            }
+
+        } catch (ee) {
+        }
+
+    }
+    /* Function Ends for calendar chk line 379 for doubts*/
+
+
+///
+
+
+    ////Define la posición en donde aparecerá el calendario.
+        function DefinePosicionCalendario(NombreContenedor, NombreEtiqueta, NombreCaja) {
+        var lblFecha = $(NombreEtiqueta); //Instancia de la etiqueta
+        var txtFecha = $(NombreCaja); //Instancia de la caja de texto   
+        var TopCalendario = txtFecha.offset().top + txtFecha.height(); //Posición del calendario
+        var Contenedor = $(NombreContenedor).children("#SeleccionFecha");
+
+        Contenedor.children("#DivCalendario").css('left', txtFecha.offset().left).css('top', TopCalendario);
+    }
+
+//    ////Define las posiciones iniciales de los controles.
+    function DefinePosicionInicial() {
+        var lblFecha = $("#ctl00_MainContent_CldFechaInicial2_LblFecha"); //Instancia de la etiqueta
+        var txtFecha = $("#" + idCajaTexto); //Instancia de la caja de texto       
+        var ancho = $("#DivTexto").width() + lblFecha.width(); //Se obtiene el ancho del div principal        
+        var LeftBotonFecha = lblFecha.position().left + lblFecha.width() + txtFecha.width(); // Se obtiene la posisición del botón
+        var TopDivTexto = parseInt(lblFecha.height() / 2) - parseInt($("#DivTexto").height() / 2); //Se obtiene la posicion vertical de la caja de texto y del botón
+        var Contenedor = $("#ctl00_MainContent_CldFechaInicial2_UpnlSeleccionFecha").children("#SeleccionFecha");
+        Contenedor.children("#SeleccionFecha").width(ancho);
+    }
+
+    function ConfiguraCombosMac() {
+        var isMac = navigator.userAgent.indexOf("Macintosh")
+
+        if(isMac != -1)
+            $(document.getElementsByClassName("calendarCombo")).css("width", "45px");
+    }
+    
+    $(function() {
+    
+        DefinePosicionInicial();
+
+        //Se establece la acción para mostrar el calendario
+        $("#ctl00_MainContent_CldFechaInicial2_BtnFecha2").live('click', function() {
+        
+           if ($("#ctl00_MainContent_CldFechaInicial2_BtnFecha2").attr('habilitado') == "true") {
+             var cajaTexto = $(this).parent().find(":input");
+                displayDatePicker(cajaTexto.attr('id'), false, 'dmy', '/');
+            }
+        });
+    });
+
+   
+</script>
+
+                        </div>
+                        <div class="col-md-1"></div>
+                        <div class="col-md-5">
+                            <input type="hidden" name="ctl00$MainContent$hfFinal" id="hfFinal" value="2026">
+                            
+<style type="text/css">
+   
+    
+    /* the div that holds the date picker calendar */
+    .dpDiv
+    {
+        /*No implementado*/
+    }
+    
+    
+    /* the table (within the div) that holds the date picker calendar */
+    .dpTable
+    {
+        font-family: Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
+        font-size: 18px;
+        line-height: 1.4285;
+        text-align: center;
+        color: #333;
+        background-color: #fff;
+        box-shadow: 0px 2px 7px rgba(0,0,0,0.2);
+        border-radius: 0;
+        width: 300px;
+        height: 300px;
+    }
+    
+
+  
+    /* the top table row that holds the month, year, and forward/backward buttons */
+    .dpTitleTR
+    {
+        background-color: #222;
+    }
+    
+    
+    /* the second table row, that holds the names of days of the week (Mo, Tu, We, etc.) */
+    .dpDayTR
+    {
+        border-bottom: 1px solid #111;
+    }
+    
+    
+    /* a table cell that holds a date number (either blank or 1-31) */
+    .dpTD
+    {
+        /*	border: 1px solid #ece9d8;*/
+        color: #003399;
+    }
+    
+    
+    /* a table cell that holds a highlighted day (usually either today's date or the current date field value) */
+    .dpDayHighlightTD
+    {
+        background-color: #ffdf88;
+    }
+    
+    
+    /* the date number table cell that the mouse pointer is currently over (you can use contrasting colors to make it apparent which cell is being hovered over) */
+    .dpTDHover
+    {
+        background-color: #ffffff;
+        border: 1px solid #888888;
+        cursor: pointer;
+        color: red;
+    }
+    
+    
+    /* the table cell that holds the name of the month and the year */
+    .dpTitleTD
+    {
+        /*No implementado*/
+    }
+    
+    
+    /* a table cell that holds one of the forward/backward buttons */
+    .dpButtonTD
+    {
+        /*No implementado*/
+    }
+    
+    
+    /* the table cell that holds the "This Month" or "Close" button at the bottom */
+    .dpTodayButtonTD
+    {
+        /*No implementado*/
+    }
+    
+    
+    /* a table cell that holds the names of days of the week (Mo, Tu, We, etc.) */
+    .dpDayTD
+    {
+        /*background-color: #FFFFFF;*/ /*border: 1px solid #AAAAAA;*/
+        text-transform: uppercase;
+        font-weight:300;
+        color: #9d9d9d;
+        font-size: 10px;
+    }
+    
+    
+    /* additional style information for the text that indicates the month and year */
+    .dpTitleText
+    {
+        font-size: 18px;
+        color: #fff;
+        line-height: 1em;
+        text-align: center;
+    }
+    
+    
+    /* additional style information for the cell that holds a highlighted day (usually either today's date or the current date field value) */
+    .dpDayHighlight
+    {
+        /*color: 4060ff;
+	font-weight: bold;*/
+        color: #003399;
+        text-decoration: none;
+    }
+    
+    
+    /* the forward/backward buttons at the top */
+    .dpButton
+    {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 8pt;
+        color: gray;
+        background: #d8e8ff;
+        font-weight: normal;
+        padding: 0px;
+    }
+    .dpButtonExtra
+    {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 8pt;
+        color: gray;
+        background: #d8e8ff;
+        font-weight: bold;
+        padding: 0px;
+        margin-left: -8px;
+    }
+    
+    /* the "This Month" and "Close" buttons at the bottom */
+    .dpTodayButton
+    {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 7pt;
+        color: gray;
+        background: #d8e8ff;
+        font-weight: bold;
+    }
+    
+    
+    .surveyTable, .surveytd
+    {
+        border-color: #000000;
+        border-style: solid;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 10pt;
+    }
+    
+    .surveyTable
+    {
+        /*border-width: 0 0 1px 1px;*/
+        border-spacing: 0;
+        /*border-collapse: collapse;*/
+        font-family: 'Montserrat', sans-serif;
+        font-size: 10pt;
+    }
+    
+    .surveytd
+    {
+        margin: 0;
+        padding: 4px;
+        /*border-width: 1px 1px 0 0;*/
+        font-family: 'Montserrat', sans-serif;
+        font-size: 10pt;
+    }
+    
+    .surveyButton
+    {
+        border-top: solid 1px #CCCCCC;
+        background-color: #E5E5E5;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 10pt;
+    }
+    
+    
+    #DivCalendario
+    {
+        position: absolute;
+        top: 1px;
+        width: 220px;
+        display: none;
+        margin-top: 10px;
+        z-index: 1000;
+        background: white;
+    }
+    
+    #DivTexto
+    {
+        display: block;
+        width: 200px;
+    }
+</style>
+<div id="ctl00_MainContent_CldFechaFinal2_UpnlSeleccionFecha">
+	
+        <div id="ctl00_MainContent_CldFechaFinal2_SeleccionFecha">
+            <div class="form-group">
+                <span id="ctl00_MainContent_CldFechaFinal2_LblFecha" class="control-label" style="display:inline-block;width:230px;">Fecha Final de Emisión *</span>
+            </div>
+            <div class="form-group" style="display:flex;">
+                    <input name="ctl00$MainContent$CldFechaFinal2$Calendario_text" type="text" id="ctl00_MainContent_CldFechaFinal2_Calendario_text" class="form-control" disabled="disabled" value="28/03/2026">
+                    <span id="ctl00_MainContent_CldFechaFinal2_RvFecha" style="display:none;"></span>
+                    <img id="ctl00_MainContent_CldFechaFinal2_BtnFecha2" class="icon-calendar" habilitado="true" src="/Images/Calendar.png" style="height:35px;width:35px;cursor:pointer;">
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <select name="ctl00$MainContent$CldFechaFinal2$DdlHora" id="ctl00_MainContent_CldFechaFinal2_DdlHora" class="form-control" style="width:100%;">
+		<option value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option selected="selected" value="23">23</option>
+
+	</select>
+                </div>
+                <div class="col-md-1">:</div>
+                <div class="col-md-3">
+                    <select name="ctl00$MainContent$CldFechaFinal2$DdlMinuto" id="ctl00_MainContent_CldFechaFinal2_DdlMinuto" class="form-control" style="width:100%;">
+		<option value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option value="23">23</option>
+		<option value="24">24</option>
+		<option value="25">25</option>
+		<option value="26">26</option>
+		<option value="27">27</option>
+		<option value="28">28</option>
+		<option value="29">29</option>
+		<option value="30">30</option>
+		<option value="31">31</option>
+		<option value="32">32</option>
+		<option value="33">33</option>
+		<option value="34">34</option>
+		<option value="35">35</option>
+		<option value="36">36</option>
+		<option value="37">37</option>
+		<option value="38">38</option>
+		<option value="39">39</option>
+		<option value="40">40</option>
+		<option value="41">41</option>
+		<option value="42">42</option>
+		<option value="43">43</option>
+		<option value="44">44</option>
+		<option value="45">45</option>
+		<option value="46">46</option>
+		<option value="47">47</option>
+		<option value="48">48</option>
+		<option value="49">49</option>
+		<option value="50">50</option>
+		<option value="51">51</option>
+		<option value="52">52</option>
+		<option value="53">53</option>
+		<option value="54">54</option>
+		<option value="55">55</option>
+		<option value="56">56</option>
+		<option value="57">57</option>
+		<option value="58">58</option>
+		<option selected="selected" value="59">59</option>
+
+	</select>
+                </div>
+                <div class="col-md-1">:</div>
+                <div class="col-md-3">
+                    <select name="ctl00$MainContent$CldFechaFinal2$DdlSegundo" id="ctl00_MainContent_CldFechaFinal2_DdlSegundo" class="form-control" style="width:100%;">
+		<option value="0">00</option>
+		<option value="1">01</option>
+		<option value="2">02</option>
+		<option value="3">03</option>
+		<option value="4">04</option>
+		<option value="5">05</option>
+		<option value="6">06</option>
+		<option value="7">07</option>
+		<option value="8">08</option>
+		<option value="9">09</option>
+		<option value="10">10</option>
+		<option value="11">11</option>
+		<option value="12">12</option>
+		<option value="13">13</option>
+		<option value="14">14</option>
+		<option value="15">15</option>
+		<option value="16">16</option>
+		<option value="17">17</option>
+		<option value="18">18</option>
+		<option value="19">19</option>
+		<option value="20">20</option>
+		<option value="21">21</option>
+		<option value="22">22</option>
+		<option value="23">23</option>
+		<option value="24">24</option>
+		<option value="25">25</option>
+		<option value="26">26</option>
+		<option value="27">27</option>
+		<option value="28">28</option>
+		<option value="29">29</option>
+		<option value="30">30</option>
+		<option value="31">31</option>
+		<option value="32">32</option>
+		<option value="33">33</option>
+		<option value="34">34</option>
+		<option value="35">35</option>
+		<option value="36">36</option>
+		<option value="37">37</option>
+		<option value="38">38</option>
+		<option value="39">39</option>
+		<option value="40">40</option>
+		<option value="41">41</option>
+		<option value="42">42</option>
+		<option value="43">43</option>
+		<option value="44">44</option>
+		<option value="45">45</option>
+		<option value="46">46</option>
+		<option value="47">47</option>
+		<option value="48">48</option>
+		<option value="49">49</option>
+		<option value="50">50</option>
+		<option value="51">51</option>
+		<option value="52">52</option>
+		<option value="53">53</option>
+		<option value="54">54</option>
+		<option value="55">55</option>
+		<option value="56">56</option>
+		<option value="57">57</option>
+		<option value="58">58</option>
+		<option selected="selected" value="59">59</option>
+
+	</select>
+                </div>
+            </div>
+        </div>
+    
+</div>
+<script type="text/javascript" language="javascript">
+    //DataPicker
+
+
+    var datePickerDivID = "datepicker";
+    var iFrameDivID = "datepickeriframe";
+
+    var dayArrayShort = new Array('DOM', 'LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB');
+    var dayArrayMed = new Array('Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab');
+    var dayArrayLong = new Array('Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado');
+    var monthArrayShort = new Array('Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic');
+    var monthArrayMed = new Array('Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic');
+    var monthArrayLong = new Array('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre');
+
+    // these variables define the date formatting we're expecting and outputting.
+    // If you want to use a different format by default, change the defaultDateSeparator
+    // and defaultDateFormat variables either here or on your HTML page.
+    var defaultDateSeparator = "/";        // common values would be "/" or "."
+    var defaultDateFormat = "mdy"    // valid values are "mdy", "chadmy", and "ymd"
+    var dateSeparator = defaultDateSeparator;
+    var dateFormat = defaultDateFormat;
+    var idCajaTexto = 'ctl00_MainContent_CldFechaFinal2_Calendario_text';
+
+    var _CustomAction = null;
+
+    /**
+    This is the main function you'll call from the onClick event of a button.
+    Normally, you'll have something like this on your HTML page:
+
+    Start Date: <input name="StartDate">
+    <input type=button value="select" onclick="displayDatePicker('StartDate');">
+
+    That will cause the datepicker to be displayed beneath the StartDate field and
+    any date that is chosen will update the value of that field. If you'd rather have the
+    datepicker display beneath the button that was clicked, you can code the button
+    like this:
+
+    <input type=button value="select" onclick="displayDatePicker('StartDate', this);">
+
+    So, pretty much, the first argument (dateFieldName) is a string representing the
+    name of the field that will be modified if the user picks a date, and the second
+    argument (displayBelowThisObject) is optional and represents an actual node
+    on the HTML document that the datepicker should be displayed below.
+
+    In version 1.1 of this code, the dtFormat and dtSep variables were added, allowing
+    you to use a specific date format or date separator for a given call to this function.
+    Normally, you'll just want to set these defaults globally with the defaultDateSeparator
+    and defaultDateFormat variables, but it doesn't hurt anything to add them as optional
+    parameters here. An example of use is:
+
+    <input type=button value="select" onclick="displayDatePicker('StartDate', false, 'dmy', '.');">
+
+    This would display the datepicker beneath the StartDate field (because the
+    displayBelowThisObject parameter was false), and update the StartDate field with
+    the chosen value of the datepicker using a date format of dd.mm.yyyy
+    */
+    function displayDatePicker(dateFieldName, displayBelowThisObject, dtFormat, dtSep) {
+      
+        var targetDateField = document.getElementById(dateFieldName);       
+       
+
+        //    this._CustomAction = CustomAction; 
+        //       
+        // if we weren't told what node to display the datepicker beneath, just display it
+        // beneath the date field we're updating
+       
+        
+        if (!displayBelowThisObject)
+        {
+            displayBelowThisObject = targetDateField;            
+            }
+
+        // if a date separator character was given, update the dateSeparator variable
+        if (dtSep)
+            dateSeparator = dtSep;
+        else
+            dateSeparator = defaultDateSeparator;
+
+        // if a date format was given, update the dateFormat variable
+        if (dtFormat)
+            dateFormat = dtFormat;
+        else
+            dateFormat = defaultDateFormat;
+
+        var x = displayBelowThisObject.offsetLeft;
+        var y = displayBelowThisObject.offsetTop + displayBelowThisObject.offsetHeight;
+
+        // deal with elements inside tables and such
+        var parent = displayBelowThisObject;
+        while (parent.offsetParent) {
+            parent = parent.offsetParent;
+            x += parent.offsetLeft;
+            y += parent.offsetTop;
+        }
+
+        drawDatePicker(targetDateField, x, y);
+    }
+
+
+    /**
+    Draw the datepicker object (which is just a table with calendar elements) at the
+    specified x and y coordinates, using the targetDateField object as the input tag
+    that will ultimately be populated with a date.
+
+    This function will normally be called by the displayDatePicker function.
+    */
+    function drawDatePicker(targetDateField, x, y) {
+        var dt = getFieldDate(targetDateField.value);
+
+        // the datepicker table will be drawn inside of a <div> with an ID defined by the
+        // global datePickerDivID variable. If such a div doesn't yet exist on the HTML
+        // document we're working with, add one.
+        if (!document.getElementById(datePickerDivID)) {
+            // don't use innerHTML to update the body, because it can cause global variables
+            // that are currently pointing to objects on the page to have bad references
+            //document.body.innerHTML += "<div id='" + datePickerDivID + "' class='dpDiv'></div>";
+            var newNode = document.createElement("div");
+            newNode.setAttribute("id", datePickerDivID);
+            newNode.setAttribute("class", "dpDiv");
+            //newNode.setAttribute("style", "visibility: hidden;");
+            document.body.appendChild(newNode);
+        }
+
+        // move the datepicker div to the proper x,y coordinate and toggle the visiblity
+        var pickerDiv = document.getElementById(datePickerDivID);
+        pickerDiv.style.position = "absolute";
+        pickerDiv.style.left = x + "px";
+        pickerDiv.style.top = y + "px";
+        pickerDiv.style.visibility = (pickerDiv.style.visibility == "visible" ? "hidden" : "visible");
+        //pickerDiv.style.visibility =  "visible";
+        pickerDiv.style.display = (pickerDiv.style.display == "block" ? "none" : "block");
+        pickerDiv.style.zIndex = 10000;
+
+        // draw the datepicker table
+        refreshDatePicker(targetDateField.name, dt.getFullYear(), dt.getMonth(), dt.getDate());
+    }
+
+
+    /**
+    This is the function that actually draws the datepicker calendar.
+    */
+    function refreshDatePicker(dateFieldName, year, month, day) {
+        // if no arguments are passed, use today's date; otherwise, month and year
+        // are required (if a day is passed, it will be highlighted later)
+        var thisDay = new Date();
+
+        if ((month >= 0) && (year > 0)) {
+            thisDay = new Date(year, month, 1);
+        } else {
+            day = thisDay.getDate();
+            thisDay.setDate(1);
+        }
+
+        // the calendar will be drawn as a table
+        // you can customize the table elements with a global CSS style sheet,
+        // or by hardcoding style and formatting elements below
+        var crlf = "\r\n";
+        var TABLE = "<table cols=7 class='dpTable'>" + crlf;
+        var xTABLE = "</table>" + crlf;
+        var TR = "<tr class='dpTR'>";
+        var TR_title = "<tr class='dpTitleTR'>";
+        var TR_days = "<tr>";
+        var TR_todaybutton = "<tr class='dpTodayButtonTR'>";
+        var xTR = "</tr>" + crlf;
+        var TD = "<td class='dpTD' onMouseOut='this.className=\"dpTD\";' onMouseOver=' this.className=\"dpTDHover\";' ";    // leave this tag open, because we'll be adding an onClick event
+        var TD_title = "<td colspan=5 class='dpTitleTD'>";
+        var TD_buttons = "<td class='dpButtonTD'>";
+        var TD_todaybutton = "<td colspan=7 class='dpTodayButtonTD'>";
+        var TD_days = "<td class='dpDayTD'>";
+        var TD_selected = "<td class='dpDayHighlightTD' onMouseOut='this.className=\"dpDayHighlightTD\";' onMouseOver='this.className=\"dpTDHover\";' ";    // leave this tag open, because we'll be adding an onClick event
+        var xTD = "</td>" + crlf;
+        var DIV_title = "<div class='dpTitleText'>";
+        var DIV_selected = "<div class='dpDayHighlight'>";
+        var xDIV = "</div>";
+
+        // start generating the code for the calendar table
+        var html = TABLE;
+
+        // this is the title bar, which displays the month and the buttons to
+        // go back to a previous month or forward to the next month
+        html += TR_title;
+        html += TD_buttons + getButtonCode(dateFieldName, thisDay, -1, "&lt;") + xTD;
+        html += TD_title + DIV_title + monthArrayLong[thisDay.getMonth()] + " " + thisDay.getFullYear() + xDIV + xTD;
+        html += TD_buttons + getButtonCode(dateFieldName, thisDay, 1, "&gt;") + xTD;
+        html += xTR;
+
+        // this is the row that indicates which day of the week we're on
+        html += TR_days;
+        for (i = 0; i < dayArrayShort.length; i++)
+            html += TD_days + dayArrayShort[i] + xTD;
+        html += xTR;
+
+        // now we'll start populating the table with days of the month
+        html += TR;
+
+        // first, the leading blanks
+        for (i = 0; i < thisDay.getDay(); i++)
+            html += TD + "&nbsp;" + xTD;
+
+        // now, the days of the month
+        do {
+            dayNum = thisDay.getDate();
+            TD_onclick = " onclick=\"updateDateField('" + dateFieldName + "', '" + getDateString(thisDay) + "');\">";
+
+            if (dayNum == day)
+                html += TD_selected + TD_onclick + DIV_selected + dayNum + xDIV + xTD;
+            else
+                html += TD + TD_onclick + dayNum + xTD;
+
+            // if this is a Saturday, start a new row
+            if (thisDay.getDay() == 6)
+                html += xTR + TR;
+
+            // increment the day
+            thisDay.setDate(thisDay.getDate() + 1);
+        } while (thisDay.getDate() > 1)
+
+        // fill in any trailing blanks
+        if (thisDay.getDay() > 0) {
+            for (i = 6; i > thisDay.getDay(); i--)
+                html += TD + "&nbsp;" + xTD;
+        }
+        html += xTR;
+
+        // add a button to allow the user to easily return to today, or close the calendar
+        var today = new Date();
+        var todayString = "Today is " + dayArrayMed[today.getDay()] + ", " + monthArrayMed[today.getMonth()] + " " + today.getDate();
+        html += TR_todaybutton + TD_todaybutton;
+        //html += "<button class='dpTodayButton' onClick='refreshDatePicker(\"" + dateFieldName + "\");'>this month</button> ";
+        html += "<button class='dpTodayButton' onClick='updateDateField(\"" + dateFieldName + "\");'>cerrar</button>";
+        html += xTD + xTR;
+
+        // and finally, close the table
+        html += xTABLE;
+
+        document.getElementById(datePickerDivID).innerHTML = html;
+        // add an "iFrame shim" to allow the datepicker to display above selection lists
+        adjustiFrame();
+    }
+
+
+    /**
+    Convenience function for writing the code for the buttons that bring us back or forward
+    a month.
+    */
+    function getButtonCode(dateFieldName, dateVal, adjust, label) {
+        var newMonth = (dateVal.getMonth() + adjust) % 12;
+        var newYear = dateVal.getFullYear() + parseInt((dateVal.getMonth() + adjust) / 12);
+        if (newMonth < 0) {
+            newMonth += 12;
+            newYear += -1;
+        }
+
+        return "<button class='dpButton' onClick='refreshDatePicker(\"" + dateFieldName + "\", " + newYear + ", " + newMonth + ");'>" + label + "</button>";
+    }
+
+
+    /**
+    Convert a JavaScript Date object to a string, based on the dateFormat and dateSeparator
+    variables at the beginning of this script library.
+    */
+    function getDateString(dateVal) {
+        var dayString = "00" + dateVal.getDate();
+        var monthString = "00" + (dateVal.getMonth() + 1);
+        dayString = dayString.substring(dayString.length - 2);
+        monthString = monthString.substring(monthString.length - 2);
+
+        switch (dateFormat) {
+            case "dmy":
+                return dayString + dateSeparator + monthString + dateSeparator + dateVal.getFullYear();
+            case "ymd":
+                return dateVal.getFullYear() + dateSeparator + monthString + dateSeparator + dayString;
+            case "mdy":
+            default:
+                return monthString + dateSeparator + dayString + dateSeparator + dateVal.getFullYear();
+        }
+    }
+
+
+    /**
+    Convert a string to a JavaScript Date object.
+    */
+    function getFieldDate(dateString) {
+        var dateVal;
+        var dArray;
+        var d, m, y;
+
+        try {
+            dArray = splitDateString(dateString);
+            if (dArray) {
+                switch (dateFormat) {
+                    case "dmy":
+                        d = parseInt(dArray[0], 10);
+                        m = parseInt(dArray[1], 10) - 1;
+                        y = parseInt(dArray[2], 10);
+                        break;
+                    case "ymd":
+                        d = parseInt(dArray[2], 10);
+                        m = parseInt(dArray[1], 10) - 1;
+                        y = parseInt(dArray[0], 10);
+                        break;
+                    case "mdy":
+                    default:
+                        d = parseInt(dArray[1], 10);
+                        m = parseInt(dArray[0], 10) - 1;
+                        y = parseInt(dArray[2], 10);
+                        break;
+                }
+                dateVal = new Date(y, m, d);
+            } else if (dateString) {
+                dateVal = new Date(dateString);
+            } else {
+                dateVal = new Date();
+            }
+        } catch (e) {
+            dateVal = new Date();
+        }
+
+        return dateVal;
+    }
+
+
+    /**
+    Try to split a date string into an array of elements, using common date separators.
+    If the date is split, an array is returned; otherwise, we just return false.
+    */
+    function splitDateString(dateString) {
+        var dArray;
+        if (dateString.indexOf("/") >= 0)
+            dArray = dateString.split("/");
+        else if (dateString.indexOf(".") >= 0)
+            dArray = dateString.split(".");
+        else if (dateString.indexOf("-") >= 0)
+            dArray = dateString.split("-");
+        else if (dateString.indexOf("\\") >= 0)
+            dArray = dateString.split("\\");
+        else
+            dArray = false;
+
+        return dArray;
+    }
+
+    /**
+    Update the field with the given dateFieldName with the dateString that has been passed,
+    and hide the datepicker. If no dateString is passed, just close the datepicker without
+    changing the field value.
+
+    Also, if the page developer has defined a function called datePickerClosed anywhere on
+    the page or in an imported library, we will attempt to run that function with the updated
+    field as a parameter. This can be used for such things as date validation, setting default
+    values for related fields, etc. For example, you might have a function like this to validate
+    a start date field:
+
+    function datePickerClosed(dateField)
+    {
+    var dateObj = getFieldDate(dateField.value);
+    var today = new Date();
+    today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+ 
+    if (dateField.name == "StartDate") {
+    if (dateObj < today) {
+    // if the date is before today, alert the user and display the datepicker again
+    alert("Please enter a date that is today or later");
+    dateField.value = "";
+    document.getElementById(datePickerDivID).style.visibility = "visible";
+    adjustiFrame();
+    } else {
+    // if the date is okay, set the EndDate field to 7 days after the StartDate
+    dateObj.setTime(dateObj.getTime() + (7 * 24 * 60 * 60 * 1000));
+    var endDateField = document.getElementsByName ("EndDate").item(0);
+    endDateField.value = getDateString(dateObj);
+    }
+    }
+    }
+
+    */
+
+    function SetDDL(targetField, dateFieldName, dateString)
+    {
+        
+        var StartDate = 2014;
+        var EndDate = 2014;
+
+        var IsInicial = dateFieldName.indexOf("FechaInicial");
+        var IsFinal = dateFieldName.indexOf("FechaFinal");
+        
+        var hfInicial = document.getElementById("hfInicial");
+        var hfFinal = document.getElementById("hfFinal");
+
+        if(IsInicial > -1)
+        {
+            hfInicial.value = dateString;
+            hfInicial.value = getFieldDate(hfInicial.value).getFullYear();
+        }
+
+        if(IsFinal > -1)
+        {
+            hfFinal.value = dateString;
+            hfFinal.value = getFieldDate(hfFinal.value).getFullYear();
+        }
+
+        if(hfInicial.value != "")
+        {
+            StartDate = hfInicial.value;        
+        }
+
+        if(hfFinal.value != "")
+        {
+            EndDate = hfFinal.value;
+        }
+
+        //var dt = getFieldDate(targetField.value);
+        //var year = dt.getFullYear();
+        //alert(targetField.id);
+        var ddl = document.getElementById("ctl00_MainContent_ddlComplementos");
+        
+        var passed = true;
+
+        if(StartDate < 2014 || EndDate < 2014)
+        {
+            passed = false;
+        }
+
+        if(!passed)
+        {
+            var hfInicialBool = document.getElementById("hfInicialBool");
+            hfInicialBool.value = "true";
+
+            if(ddl != null)
+            {
+                ddl.selectedIndex=0;
+                ddl.disabled= true;
+            }
+
+        }
+        if(passed)
+        {
+            var hfInicialBool = document.getElementById("hfInicialBool");
+            hfInicialBool.value = "false";
+
+            if(ddl != null)
+                ddl.disabled= false;
+        }
+    }
+
+    function updateDateField(dateFieldName, dateString) {
+        var targetDateField = document.getElementsByName(dateFieldName).item(0);
+        if (dateString) {
+
+            //var Contenedor = $('#'+ dateFieldName);
+            var idDependiente = '#' + $(targetDateField).attr('dependiente');
+            if (true) {
+                $(idDependiente + '_Calendario_text').val(dateString);
+                
+                //$(idDependiente + '_DdlHora').val("23");
+                var opHora = $(idDependiente + '_DdlHora').find("option[value=23]");
+                $(idDependiente + '_DdlHora').selectbox("change", opHora.attr('value'), opHora.html());
+                
+                //$(idDependiente + '_DdlMinuto').val("59");
+                var opMinuto = $(idDependiente + '_DdlMinuto').find("option[value=59]");
+                $(idDependiente + '_DdlMinuto').selectbox("change", opMinuto.attr('value'), opMinuto.html());
+                
+                //$(idDependiente + '_DdlSegundo').val("59");
+                var opSegundo = $(idDependiente + '_DdlSegundo').find("option[value=59]");
+                $(idDependiente + '_DdlSegundo').selectbox("change", opSegundo.attr('value'), opSegundo.html());
+                
+            }
+            targetDateField.value = dateString;
+            if (this._CustomAction != null)
+                this._CustomAction(dateString);
+
+            SetDDL(targetDateField, dateFieldName, dateString);
+        }
+        // targetDateField.fireEvent('onchange');
+
+
+
+        var pickerDiv = document.getElementById(datePickerDivID);
+        if(pickerDiv != null)
+        {
+            pickerDiv.style.visibility = "hidden";
+            pickerDiv.style.display = "none";
+
+            adjustiFrame();
+
+            // after the datepicker has closed, optionally run a user-defined function called
+            // datePickerClosed, passing the field that was just updated as a parameter
+            // (note that this will only run if the user actually selected a date from the datepicker)
+            if ((dateString) && (typeof (datePickerClosed) == "function"))
+                datePickerClosed(targetDateField);
+        }
+    }
+
+
+    /**
+    Use an "iFrame shim" to deal with problems where the datepicker shows up behind
+    selection list elements, if they're below the datepicker. 
+    */
+    function adjustiFrame(pickerDiv, iFrameDiv) {
+        // we know that Opera doesn't like something about this, so if we
+        // think we're using Opera, don't even try
+        var is_opera = (navigator.userAgent.toLowerCase().indexOf("opera") != -1);
+        if (is_opera)
+            return;
+
+        // put a try/catch block around the whole thing, just in case
+        try {
+            if (!document.getElementById(iFrameDivID)) {
+                // don't use innerHTML to update the body, because it can cause global variables
+                // that are currently pointing to objects on the page to have bad references
+                //document.body.innerHTML += "<iframe id='" + iFrameDivID + "' src='javascript:false;' scrolling='no' frameborder='0'>";
+                var newNode = document.createElement("iFrame");
+                newNode.setAttribute("id", iFrameDivID);
+//                newNode.setAttribute("src", "javascript:false;");
+                newNode.setAttribute("scrolling", "no");
+                newNode.setAttribute("frameborder", "0");                    
+                document.body.appendChild(newNode);
+                
+            }
+
+            if (!pickerDiv)
+                pickerDiv = document.getElementById(datePickerDivID);
+            if (!iFrameDiv)
+                iFrameDiv = document.getElementById(iFrameDivID);
+
+            try {
+                iFrameDiv.style.position = "absolute";
+                iFrameDiv.style.width = pickerDiv.offsetWidth;
+                iFrameDiv.style.height = pickerDiv.offsetHeight;
+                iFrameDiv.style.top = pickerDiv.style.top;
+                iFrameDiv.style.left = pickerDiv.style.left;
+                iFrameDiv.style.zIndex = pickerDiv.style.zIndex - 1;
+                iFrameDiv.style.visibility = pickerDiv.style.visibility;
+                iFrameDiv.style.display = pickerDiv.style.display;
+            } catch (e) {
+            }
+
+        } catch (ee) {
+        }
+
+    }
+    /* Function Ends for calendar chk line 379 for doubts*/
+
+
+///
+
+
+    ////Define la posición en donde aparecerá el calendario.
+        function DefinePosicionCalendario(NombreContenedor, NombreEtiqueta, NombreCaja) {
+        var lblFecha = $(NombreEtiqueta); //Instancia de la etiqueta
+        var txtFecha = $(NombreCaja); //Instancia de la caja de texto   
+        var TopCalendario = txtFecha.offset().top + txtFecha.height(); //Posición del calendario
+        var Contenedor = $(NombreContenedor).children("#SeleccionFecha");
+
+        Contenedor.children("#DivCalendario").css('left', txtFecha.offset().left).css('top', TopCalendario);
+    }
+
+//    ////Define las posiciones iniciales de los controles.
+    function DefinePosicionInicial() {
+        var lblFecha = $("#ctl00_MainContent_CldFechaFinal2_LblFecha"); //Instancia de la etiqueta
+        var txtFecha = $("#" + idCajaTexto); //Instancia de la caja de texto       
+        var ancho = $("#DivTexto").width() + lblFecha.width(); //Se obtiene el ancho del div principal        
+        var LeftBotonFecha = lblFecha.position().left + lblFecha.width() + txtFecha.width(); // Se obtiene la posisición del botón
+        var TopDivTexto = parseInt(lblFecha.height() / 2) - parseInt($("#DivTexto").height() / 2); //Se obtiene la posicion vertical de la caja de texto y del botón
+        var Contenedor = $("#ctl00_MainContent_CldFechaFinal2_UpnlSeleccionFecha").children("#SeleccionFecha");
+        Contenedor.children("#SeleccionFecha").width(ancho);
+    }
+
+    function ConfiguraCombosMac() {
+        var isMac = navigator.userAgent.indexOf("Macintosh")
+
+        if(isMac != -1)
+            $(document.getElementsByClassName("calendarCombo")).css("width", "45px");
+    }
+    
+    $(function() {
+    
+        DefinePosicionInicial();
+
+        //Se establece la acción para mostrar el calendario
+        $("#ctl00_MainContent_CldFechaFinal2_BtnFecha2").live('click', function() {
+        
+           if ($("#ctl00_MainContent_CldFechaFinal2_BtnFecha2").attr('habilitado') == "true") {
+             var cajaTexto = $(this).parent().find(":input");
+                displayDatePicker(cajaTexto.attr('id'), false, 'dmy', '/');
+            }
+        });
+    });
+
+   
+</script>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <span id="ctl00_MainContent_LblRfcReceptor" class="control-label">RFC Receptor</span>
+                        </div>
+                        <div class="col-sm-4">
+                            <span id="ctl00_MainContent_LblRfcTercero" class="control-label">RFC a cuenta terceros</span>
+                        </div>
+                        <div class="col-sm-4">
+                            <span id="ctl00_MainContent_LblEstado" class="control-label">Estado del Comprobante</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <input name="ctl00$MainContent$TxtRfcReceptor" type="text" maxlength="13" id="ctl00_MainContent_TxtRfcReceptor" class="form-control" style="width:100%;">
+                        </div>
+                        <div class="col-sm-4">
+                            <input name="ctl00$MainContent$TxtRfcTercero" type="text" maxlength="13" id="ctl00_MainContent_TxtRfcTercero" class="form-control" style="width:100%;">
+                        </div>
+                        <div class="col-sm-4">
+                            <select name="ctl00$MainContent$DdlEstadoComprobante" id="ctl00_MainContent_DdlEstadoComprobante" class="form-control" onchange="jsEstadoComprobante(this);" style="width:100%;">
+	<option selected="selected" value="-1">Seleccione un valor...</option>
+	<option value="0">Cancelado</option>
+	<option value="1">Vigente</option>
+
+</select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <span id="ctl00_MainContent_lblComplementos" class="control-label">Tipo de Comprobante (Complemento)</span>
+                        </div>
+                        <div id="DivlblEstatusCancelacion" style="display: none;" class="col-sm-6">
+                            <span id="ctl00_MainContent_lblEstatusCancelacion" class="control-label">Estatus Cancelación</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <select name="ctl00$MainContent$ddlComplementos" id="ddlComplementos" class="form-control" style="width:100%;">
+	<option selected="selected" value="-1">Seleccione un valor...</option>
+	<option value="8">Estándar</option>
+	<option value="4294967296">Acreditamiento de IEPS</option>
+	<option value="8388608">Aerolíneas</option>
+	<option value="70368744177664">Carta Porte</option>
+	<option value="140737488355328">Carta Porte 2.0</option>
+	<option value="2251799813685248">Carta Porte 3.0</option>
+	<option value="9007199254740992">Carta Porte 3.1</option>
+	<option value="1073741824">Certificado de Destrucción</option>
+	<option value="17179869184">Comercio Exterior</option>
+	<option value="274877906944">Comercio Exterior 1.1</option>
+	<option value="4503599627370496">ComercioExterior 2.0</option>
+	<option value="4">Compra Venta de Divisas</option>
+	<option value="16777216">Consumo de Combustibles</option>
+	<option value="8796093022208">Consumo De Combustibles 1.1</option>
+	<option value="64">Donatarias</option>
+	<option value="256">Estado De Cuenta Bancario</option>
+	<option value="4398046511104">Estado de Cuenta Combustibles 1.2</option>
+	<option value="8589934592">Estado de cuenta de combustibles de monederos electrónicos.</option>
+	<option value="17592186044416">Gastos de Hidrocarburos</option>
+	<option value="68719476736">INE 1.1</option>
+	<option value="35184372088832">Ingresos de Hidrocarburos</option>
+	<option value="1024">Instituciones Educativas Privadas (Pago de colegiatura)</option>
+	<option value="4096">Leyendas Fiscales</option>
+	<option value="524288">Mis Cuentas</option>
+	<option value="67108864">Notarios Públicos</option>
+	<option value="536870912">Obras de artes y antigüedades</option>
+	<option value="2048">Otros Derechos e Impuestos</option>
+	<option value="4194304">Pago en Especie</option>
+	<option value="8192">Persona Física Integrante de Coordinado</option>
+	<option value="1125899906842624">Recepcion de Pagos</option>
+	<option value="549755813888">Recepción de Pagos</option>
+	<option value="128">Recibo de donativo</option>
+	<option value="1048576">Recibo de Pago de Salarios</option>
+	<option value="137438953472">Recibo de Pago de Salarios 1.2</option>
+	<option value="32">Sector de Ventas al Detalle (Detallista)</option>
+	<option value="268435456">Servicios de construcción</option>
+	<option value="16384">SPEI de Tercero a Tercero</option>
+	<option value="2147483648">Sustitución y renovación vehicular</option>
+	<option value="32768">Terceros</option>
+	<option value="65536">Terceros</option>
+	<option value="2199023255552">Timbre Fiscal Digital</option>
+	<option value="16">Turista o Pasajero Extranjero</option>
+	<option value="33554432">Vales de Despensa</option>
+	<option value="134217728">Vehículo Usado</option>
+	<option value="2097152">Venta de Vehiculos</option>
+
+</select>
+                            <small class="form-text">(Criterio de búsqueda aplicable a CFDI emitidas a partir del 01/01/2014)</small>
+                        </div>
+                        <div id="DivddlVigente" style="display: none;" class="col-sm-6">
+                            <select name="ctl00$MainContent$ddlVigente" id="ddlVigente" class="form-control" align="left" style="width:100%;">
+	<option selected="selected" value="0">Seleccione un valor...</option>
+	<option value="1">En Proceso</option>
+	<option value="4">Rechazada </option>
+	<option value="5">Plazo vencido</option>
+	<option value="-1">Sin proceso</option>
+
+</select>
+                        </div>
+                        <div id="DivddlCancelado" style="display: none;" class="col-sm-6">
+                            <select name="ctl00$MainContent$ddlCancelado" id="ddlCancelado" class="form-control" align="left" style="width:100%;">
+	<option selected="selected" value="0">Seleccione un valor...</option>
+	<option value="2">Cancelado con aceptación</option>
+	<option value="3">Cancelado sin aceptación</option>
+	<option value="5">Plazo vencido</option>
+
+</select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clearfix">
+                    <div class="pull-left text-muted text-vertical-align-button">
+                        * Campos obligatorios
+                    </div>
+                    <div class="pull-right">
+                        <input type="hidden" name="ctl00$MainContent$hfDatos" id="hfDatos">
+                        <input type="hidden" name="ctl00$MainContent$hfFlag" id="hfFlag">
+                        <input type="hidden" name="ctl00$MainContent$hfAux" id="hfAux">
+                        <input type="hidden" name="ctl00$MainContent$hfDescarga" id="hfDescarga">
+                        <input type="hidden" name="ctl00$MainContent$hfCancelacion" id="hfCancelacion">
+                        <input type="hidden" name="ctl00$MainContent$hfJSONCancelacion" id="hfJSONCancelacion">
+                        <input type="hidden" name="ctl00$MainContent$hfUrlDescarga" id="hfUrlDescarga" value="8CwRV5o0dmkOq1lwJYBIUT9YmL5JGsu+GiDLrwDktvaCRKAIQquYPiZUHNIt9xFgOAe4MdjKGg+tqkUWQdv/uQkBgDC3vWEOVlRAPlZQKS2xVHPAjneALPUcFAEplpfEg35r9m+o1i+o/Mq8E0yq04FOW2b1zBGWBUZDlQLsnLs/6AbJeMTCCXIpsz6RltRTzY1BfzfSK9Z5X8B0ta9/3Unatu0b5BZGNXR5QhkHg0k=">
+
+                        <input type="submit" name="ctl00$MainContent$BtnBusqueda" value="Buscar CFDI" onclick="ocultaResultados();WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$MainContent$BtnBusqueda&quot;, &quot;&quot;, true, &quot;Fechas&quot;, &quot;&quot;, false, false))" id="ctl00_MainContent_BtnBusqueda" class="btn btn-primary">
+                    </div>
+                </div>
+                <div class="busqueda">
+                    
+                    
+                    
+                    
+                    <div style="vertical-align: top" class="erroruuid">
+                        
+                    </div>
+                    <br>
+                    <div id="ctl00_MainContent_ValidationSummary1" class="errores" style="display:none;">
+
+</div>
+                    <div id="ctl00_MainContent_PnlErrores" class="erroruuid" style="width:390px;">
+	
+                        <div style="vertical-align: top">
+                            
+                        </div>
+                    
+</div>
+                </div>
+            </div>
+        <div id="ctl00_MainContent_UpnlResultados">
+                <div id="ctl00_MainContent_PnlResultados" style="display:inline;">
+	
+                    
+                    <div class="form-group" id="dvAlert"></div><div class="form-group" id="DivContenedor"><div class="col-sm-12" id="ContenedorDinamico" style="overflow: auto; display: block; text-align: rigth; vertical-align: middle; position: relative;"><table id="ctl00_MainContent_tblResult" aria-label="comprobantes" class="table table-responsive"><tbody><tr><th><span style="width: 160px;"><input type="checkbox" style="display: inline-block; float: left; position: relative;" id="seleccionador" name="seleccionador" onclick="manejaseleccion();" title="Seleccionar todos">&nbsp;&nbsp;Acciones</span></th><th><span style="width: 385px;">Folio Fiscal</span></th><th><span style="width: 150px;">RFC Emisor</span></th><th><span style="width: 350px;">Nombre o Razón Social del Emisor</span></th><th><span style="width: 150px;">RFC Receptor</span></th><th><span style="width: 350px;">Nombre o Razón Social del Receptor</span></th><th><span style="width: 200px;">Fecha de Emisión</span></th><th><span style="width: 200px;">Fecha de Certificación</span></th><th><span style="width: 150px;">PAC que Certificó</span></th><th><span style="width: 150px;">Total</span></th><th><span style="width: 130px;">Efecto del Comprobante</span></th><th><span style="width: 200px;">Estatus de cancelación</span></th><th><span style="width: 130px;">Estado del Comprobante</span></th><th><span style="width: 200px;">Estatus de Proceso de Cancelación</span></th><th><span style="width: 200px;">Fecha de Solicitud de la Cancelación</span></th><th><span style="width: 200px;">Fecha de Cancelación</span></th><th><span style="width: 200px;">RFC a cuenta de terceros</span></th><th><span style="width: 200px;">Motivo</span></th><th><span style="width: 200px;">Folio de Sustitución</span></th></tr><tr><td><div style="width:150px; display:block;text-align:rigth;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><div style="width:10px;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" style="display:inline-block; float:left;" value="EE6B04BA-854C-4D3F-A8E0-A505F905A767" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="gJrHwRuI9Q/nAymh1oT4Ecz3zL1I3PN/C0nPNK+v4A5xdIJEiNDmM/D44CySl1kgtLSC230RGXFQsUXZa7+S7ZSbWXT0IihOjtgzHFT+IwDPrBFcWSSi1w+rlYB43Iv6SoxrqtWS6baBFQLPheURCbAN3Q8GvfebfW8cib5gwSJ3Kw3i9w4APBmeim6QDUhmGhGBuEgN/K+zm5aVA0sHJ/Yuq3C2Yt6qRotZY8n+cv29KaoaWe5BB1/wDPzi3RtajlO4SadIhUYtXvgFAxH9VQa3/itjvYQ6baKXp4q0GMcA4x5c4tbckn+EgeMBu67LRmxCXaa9/7AodFRO26v5nzcJCHoIrBhQCQwv80d3GuQfXMJxdjRm8JRfs8fQaDcheAUpPhaxt5YR0JhuAXMjYukgmphPMUYBWDJ2oLSs0vQ="></div></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=ivKXtMo4Do9Gjmy8SAoZXR/BEEYvTMiJo5O+aqy/NYgsVt/LEHlxhFsU4FH9qEGaUvxiOs8y5w/dJ5Sgjqa6wmEAQF2nqlhzJE0YWcHIK3UXgzmkuwpqoroAW4FOtYjdY+xxQY9AIAl0PvDh2Bn8hbWdyzT0YLtNSo3W8K8oEe3kraQwsOF7ebELGiY3KJ6J6zDcE12ft1I49sRkv3CCO8LfLS3tRC8bVZWCiyxffSIoT+Ic0C9sdiRZfpJamXbEmrsQUoac4lkXl4OrNeZQIZ75tqDQw7SIbcS7XXySmc7vtxEMfXp0IVH2rXmWyWLJw4iqRLSuDU0AkFHgtau7G3+IL91PCcrrEsU+r/AAyUjW3A160FCEgQ/VLLQ5yeP8Yl1AwHCHUP56tBUHQ3Nj6uQZaaGvsWOnIK22CBbkWhTVHfL26+0kryrqmWPc36UwqYC6ElJHdmHxQS+AyvV5gj6/rgbygzoG0QwYjimc8He+qjvo89ros6unqt79jVSEa5ORzvhRerR5DGsnPZ8L66ibBzTDK/n9EW3kQ8tuFsRyEnPQTGmZUpcJ2vsvM1vRQZEtvAGKWLrzktddOvOkL/76jZ8qnpntruPM+BWt5plB6NTJuX+i2fr9b7P4q+13SLXUjmiHWZLsAsruApYtAQ==','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=kcl5OCBTlmeNm4Hv9GvCm19LXSqKij4oxjUnyvyuadgAtR9ITospMU1EqgzwqSUCFhIERFTiju793FR7VgZkdqOHEcuZKeoYalTjYZTP1aTKJBLGXDzn+Q3J3FzctD2l4kBRgBJRFnYuvSYM2WZgY+aKQ+yIrNlRyQgIXFS07ax/M4Hiz2Qxe4xa+Z2HOsu9+b6FHWc0TqdqePPw5c5onNiVsnOEFx1oEOSPioabHWzjSFj4EPii7CmAiGEq4LGfu1MNCLUhacO23DOEuR4/p9YfWxpFmpZRzwMAN9hThidUFfn3i5FYhhEOtvFcXw1nCr4h+zj9oy3A+zP6QQI7t7ZzaiQJCVgTrzwWdNK22+AGjKYE+Z2U0NSSpU3rsi9NUL4wPS0l2IVyqQGKB+QMRv28MQhfFr9VN2NlQMl5dT01TD4Enb6nhm3aV/cm4Z6I7bK8VTkyU6QqyFPdo1cgsZ1cu/h4zxsh6M1MtvDDdrIc+X1zt/p5TeVVXKR+10r4BCWeWUZBxR/pW6KulE33mZhI00cvxSML2IyecYelq29JPyt/SaGz3TP+tOQRFYpxWt0952XelAJm5DeOG7DYJsN1GaIvmc+CDERd7SG5HwM=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('zLi98NIeHKvcdohRjUOGQotPyPqTsEHR52nPtfJT8uNWQ6ifxZCbAKlfJxp0d7imlZV9Ku0HYXetE6jeqR1Ct05xMJhcAq2p/tul0DEGIfN3Jri/pgon5syMysCtpmeWfGjnGzwyGc3vnkqwhVJ9ainoJDEP0Y+xo+RKs1GT5WL/RjEJTGvzwQjLw4fBjh3ZxW59ffZqoKcbPCwRRYIKLmju6ga6oC61zGW6vB3O7kz6OEdLPzK/i0QG2KAQ7sWJ/YOYRNs61OUoUCEMtwwezAtX81Ej1gGD1diYyLzoZvwkCBXMEQhoBAeWwPkO4caSGqh/r52ltr+iRJa95IWSBYBDRpaNYOZU56ii2ZwO2TNv5fc8Tm4+RL8pth9YnrA0DkwT2MNtDNiz8hiTnQWY2YbQTFVn/xuT4bClGx3+ROp8+TBdlhZp+7TM0rzmnAJDz/a+MvNppJgjqydjyl62ierE2nvA2h97ctSzKMZWY4sNt8XgvE7rRzmC7VXpk7lOuYOJ7m7NsWvefLdzyAP9UXgwM8iXHDlLQjL1IERU+MUOBsvtLVivcoH0xKwdTkJ4cAe1S7wPbWmpIcRyhYKpMZVTDHo2KnMNzAGdAwunCEK65lIK5zGEubLvTdHY6/vi/p/fdFQ1Jqz0WAaUsCeQLA==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;"><span id="BtnAddenda" name="BtnAddenda" height="25" width="25" class="glyphicon glyphicon-plus-sign Interactivo" onclick="AccionCfdi('IntegraAddenda.aspx?Datos=NK8ATGqoRSJLsf/iCWYJ9DBNJtbO00y7O39hOEYwR4/wzYx6C5ZbwJswOifU08iHjCUDCb018gwXdI8ueYmj3mvJuyYHak0gUY9WnEqxXWjJS3X8iHsLj57ffFzCov0ve+w9g1Wpf//cIGR0hTADDjs6BTZqhFlw2kVh1V5F92G/XIbyS0YMdbp4Pex4r36wooDSm1KmJkP2yG8SOfLXdOG+6Xhjuk/RRX6k5wGNXqtz3tbqs1HvGVSlEyWthEHHGOD7HjI6XNiVfPHOvYPKML9DeEm74ybnXAp74WTPtlE3TcXZ0U6AtBM9RaS/ph+TW0KJG3ELxKcpH4meaSImgHWN0fQcRGnGcudj72l3wbGKOTjupL0P06U+RP4YujMRQWWZK2zalMgHi+nX2rB66frSBsbMQDHnerL+friQiokcqeuOgKkpdRgq9iRRDOl/8mCwquNxoyDLGhiYpEfgtGjb2yVa6lTGooYpELZa/4k=','Addenda');" title="Integrar Addenda"></span></td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">EE6B04BA-854C-4D3F-A8E0-A505F905A767</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">TNM140723GFA</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">TECNOLOGICO NACIONAL DE MEXICO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-03-09T18:33:19</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-03-09T18:33:47</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">SAT970701NN3</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$7,302.24</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Ingreso</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable con aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr><tr><td><div style="width:150px; display:block;text-align:rigth;vertical-align:middle; position: relative;"><table><tbody><tr><td style="width:14.2%;"><div style="width:10px;"><input id="ListaFolios" title="Seleccionar" name="ListaFolios" type="checkbox" style="display:inline-block; float:left;" value="B88EA414-6BB1-4025-8990-3AE758412667" class="ListaFolios" onclick="validaseleccion();"><input type="hidden" id="ListaFoliosUrl" name="ListaFoliosUrl" value="6H4HXlbIyRHkV66fFJoxWGJUqCgCMeGdExWKUpQDOjVpcU7tFwRpYof/igouv730jtIyciDQ7mxJHuRynAUSDRiSBybI9G9460zTHgqJ33EifXKq5piSuJ1olrxKYiJ63ps8Tqghja5gc4T1TH3OdsIkKeLwgKdv7JNp6SZ8O21VPLTL/oHVh0PM3BYGdrCHe0luoY5CntvdHfcVIXavDtKeRAwSq31eTDNKNaCpOmxPh/E/0huXYnjJH081QHiYSYT6s8nc5Rj5CRWo/44NgIhIlaubrzhZPuMAEzjB8cYEptoD6A1gLqfhDkvwXBfPjkLyqQtz5hcB2LSWJ6oPi+LgybGBWDNcxRBzhwuRlB53o37wEDton5sb6yduuCY4s7bja2PW+WfCR4+alA7/ci5kSU8ZFeMKQv1Ax7CpkXE="></div></td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;">&nbsp;</td><td style="width:14.2%;"><span id="BtnVerDetalle" name="BtnVerDetalle" height="25" width="25" class="glyphicon glyphicon-zoom-in Interactivo" onclick="AccionCfdi('Detalle.aspx?Datos=0i4C4qsVOZmaNw/9QCzVgAkaXDfN7wjp5uzSB0Qc9vDtXDv/bJuxLrtyeVsR40U0UTagPlq5/VksOpb5qNK1GhDInvYTGefpkrvSrp8XAsmkC5ITHDyI3CTRFUd9EPpHXkTBftn//wZ/xLXEZ7MAj+X+HIkX4Ob2IP334f19IlJK3wO6BW/GHfNUkQB8xsKDZKEkDJHypgJ0KRmU7S7y8ocNGZscUTyCmvCo1dMW3xflJsnYrtfmHSzo8pMNzNaftwbyye2iDbmOIO5qQS2okzpMS+PJHyH0G3bhQcs9o+9Ky0uNJr6swK8HLU0wAnp8bRPhnb+Kyk0NRZ2TtCgH+KRNiBahQZzO1z8JbAp/592lpif23xS/FBpZIAzcDJiWyzuwIJvr7pn/CuB536Nqam2bqjbfmPznYgPeF5tNWG7ic5o4vLZRp2ySxkWIMxNTpsGaPpqpMvr4SyMaYWxG5lXRLs5IhBDz84Pg4MzyhoDw78cLoxvJRBcnvHjdMMlwCYf7972obBDAUCDvxAEzh6tMT+NbuO2xBM9iscPCE7yqm4FL0vYvsDnvqt5IbyePXJDKfnMgW712eQ5lHaWwQkrCNA9mQr/8tPQWt/v8O5dSlLfccTsTQ3sFouKbaNqy','Detalle');" title="Ver detalle" style="cursor:pointer"></span></td><td style="width:14.2%;"><span id="BtnDescarga" name="BtnDescarga" height="25" width="25" class="glyphicon glyphicon-cloud-download Interactivo" onclick="return AccionCfdi('RecuperaCfdi.aspx?Datos=sEAnS/Ny2eUhntZRYbA2xFZy28oQHvu6SwcsymnTgpPU9+o4Rw/79gQua55itXNPJ+46F2g4gohlUVpMU+DO6g3uSXZJzNI4r4pB2jmCqG/DVGdIhDpbn8EzGMkkHPp815gzxAW8xrneEYLy/ddcKRDACHDPyl5UsJz7DS51tu8slSBQTUEau1EN4GZ8vAxeJ/3YoiAT8lljhYjOY6024BcZHTMKKHB5t0y+EiEW9znfV2AbwMN9XCRjoO5Ono/9okGSkmkAdz6Y1vDNsZTwnZ49z/g5cosW9Q9a/kPS8C14Y+p9lxNOTN2QVizf6pcK/obeTSdvIizQSth/ZweRHG2LXF76lmAwHbFVzme+G+D3Z+HWyX11EMco+pIO0eBSER+5qN1qL+dQtBY/mDymac1RptGLJnZfMv+FivFuOX1siq0VA50t5LkDrzQ+CBTNyFTbO0X8SW4sYaHIva7Zkl0E9LqK+UZpCm3G+iNvhupAdQjlG4Ru71eJvKC5A990xANYIQS5J/AyAiqvqR7QoH7uDWeQvbLM+071f7xIZjOHxYoC3M+YL6ptjGBFaqibAHZbUOyLCYStToBNrCCLzfZVhwTTz8N0xAzJ+sFwrnw=','Recuperacion');" title="Descargar"></span></td><td style="width:14.2%;"><span id="BtnRI" name="BtnRI" class="glyphicon glyphicon-file Interactivo" onclick="recuperaRepresentacionImpresa('WVsYkvBpNgWa+iErLqPBbxb+o1QBEKtKjHnTwnCpefc6JAjWMN958IMOPWPWMjxPHLpMb7PVMvAUkWpBYICOAdsIVfUqKPMufWEUeQzs450+9IHSCgmjv4ElfbFLyX2TZCLzPrr23Vg1+7qL+j+6JhSZF8VnYdunwgshNgbMH5Pu0Ax3O+LV4y8sPVhyFpiYjkoeSHHIqlhHpzxfywaYhYMRrkAQpebAIfR5CFzTI+kbqWQGPoyPuZ/XEiegyhavN1dChJL2Tr2QmbeZuYbDZHPzlQnAq++iIPj+HTB4Wlmx4M9s4bC8Ppy4bATzEoNQc8Mkcw7glVmTxuFRRVmVpSO9ItbacEnlICERMCapyQWLp4aDPbf3CA8JAnAlO1pgnaEbVXCNsZwDYpz7IcMmNbyR9WgQ4xnqb3Obl8NwScgvdzXmrUDwSMSEmqOJtxfPP/NM9AWqXQXCrtwu/uCheJfX+BwtQOFDcs5dukL0ZZAosSKbxKWC55ZRVZSGmKusaQ8QKwOcjZAGidpPTJCrjyQfZrFGF9eGjPM2LuEbXHJbHsRd+8kIVMnP8lsNvXkVyiKUcWfs9R76y6CyX0OReFZ5HN7PyRgl1IfWddaONHypdbzx674seNuQcy8LQwGFXLTQnvEMcgEP2SnCgOUwSQ==');" title="Recuperar Representación Impresa" style="cursor:pointer"></span></td><td style="width:14.2%;"></td><td style="width:14.2%;"><span id="BtnAddenda" name="BtnAddenda" height="25" width="25" class="glyphicon glyphicon-plus-sign Interactivo" onclick="AccionCfdi('IntegraAddenda.aspx?Datos=UyHlhjjLaEuimaTaB4Stnw/CmpUiRkMszCPLctq4ax7swDsMJUhC2Nnvjxfdyur9v185J2LqflReRIVD96XI3iZgvAw4Arf8ieVnI9R734yL4Xjl+roZ66eKOrpTq/6OY5fPz15+IuPYTAjML/Rsiq9cHUvinn3JQAn8JZEkjQ/VFu4XKHCAb8eYJxElYuztMK+VmAnlwmdCAes/eNtqScPos6r+8JW52/uk+djSWYZ9HMYTN2Zk1I1hV5pXebnrq1bsUJBBQIU2ncOjaEpP4Nrtz6iplRIryDA2sMtSk3Qus7OqsjdsQLe469WUaBBck6SCI21WjBmAT2s2af20Z7tcOdO59jxM+t1igBd/Ek73ndEtlGPB01K6ixm9keP0vTPD8g7vhYuivsggcg03Sir3UBe+8wYWQChxR/zOLtCGC9JzOA0CAup56oeNYL16JKPcwn/BwX+ev8PpYrfuEben1IvnJZmHa1YCthH/GuU=','Addenda');" title="Integrar Addenda"></span></td></tr></tbody></table></div></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:385px;">B88EA414-6BB1-4025-8990-3AE758412667</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">RAAR941112L88</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">RIGOBERTO RAMOS APARICIO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">TNM140723GFA</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:350px;">TECNOLOGICO NACIONAL DE MEXICO</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-03-19T19:37:16</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">2026-03-19T19:37:39</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">SAT970701NN3</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:150px;">$7,302.24</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Ingreso</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;">Cancelable con aceptación</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;">Vigente</span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:240px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td><td style="WORD-BREAK:BREAK-ALL;"><span style="display:inline-block;width:200px;"></span></td></tr></tbody></table></div></div><div id="ctl00_MainContent_pageNavPosition" class="form-group"></div><br><br><div class="form-group"><div class="btn-group col-sm-offset-2 col-md-12"><input type="submit" name="ctl00$MainContent$BtnDescargar" value="Descargar Seleccionados" onclick="return validarSeleccionDescarga();" id="ctl00_MainContent_BtnDescargar" class="btn btn-primary">&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="submit" name="ctl00$MainContent$BtnMetadata" value="Descargar Metadata" onclick="return MetadataDescarga();" id="ctl00_MainContent_BtnMetadata" class="btn btn-primary"><input type="submit" name="ctl00$MainContent$BtnImprimir" value="Exportar Resultados a PDF" id="ctl00_MainContent_BtnImprimir" class="btn btn-primary">&nbsp;
+                            <input type="submit" name="ctl00$MainContent$BtnCancelar" value="Cancelar Seleccionados" onclick="return CancelarSeleccionCliente();" id="ctl00_MainContent_BtnCancelar" class="btn btn-primary"></div></div><div class="form-group" id="dvAlert"></div>
+                
+</div>
+                <br>
+                <br>
+                <div id="ctl00_MainContent_PnlNoResultados" style="text-align:center;display:none;">
+	
+                    <h2 class="subtitle" style="text-align: center;">No existen registros que cumplan con los criterios de búsqueda ingresados,
+                        intentar nuevamente.</h2>
+                
+</div>
+                <input type="hidden" name="ctl00$MainContent$hfParametrosMetadata" id="hfParametrosMetadata" value="qUp7Rt56wTCqUto5ciT7B+v2mtbTZ6/S95PBxlzTASF+EavPuRmuHzEdFGqWF6aGYF25mbYuJL12fdB3gBEr6V10CQaA4B6XtPKyBL/IaQMBLqKnAQ/DceZGsN1xoXEZrWt69FC9XQunI/o2leoSTZ0L9hk1tAWii3dORGlxUs7MdqhyaHaRvlN//2X0463sI+R7u26q3CY+Y/P791NKktQp8TYdXc6LD0EoC/Xy5C14SHULl41F027PjsjFdzG1LsS4JaZgygNudUSfJfTScNtkRfHh2OYYEp1OhAqLGJ8=">
+            </div>
+    
+</div>
+    <a id="setLinkButton" href="javascript:__doPostBack('ctl00$MainContent$setLinkButton','')"></a>
+    <input type="hidden" name="ctl00$MainContent$hdnValAccion" id="hdnValAccion">
+    <div id="ctl00_MainContent_UpdateProgress1" style="display:none;" role="status" aria-hidden="true">
+	
+            <div class="progresofondo">
+            </div>
+            <div class="progreso">
+                <img src="Images/ajax-loader.gif" style="float: left; margin-top: 5px;">
+                <h2 style="width: 250px; float: left; font-size: 12pt">Espere un momento...</h2>
+            </div>
+        
+</div>
+
+    <!--    Modal integrar addenda  -->
+    <div class="modal fade" id="modalExito" name="modalExito" role="dialog" tabindex="-1" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="tituloExito">Addenda</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="errorFirmadoSL" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 centrado alert alert-danger" style="">
+                        <strong>¡Error!</strong>
+                        <div id="errorCliente" style="text-align: left;"></div>
+                    </div>
+                    <div id="formContainer">
+                        <div id="uploadFile">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label class="control-label" for="addenda">Archivo (.xml)<label class="form-text">*</label>:</label>
+                                    <input type="text" class="form-control" id="textAddenda" style="width: 92%;" placeholder="Ubicación del archivo">
+                                    <label class="input-group-btn" style="vertical-align: bottom">
+                                        <span class="btn btn-default" style="float: right;">Buscar
+                                                <input id="addenda" name="addenda" onchange="writeName(this.value)" type="file" accept=".xml" style="display: none;">
+                                        </span>
+                                    </label>
+                                </div>
+                                <small><span class="form-text collapse" id="errorAddenda"></span></small>
+                            </div>
+                            <div class="clearfix">
+                                <div class="pull-left text-muted text-vertical-align-button">
+                                    * Campos obligatorios
+                                </div>
+                                <div class="pull-right">
+                                    <input type="hidden" name="ctl00$MainContent$hfXML" id="hfXML">
+                                    <button class="btn btn-default" id="" type="button" onclick="cancelButton()">Cancelar</button>
+                                    <button id="integrar" class="btn btn-primary">Integrar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!--    Download Window    -->
+                        <div class="form-group collapse" id="downloadFile" data-toggle="modal" data-target="#exitoDescarga" style="z-index: 20">
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                    <h4 class="">Confirmación.</h4>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                    <p>¿Desea descargar el archivo xml?</p>
+                                </div>
+                            </div>
+                            <div class="clearfix">
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-default" onclick="cancelButton()" id="" data-dismiss="modal">Cerrar</button>
+                                    <a id="descarga-archivo" src="#" class="btn btn-primary">Guardar</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.modal -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--    Modal integrar addenda-->
+
+    
+    <!--    Modal integrar captura motivos de cancelación  -->
+    <div class="modal fade bd-example-modal-lg" id="modalCancelacion" name="modalCancelacion" role="dialog" tabindex="-1" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h7 class="modal-title" id="tituloExito_cancelacion">Registro de Motivos de Cancelación</h7>
+                </div>
+                <div class="modal-body">
+                    <div id="errorFirmadoSL_cancelacion" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 centrado alert alert-danger" style="display: none;">
+                        <strong>!!! Atención !!!</strong>
+                        <div id="errorCliente_cancelacion" style="text-align: left;">* Estos campos son obligatorios</div>
+                        <div id="errorCliente_cancelacion_formatoUUID" style="text-align: left;">** Estos campos no tienen el formato correcto</div>
+                        <div id="errorCliente_cancelacion_folioNoValido" style="text-align: left;">*** Estos campos no tienen un folio valido</div>
+                    </div>
+                    <div id="formContainer_cancelacion">
+                         <div class="col-lg-12 col-md-12 col-sm-12">
+                              <p>Para cada CFDI que desea cancelar debe capturar el motivo de cancelación.</p>
+                         </div>
+                         <div id="dvMotivosCancelacion">
+                         </div>  
+                        <!-- /.modal -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            <input type="submit" name="ctl00$MainContent$btnCancelarModal" value="Cancelar Seleccionados" onclick="return PrepararJSONCancelacion();" id="ctl00_MainContent_btnCancelarModal" class="btn btn-primary">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--    Modal cuenta a terceros  -->
+    <div class="modal fade" id="modalCuentaTerceros" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">RFC a cuenta de terceros</h4>
+                </div>
+                <div class="modal-body" style="max-height:50%;  margin-top: 10px; margin-bottom:10px;">
+                   <div class="alert alert-danger" role="alert" display:="" none="" id="divErrorTerceros">
+                            No fue posible obtener la información de los RFC a cuenta de terceros
+                    </div>
+                    <div class="clearfix" id="divResultadosTerceros">
+                        <div class="container">
+                            <div class="col-md-4">
+                                <p>UUID Consultado :</p>
+                            </div>
+                            <div class="col-md-8">
+                                <p id="uuidConsultado"></p>
+                            </div>
+                        </div>
+                        <table aria-label="Cancelaciones" class="table id=" tablacancelaciones"="">
+	                        <thead>
+		                        <tr>
+			                        <th scope="col">RFC Tercero</th>
+                                    <th scope="col">Nombre Tercero</th>
+		                        </tr>
+	                        </thead>
+                            <tbody id="datosTerceros">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnAlertDCCerrar" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--    Modal captura motivos cancelación-->
+
+    <script type="text/javascript" src="Scripts/Jquery/jquery.cookie.js"></script>
+    <script type="text/javascript" src="Scripts/utilAddenda/integrarAddenda.min.js"></script>
+
+    <script src="Scripts/utilfirma/crypto/aes.min.js"></script>
+    <script src="Scripts/utilfirma/crypto/jsrsasign-8.0.3-all-min.js"></script>
+    <script type="text/javascript" src="Scripts/utilfirma/FielUtil-1.5.1.min.js"></script>
+    <script type="text/javascript" src="Scripts/utilfirma/firmaCancelacionCFDI.min.js"></script>
+
+    <script type="text/javascript">
+        /// Variables (Blobs)
+        var validCookieInterval;
+        var validSesionInterval;
+        var downloadCookie = 'DownloadedFile'
+        /**
+        * Función que muestra el update progress y crea 2 Intervals uno para validar que la descarga del archivo 
+        * se haya realizado y el otro mantiene la sesión.
+        */
+        function ShowProgress() {
+            validSesionInterval = setInterval(function () {
+                MantieneSesion();
+            }, 60000);
+            $get('ctl00_MainContent_UpdateProgress1').style.display = 'block';
+            validCookieInterval = setInterval(function () {
+                if ($.cookie(downloadCookie) != null && $.cookie(downloadCookie) == "OK") {
+                    $.cookie(downloadCookie, null);
+                    $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+                    clearInterval(validCookieInterval);//delete interval
+                    clearInterval(validSesionInterval);
+                }
+            }, 2000);
+        }
+
+        /**
+        * Función valida que al menos este seleccionado un registro. 
+        * Se toman los valores de los registros seleccionados (blobUri) y los guarda en un hidden
+        **/
+        function validarSeleccionDescarga() {
+            document.getElementById('dvAlert').innerHTML = '';
+
+            if ($('.ListaFolios').filter(':checked').length == 0) {
+                //alert("Favor de seleccionar registro(s)")
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-info alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong> Favor de seleccionar registro(s)";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                return false;
+            } else {
+                ShowProgress();
+                validarDescargaMasiva();
+
+                return false;
+            }
+        }
+
+        function MetadataDescarga() {
+            $('#hdnValAccion').attr('value', 'DescargaMetadata');
+            //ValidaCaptcha();  // Se habilita cuando este captcha
+            AccionCaptcha();  // Se quita cuando este captcha
+            return false;
+        }
+
+        function DescargaMetadata() {
+
+            document.getElementById('dvAlert').innerHTML = '';
+            ShowProgress();
+            Metadatos();
+            return false;
+        }
+
+        function Metadatos() {
+            var urlValidaDescarga = "ConsultaEmisor.aspx/DescargaMetadatos";
+            var Parametros = document.getElementById('hfParametrosMetadata').value;
+            var data = encodeURIComponent($.base64.encode(Parametros));
+
+            $.ajax({
+                url: urlValidaDescarga,
+                type: "POST",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: "{'Parametros':'" + data + "'}",
+                cache: false,
+                async: true,
+                success: function (respuestaValidacion) {
+
+                    $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+
+                    document.getElementById('dvAlert').innerHTML = '';
+                    var newDivSuccess = document.createElement('div');
+                    if (respuestaValidacion.d.startsWith("Error:")) {
+                        newDivSuccess.className = "alert alert-danger alert-dismissible";
+                        newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Error! <br/></strong>" + respuestaValidacion.d.replace("Error:", "");
+                    }
+                    else {
+                        newDivSuccess.className = "alert alert-success alert-dismissible";
+                        newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Descarga realizada con éxito! <br/></strong>" + respuestaValidacion.d;
+                    }
+                    document.getElementById('dvAlert').appendChild(newDivSuccess);
+                    $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+
+                },
+                error: function (errorDetail) {
+                    $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+
+                    document.getElementById('dvAlert').innerHTML = '';
+                    var newDivSuccess = document.createElement('div');
+                    newDivSuccess.className = "alert alert-danger alert-dismissible";
+                    newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Error! <br/></strong> Ocurrio un error al procesar su solicitud. Por favor intentelo más tarde";
+                    document.getElementById('dvAlert').appendChild(newDivSuccess);
+                    $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                },
+            });
+        }
+
+        function ValidaCaptcha() {
+            $("#ventanaModalCaptcha").modal("show");
+        }
+        function AccionCaptcha() {
+            //$("#ventanaModalCaptcha").modal("hide"); // Se habilita cuando este captcha
+            var accion = $("#hdnValAccion").val();
+            if (accion.split('¬')[0] == "DescargaMasiva") {
+                validarDescargaMasiva();
+            } else if (accion.split('¬')[0] == "DescargaMetadata") {
+                DescargaMetadata();
+            }
+            else {
+                var uriblob1 = accion.split('¬')[1];
+                validarDescargaUnitaria(uriblob1);
+            }
+
+
+        }
+
+
+        function testvalidarDescargaMasiva() {
+            var datos = "api/ValidaDescarga/" + $('.ListaFolios').filter(':checked').length;
+            PageMethods.RecuperaRepresentacionImpresa(datos, onDescargaMasivaSucceed, onDescargaMasivaFailed);
+        }
+
+        function onDescargaMasivaSucceed(result, userContext, methodName) {
+            document.getElementById('dvAlert').innerHTML = '';
+            var newDivSuccess = document.createElement('div');
+            newDivSuccess.className = "alert alert-success alert-dismissible";
+            newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Descarga realizada con éxito! <br/></strong>" + result;
+            document.getElementById('dvAlert').appendChild(newDivSuccess);
+            $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+        }
+
+        function onDescargaMasivaFailed(result, userContext, methodName) {
+            document.getElementById('dvAlert').innerHTML = '';
+            var newDivSuccess = document.createElement('div');
+            newDivSuccess.className = "alert alert-danger alert-dismissible";
+            newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Descarga realizada con éxito! <br/></strong>" + result;
+            document.getElementById('dvAlert').appendChild(newDivSuccess);
+            $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+
+            //alert(result);
+        }
+
+        function validarDescargaMasiva() {
+            var urlValidaDescarga = "ConsultaEmisor.aspx/ValidarDescarga";
+            $.ajax({
+                url: urlValidaDescarga,
+                type: "POST",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: "{ id: " + $('.ListaFolios').filter(':checked').length + " }",
+                cache: false,
+                async: true,
+                success: function (respuestaValidacion) {
+                    if (respuestaValidacion.d) {
+                        respuestaValidacion = respuestaValidacion.d;
+                    }
+                    if (respuestaValidacion.Codigo == 0) {
+
+                        var folioUriDescaga = [];
+                        var descargaMasivaUrisModel = {};
+                        var indiceFolio = 0;
+                        $("input.ListaFolios:checked").each(function () {
+                            var folioDescarga = $(this).val();
+                            var uriDescarga = $(this).parent().find("#ListaFoliosUrl").val();
+
+                            folioUriDescaga[indiceFolio] = { Folio: folioDescarga, Uri: uriDescarga };
+                            indiceFolio = indiceFolio + 1;
+                        });
+
+                        descargaMasivaUrisModel.FolioUriList = folioUriDescaga;
+                        var data = encodeURIComponent($.base64.encode(JSON.stringify(descargaMasivaUrisModel)));
+
+                        $.ajax({
+                            url: "ConsultaEmisor.aspx/Descargar",
+                            type: "POST",
+                            dataType: "json",
+                            contentType: 'application/json; charset=utf-8',
+                            cache: false,
+                            async: true,
+                            data: "{'param':'" + data + "'}",
+                            success: function (respuestaDescarga) {
+
+                                $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+
+                                    document.getElementById('dvAlert').innerHTML = '';
+                                    var newDivSuccess = document.createElement('div');
+                                    if (respuestaDescarga.d.startsWith("Error:")) {
+                                        newDivSuccess.className = "alert alert-danger alert-dismissible";
+                                        newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Ocurrió un Error en la Descarga! <br/></strong>" + respuestaDescarga.d.replace("Error:", "");
+                                    }
+                                    else {
+                                        newDivSuccess.className = "alert alert-success alert-dismissible";
+                                        newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Descarga realizada con éxito! <br/></strong>" + respuestaDescarga.d;
+                                    }
+                                    document.getElementById('dvAlert').appendChild(newDivSuccess);
+                                    $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                                    //alert(respuestaDescarga.d);
+                                },
+                                error: function (xhr, ajaxOptions, thrownError) {
+                                    //alert('Ocurrio un error al registrar la descarga :');
+                                    //alert(xhr.responseText);
+                                    $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+
+                                    document.getElementById('dvAlert').innerHTML = '';
+                                    var newDivSuccess = document.createElement('div');
+                                    newDivSuccess.className = "alert alert-danger alert-dismissible";
+                                    newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Ocurrió un Error en la Descarga! <br/></strong>" + xhr.responseText;
+                                    document.getElementById('dvAlert').appendChild(newDivSuccess);
+                                    $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                                }
+                            });
+                        } else {
+                            $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+                            //alert(respuestaValidacion.Mensaje);
+                            document.getElementById('dvAlert').innerHTML = '';
+                            var newDivSuccess = document.createElement('div');
+                            newDivSuccess.className = "alert alert-warning alert-dismissible";
+                            newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Precaución! <br/></strong>" + respuestaValidacion.Mensaje;
+                            document.getElementById('dvAlert').appendChild(newDivSuccess);
+                            $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                        }
+
+                    },
+                    error: function (errorDetail) {
+                        document.getElementById('dvAlert').innerHTML = '';
+                        var newDivSuccess = document.createElement('div');
+                        newDivSuccess.className = "alert alert-danger alert-dismissible";
+                        newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Error! <br/></strong> Ocurrio un error al procesar su solicitud. Por favor intentelo más tarde";
+                        document.getElementById('dvAlert').appendChild(newDivSuccess);
+                        $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                    },
+                });
+        }
+
+        function validarDescargaUnitaria(blobUri) {
+            var urlValidaDescargaUnitaria = "ConsultaEmisor.aspx/ValidarDescarga";
+            var dataParam = 1;
+            $.ajax({
+                url: urlValidaDescargaUnitaria,
+                type: "POST",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: "{ id:1 }",
+                cache: false,
+                async: true,
+                success: function (respuestaValidacion) {
+                    if (respuestaValidacion.d) {
+                        respuestaValidacion = respuestaValidacion.d;
+                    }
+                    if (respuestaValidacion.Codigo == 0) {
+
+                        var opcionesUnitaria = "width=5,height=5,scrollbars=yes,menubar=no,status=no,directories=no,location=no,toolbar=no,resizable=yes,titlebar=no";
+                        window.open(blobUri, "RecuperacionCFDI", opcionesUnitaria);
+                    } else {
+                        $get('ctl00_MainContent_UpdateProgress1').style.display = "none";
+
+                             document.getElementById('dvAlert').innerHTML = '';
+                             var newDivSuccess = document.createElement('div');
+                             newDivSuccess.className = "alert alert-warning alert-dismissible";
+                             newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong> " + respuestaValidacion.Mensaje;
+                             document.getElementById('dvAlert').appendChild(newDivSuccess);
+                             $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                             //alert(respuestaValidacion.Mensaje);
+                         }
+                     }
+                 });
+        }
+
+        //Se agrega manejador de evento para cuando se termine la llamda del UpdatePanel
+        Sys.WebForms.PageRequestManager.getInstance().add_endRequest(endQueryRequest);
+
+        //function _doPostBack(eventTarget, eventArgument) {
+        //    document.forms[0]._EVENTTARGET.value = eventTarget;
+        //    document.forms[0]._EVENTARGUMENT.value = eventArgument;
+        //    document.forms[0].submit();
+        //}
+
+        //Funcicón que Forza la corrección del renderizado de tablas en IE9
+        function endQueryRequest(sender, e) {
+            var hfInicialBool = document.getElementById("hfInicialBool");
+
+            if (hfInicialBool.value == "true") {
+                var ddl = document.getElementById("ddlComplementos");
+                ddl.selectedIndex = 0;
+                ddl.disabled = true;
+            }
+            if (hfInicialBool.value == "false") {
+                var ddl = document.getElementById("ddlComplementos");
+                ddl.disabled = false;
+            }
+
+            CorregirTablaResultados(document.getElementById("ctl00_MainContent_PnlResultados"));
+        }
+
+        var rfcetiqueta;
+        var rfcvalido;
+
+        $(document).ready(function () {
+            var hfFlag = document.getElementById('hfFlag');
+            var hfData = document.getElementById('hfDatos');
+            var hfDescarga = document.getElementById('hfDescarga');
+            var hfCancelacion = document.getElementById('hfCancelacion');
+
+            if (hfFlag.value == "true" && hfData.value != null && hfData.value != "") {
+                SetValue();
+            }
+
+            if (hfFlag.value == "false" && hfData.value != null && hfData.value != "") {
+                SetValueSinPatron();
+            }
+
+            if (hfCancelacion.value == "NoElementosSeleccionados") {
+                document.getElementById('dvAlert').innerHTML = '';
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-warning alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong>  No ha seleccionado folios, seleccione elementos para cancelar.";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#ctl00_MainContent_TxtRfcReceptor').offset().top }, 'slow');
+                //alert('El o los comprobantes ya se encuentran cancelados');
+            }
+
+            if (hfCancelacion.value == "CancelacionesEnProceso") {
+                document.getElementById('dvAlert').innerHTML = '';
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-warning alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong>  Uno o más de los elementos seleccionados ya cuenta con un proceso de cancelación.";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#ctl00_MainContent_TxtRfcReceptor').offset().top }, 'slow');
+                //alert('El o los comprobantes ya se encuentran cancelados');
+            }
+
+            if (hfCancelacion.value == "ExistenCancelados") {
+                document.getElementById('dvAlert').innerHTML = '';
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-warning alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong>  Uno o más de los elementos seleccionados han sido cancelados con anterioridad.";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#ctl00_MainContent_TxtRfcReceptor').offset().top }, 'slow');
+                //alert('El o los comprobantes ya se encuentran cancelados');
+            }
+
+            if (hfCancelacion.value == "ExisteRelacionado") {
+                document.getElementById('dvAlert').innerHTML = '';
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-warning alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong>  Ha seleccionado un elemento que tiene relación por lo que no puede ser cancelado sin un folio relacionado.";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+            }
+            if (hfFlag.value == "false" && hfData.value == "" && hfCancelacion.value == "") {
+                document.getElementById('dvAlert').innerHTML = '';
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-warning alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong> No se puede realizar la solicitud de cancelación ya que uno de los comprobantes no es simplificado.";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+            }
+
+            if (hfDescarga.value == "CuotaParcial") {
+                document.getElementById('dvAlert').innerHTML = '';
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-warning alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong> Estás intentando descargas más documentos de los permitidos.";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                //alert("Estás intentando descargas más documentos de los permitidos.");
+            }
+            if (hfDescarga.value == "CuotaCompleta") {
+                document.getElementById('dvAlert').innerHTML = '';
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-warning alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong> Ya no puedes descargar más documentos, espera hasta mañana.";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+                //alert("Ya no puedes descargar más documentos, espera hasta mañana.");
+            }
+            if (hfDescarga.value == "CuotaLibre") {
+                var opciones = "width=100,height=50,scrollbars=yes,menubar=no,status=no,directories=no,location=no,toolbar=no,resizable=yes,titlebar=no";
+            }
+
+
+            $('#ctl00_MainContent_BtnBusqueda').live('click', function () {
+
+                $("#ctl00_MainContent_PnlErrores").empty();
+                $("#ctl00_MainContent_PnlErrores").css('display', 'none');
+
+                var fechaInicial = $('#ctl00_MainContent_CldFechaInicial2_Calendario_text').val();
+                var horaInicial = $('#ctl00_MainContent_CldFechaInicial2_DdlHora').val();
+                var minutoInicial = $('#ctl00_MainContent_CldFechaInicial2_DdlMinuto').val();
+                var segundoInicial = $('#ctl00_MainContent_CldFechaInicial2_DdlSegundo').val();
+                var fechaSplitInicial = splitTextoFecha(fechaInicial, '/');
+
+                var fechaFinal = $('#ctl00_MainContent_CldFechaFinal2_Calendario_text').val();
+                var horaFinal = $('#ctl00_MainContent_CldFechaFinal2_DdlHora').val();
+                var minutoFinal = $('#ctl00_MainContent_CldFechaFinal2_DdlMinuto').val();
+                var segundoFinal = $('#ctl00_MainContent_CldFechaFinal2_DdlSegundo').val();
+                var fechaSplitFinal = splitTextoFecha(fechaFinal, '/');
+
+                //Se resta uno al valor del mes porque en JavaScript los meses numericamente se representan del 0 - 11
+                var dateInicial = new Date(fechaSplitInicial[2], parseEntero(fechaSplitInicial[1]) - 1, fechaSplitInicial[0], horaInicial, minutoInicial, segundoInicial, 0);
+                var dateFinal = new Date(fechaSplitFinal[2], parseEntero(fechaSplitFinal[1]) - 1, fechaSplitFinal[0], horaFinal, minutoFinal, segundoFinal, 0);
+
+                //Se verifica que la fehca final no sea menor a la incial
+                if (dateFinal < dateInicial) {
+                    $("#ctl00_MainContent_PnlErrores").append('<ul><li>La fecha inicial no puede ser posterior a la fecha final</li></ul>');
+                    $("#ctl00_MainContent_PnlErrores").css('display', 'inline');
+
+                    return false;
+                }
+
+                //Se agrega un año a la fecha incial y esa sera la fecha máxima a elegir
+                var maxDate = new Date(dateInicial.getFullYear() + 1, dateInicial.getMonth(), dateInicial.getDate(), dateInicial.getHours(), dateInicial.getMinutes(), dateInicial.getSeconds());
+
+                //Se verifica si el mes es diferente, para actual ante la logica de suma del 29 de Febrero, que da como resultado 1 de Marzo
+                if (maxDate.getMonth() != dateInicial.getMonth())
+                    maxDate.setDate(maxDate.getDate() - 1);
+
+                //Se compara que la fecha final no sea mayor a la fecha máxima
+                if (dateFinal > maxDate) {
+                    $("#ctl00_MainContent_PnlErrores").append('<ul><li>La consulta esta limitada a rangos de fechas de máximo 12 meses.</li></ul>');
+                    $("#ctl00_MainContent_PnlErrores").css('display', 'inline');
+
+                    return false;
+                }
+            });
+
+
+            $("#ctl00_MainContent_RdoFolioFiscal").live('click', function () {
+                //$("#datepicker").css('visibility', 'hidden');
+                //$("#datepicker").css('display', 'none');
+                //$("#datepickeriframe").css('visibility', 'hidden');
+                //$("#datepickeriframe").css('display', 'none');
+
+                validaRfcAutenticado();
+            });
+
+            $("#ctl00_MainContent_BtnBusqueda").live('mouseover', function (event) {
+                validaRfcAutenticado();
+            });
+
+            $("#ctl00_MainContent_BtnCancelar").live('mouseover', function (event) {
+                validaRfcAutenticado();
+            });
+
+
+            $("#BtnImprimirVisible").live('click', function (event) {
+                validaRfcAutenticado();
+            });
+
+            $("#ctl00_MainContent_BtnImprimir").live('mouseover', function (event) {
+                validaRfcAutenticado();
+            });
+
+            $("#ctl00_MainContent_BtnDescargar").live('mouseover', function (event) {
+                validaRfcAutenticado();
+            });
+
+            $("#ctl00_MainContent_BtnMetadata").live('mouseover', function (event) {
+                validaRfcAutenticado();
+            });
+
+
+            $("#ctl00_MainContent_RdoFechas").live('click', function () {
+                validaRfcAutenticado();
+            });
+        });
+
+        function AccionCfdi(blobUri, argumento) {
+            //if (rfcvalido) {
+            MantieneSesion();
+
+            var event = window.event;
+            var opciones = "";
+            if (argumento == "Detalle") {
+                opciones = "width=5,height=5,scrollbars=yes,menubar=no,status=no,directories=no,location=no,toolbar=no,resizable=yes,titlebar=no";
+                window.open(blobUri, "DetalleCfdi", opciones);
+            }
+            else if (argumento == "Recuperacion") {
+                validarDescargaUnitaria(blobUri);
+            }
+            else if (argumento == "Acuse") {
+                opciones = "width=5,height=5,scrollbars=yes,menubar=no,status=no,directories=no,location=no,toolbar=no,resizable=yes,titlebar=no";
+                window.open(blobUri, "AcuseCancelacion", opciones);
+            }
+            else if (argumento == "Addenda") {
+                $('#modalExito').modal('show');
+                $('#errorFirmadoSL').hide();
+                $('#hfXML')[0].value = blobUri;
+            }
+            if (event.stopstopPropagation) {
+                event.stopPropagation();
+            }
+            else {
+                event.cancelBubble = true;
+            }
+            //}
+        }
+
+        function consultaCuentaTerceros(parametros) {
+            var urlConsultaCuentaTerceros = "ConsultaEmisor.aspx/ConsultaCuentaTerceros";
+            var Parametros = parametros;
+            var data = encodeURIComponent($.base64.encode(Parametros));
+            $("#divResultadosTerceros").hide();
+            $("#datosTerceros").html("");
+            $('#divErrorTerceros').hide();
+            $.ajax({
+                url: urlConsultaCuentaTerceros,
+                type: "POST",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: "{'Parametros':'" + data + "'}",
+                cache: false,
+                async: true,
+                success: function (respuestaStr) {
+                    respuesta = JSON.parse(respuestaStr.d);
+                    if (respuesta.Estatus == 1) {
+                        listaTerceros = respuesta.ListCuentaTerceros;
+                        var contendTable = "";
+                        for (var indice = 0; indice < listaTerceros.length; indice++) {
+
+                            contendTable = contendTable + "<tr>";
+                            contendTable = contendTable + '<td>' + listaTerceros[indice].RfcACuentaTerceros + '</td>';
+                            contendTable = contendTable + '<td>' + listaTerceros[indice].NombreACuentaTerceros + '</td>';
+                            contendTable = contendTable + "</tr>";
+                        }
+                        var params = parametros.split("|");
+                        $("#uuidConsultado").text(params[0]);
+                        $("#datosTerceros").html(contendTable);
+                        $("#divResultadosTerceros").show();
+                        $('#modalCuentaTerceros').modal('show');
+                    }
+                    else {
+                        $('#modalCuentaTerceros').modal('show');
+                        $('#divErrorTerceros').show();
+                        $("#divResultadosTerceros").hide();
+                    }
+                },
+                error: function (errorDetail) {
+                    alert("Error en la consulta de terceros");
+                },
+            });
+        }
+
+        ////Función que maneja la seleccion y deseleccion multiple global para cancelación
+        function manejaseleccion() {
+            var s = document.getElementById("seleccionador");
+            var estado = s.checked;
+            $('.ListaFolios').each(function (i, obj) {
+                obj.checked = estado;
+            });
+        }
+
+        //Crea y retorna el html para los select de cancelacion de folios
+        function crearSelectMotivoCancelacion(folio) {
+            //var valores_catalogo_motivos_cancelacion = //Los valores de estos arreglos son llenados en el page_load desde el servicio de catalgos;
+            //var textos_catalogo_motivos_cancelacion = //Los valores de estos arreglos son llenados en el page_load desde el servicio de catalgos;
+
+            var select = document.createElement("select");
+            select.name = "ddl" + folio;
+            select.id = "ddl" + folio;
+
+            for (let i = 0; i <= valores_catalogo_motivos_cancelacion.length - 1; i++) {
+                var option = document.createElement("option");
+                option.value = valores_catalogo_motivos_cancelacion[i];
+                option.text = textos_catalogo_motivos_cancelacion[i];
+                select.appendChild(option);
+            }
+
+            return select.outerHTML;
+        }
+
+        //Crea y retorna el html para el input del folio realcionado
+        function CrearInputFolioRelacionado(folio) {
+            var input = document.createElement("input");
+            input.name = "input" + folio;
+            input.id = "input" + folio;
+            
+            return input.outerHTML;
+        }
+
+        //Genera eventos onchange a los combos que se creraron dinamicamente para la cancelacion
+        function AgregaEventoACombosDinamicos() {
+
+            $("input.ListaFolios:checked").each(function () {
+                document.getElementById('ddl' + $(this).val()).addEventListener('change', function () {
+
+                    //console.log('You selected: ' + this.value + '-' + $(this).val() + this.id.replace('ddl', ''));
+                    //console.log(this.value === "01");
+                    if (this.value === "01") {
+                        $("#input" + this.id.replace('ddl', '')).show();
+                    }
+                    else {
+                        $("#input" + this.id.replace('ddl', '')).val('');
+                        $("#input" + this.id.replace('ddl', '')).hide();
+                    }
+                });
+
+                $("#input" + $(this).val()).attr('style','text-transform: uppercase;');
+                $("#input" + $(this).val()).mask("hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh");
+                $("#input" + $(this).val()).hide();
+            });
+        }
+
+        function validaMotivosCancelacion() {
+            var expected = true;
+            var errorFormato = false;
+            var errorFolioNoValido = false;
+            
+            $(".error").remove();
+            $("input.ListaFolios:checked").each(function () {
+
+                console.log("validando " + $(this).val() + ": valor seleccionado :" + $("#ddl" + $(this).val()).val() + ", valor input :" + $("#input" + $(this).val()).val());
+                if ($("#input" + $(this).val()).val().indexOf('_') != -1) {
+                    console.log("debe ingrar un UUID Valido");
+                }
+
+                if ($("#ddl" + $(this).val()).val() === "00") {
+                    $("#ddl" + $(this).val()).before('<span class="error">*</span>');
+                    expected = false;
+                }
+
+                if ($("#ddl" + $(this).val()).val() === "01") {
+
+                    var imput = $("#input" + $(this).val()).val();
+                    var imputName = this.value;
+
+                    if (imput === "") {
+
+                        $("#input" + $(this).val()).before('<span class="error">*</span>');
+                        expected = false
+
+                    }else if (!validarGuid(imput)) {
+
+                        $("#input" + $(this).val()).before('<span class="error">**</span>');
+                        expected = false;
+                        errorFormato = true;
+
+                    } else if (imputName === imput) {
+
+                        $("#input" + $(this).val()).before('<span class="error">***</span>');
+                        expected = false
+                        errorFolioNoValido = true;
+
+                    }
+
+                }  
+
+               
+                //if ($("#ddl" + $(this).val()).val() === "01" && $("#input" + $(this).val()).val().replace('_', '').replace('-', '') === "") {
+                //    $("#input" + $(this).val()).before('<span class="error">*</span>');
+                //    expected = false;
+                //}
+
+                //if ($("#ddl" + $(this).val()).val() === "01" && $("#input" + $(this).val()).val().indexOf('_') != -1) {
+                //    $("#input" + $(this).val()).before('<span class="error">**</span>');
+                //    expected = false;
+                //    errorFormato = true;
+                //}  
+                
+            });
+
+            
+            $("#errorFirmadoSL_cancelacion").css("display", ((expected) ? "none" : "block"));
+            $("#errorCliente_cancelacion_formatoUUID").css("display", ((!errorFormato) ? "none" : "block")); 
+            $("#errorCliente_cancelacion_folioNoValido").css("display", ((!errorFolioNoValido) ? "none" : "block")); 
+
+            return expected;
+        }
+
+        function validarGuid(guid) {
+            if (typeof guid !== 'string') return false;
+    
+            // Eliminar espacios en blanco al inicio y final
+            const guidLimpio = guid.trim();
+    
+            const regex = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
+            return regex.test(guidLimpio);
+        }
+
+        function creaPropiedadJSON(nombre, valor) {
+            var expected = "\"" + nombre + "\":" + "\"" + valor + "\"";
+            return expected;
+        }
+
+        function PrepararJSONCancelacion() {
+            var valido = validaMotivosCancelacion();
+            
+
+            if (valido) {
+                console.log('preparando JSON');
+
+                var JSONCancelacion = "[";
+
+                $("input.ListaFolios:checked").each(function () {
+                    JSONCancelacion += "{"
+                    JSONCancelacion += creaPropiedadJSON("UUID", $(this).val()) + ",";
+                    JSONCancelacion += creaPropiedadJSON("Motivo", $("#ddl" + $(this).val()).val()) + ",";
+                    JSONCancelacion += creaPropiedadJSON("FolioSustitucion", $("#input" + $(this).val()).val().replace("________-____-____-____-____________",""));
+                    JSONCancelacion += "},"
+                });
+
+                JSONCancelacion += "]";
+
+
+                $("#hfJSONCancelacion").val(JSONCancelacion);
+
+                console.log('JSON preparado ' + $("#hfJSONCancelacion").val());
+            }
+
+
+            return valido;
+        }
+
+        ////Función para mostrar el modal de captura de motivos de cancelación
+        function CancelarSeleccionCliente() {
+
+            var almenosUnaSeleccion = false;
+
+            $('.ListaFolios').each(function (i, obj) {
+                if (obj.checked) {
+                    almenosUnaSeleccion = true;
+                }
+            });
+
+            if (almenosUnaSeleccion) {
+
+                $('#dvMotivosCancelacion').empty();
+
+                var htmlHeader = "<tr><th>Folio Fiscal</th><th>Motivo Cancelación</th><th>Folio Relacionado</th></tr>"
+                var htmlTable = "<table>" + htmlHeader;
+
+
+                $("input.ListaFolios:checked").each(function () {
+                    htmlTable += "<tr >";
+                    htmlTable += "<td style='vertical-align: bottom; width: 37%;'><small><b>" + $(this).val() + "</b></small></td>";
+                    htmlTable += "<td style='vertical-align: bottom; width: 37%;'><small>" + crearSelectMotivoCancelacion($(this).val()) + "</small></td>";
+                    htmlTable += "<td style='vertical-align: bottom; width: 26%; text-align: right;'><small>" + CrearInputFolioRelacionado($(this).val()) + "</small></td>";
+                    htmlTable += "</tr>"
+                });
+
+                htmlTable += "</table>";
+
+                var tableMotivosCancelacion = document.createElement('div');
+
+
+                tableMotivosCancelacion.innerHTML = htmlTable;
+
+                document.getElementById('dvMotivosCancelacion').appendChild(tableMotivosCancelacion);
+
+                AgregaEventoACombosDinamicos();
+
+                $('#modalCancelacion').modal('show');
+                document.getElementById('dvAlert').innerHTML = '';
+
+            }
+            else {
+                document.getElementById('dvAlert').innerHTML = '';
+                var newDivSuccess = document.createElement('div');
+                newDivSuccess.className = "alert alert-warning alert-dismissible";
+                newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong>  No ha seleccionado folios, seleccione elementos para cancelar.";
+                document.getElementById('dvAlert').appendChild(newDivSuccess);
+                $('html, body').animate({ scrollTop: $('#ctl00_MainContent_TxtRfcReceptor').offset().top }, 'slow');
+            }
+            return false;
+        }
+
+        ////Función que maneja la seleccion y deseleccion multiple por elemento para cancelación
+        function validaseleccion() {
+            var estado = true;
+            $('.ListaFolios').each(function (i, obj) {
+                if (!(obj.checked)) estado = false;
+            });
+            var s = document.getElementById("seleccionador");
+            s.checked = estado;
+        }
+
+        ////Función que oculta los panelers de resultados 
+        function ocultaResultados() {
+            $("#ctl00_MainContent_PnlResultados").css('display', 'none');
+            $("#ctl00_MainContent_PnlNoResultados").css('display', 'none');
+
+        }
+
+        ////Función que invoca al metodo de recuperación de acuse.
+        function recuperaAcuse(datos) {
+            MantieneSesion();
+            PageMethods.RecuperaAcuse(datos, onRecuperaAcuseSucceed, onRecuperaAcuseFailed);
+        }
+
+        function validarCaracteres() {
+            supressUpdatePanelRequestErrorCharacters("#ctl00_MainContent_TxtRfcReceptor");
+        }
+
+        function recuperaRepresentacionImpresa(datos) {
+            PageMethods.RecuperaRepresentacionImpresa(datos, onRecuperaRISucceed, onRecuperaRIFailed);
+        }
+
+        function onRecuperaRISucceed(result, userContext, methodName) {
+            opciones = "width=5,height=5,scrollbars=no,menubar=no,status=no,directories=no,location=no,toolbar=no,resizable=no,titlebar=no";
+            window.open(result, "RecuperacionRepresentacionImpresa", opciones);
+        }
+
+        function onRecuperaRIFailed(result, userContext, methodName) {
+            document.getElementById('dvAlert').innerHTML = '';
+            var newDivSuccess = document.createElement('div');
+            newDivSuccess.className = "alert alert-warning alert-dismissible";
+            newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong> No se ha podido recuperar la representación Impresa, por favor intentelo más tarde.";
+            document.getElementById('dvAlert').appendChild(newDivSuccess);
+            $('html, body').animate({ scrollTop: $('#dvAlert').offset().top }, 'slow');
+            //alert("No se ha podido recuperar la representación Impresa, por favor intentelo más tarde.");
+        }
+
+        function onRecuperaAcuseSucceed(result, userContext, methodName) {
+            opciones = "width=5,height=5,scrollbars=yes,menubar=no,status=no,directories=no,location=no,toolbar=no,resizable=yes,titlebar=no";
+            window.open(result, "RecuperacionAcuseCancelacion", opciones);
+        }
+
+        function onRecuperaAcuseFailed(result, userContext, methodName) {
+            document.getElementById('dvAlert').innerHTML = '';
+            var newDivSuccess = document.createElement('div');
+            newDivSuccess.className = "alert alert-warning alert-dismissible";
+            newDivSuccess.innerHTML = "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button><strong>¡Atención! <br/></strong> No se ha podido recuperar el acuse de cancelación, por favor intentelo más tarde.";
+            document.getElementById('dvAlert').appendChild(newDivSuccess);
+
+            //alert("No se ha podido recuperar el acuse de cancelación, por favor intentelo más tarde.");
+        }
+
+        function SetValue() {
+            if (confirm("¿Seguro desea cancelar la seleccion?")) {
+                document.getElementById('setLinkButton').click();
+                //$("#hiddenFlagCancelacion").val = "true";
+                //document.forms["fulanito"].action="CancelaBeta"
+                //    .submit();
+            }
+            else {
+                //alert('NO');
+            }
+        }
+
+        function SetValueSinPatron() {
+            document.getElementById('setLinkButton').click();
+        }
+
+
+        function Pager(tableName, itemsPerPage) {
+            this.tableName = tableName;
+            this.itemsPerPage = itemsPerPage;
+            this.currentPage = 1;
+            this.pages = 0;
+            this.inited = false;
+
+            this.showRecords = function (from, to) {
+                var rows = document.getElementById(tableName).rows;
+                // i starts from 1 to skip table header row
+                for (var i = 1; i < rows.length; i++) {
+                    if (i < from || i > to)
+                        rows[i].style.display = 'none';
+                    else
+                        rows[i].style.display = '';
+                }
+            }
+
+            this.showPage = function (pageNumber) {
+                if (!this.inited) {
+                    alert("not inited");
+                    return;
+                }
+
+                var oldPageAnchor = document.getElementById('pg' + this.currentPage);
+                oldPageAnchor.className = 'pg-normal';
+
+                this.currentPage = pageNumber;
+                var newPageAnchor = document.getElementById('pg' + this.currentPage);
+                newPageAnchor.className = 'pg-selected';
+
+                var from = (pageNumber - 1) * itemsPerPage + 1;
+                var to = from + itemsPerPage - 1;
+                this.showRecords(from, to);
+            }
+
+            this.prev = function () {
+                if (this.currentPage > 1)
+                    this.showPage(this.currentPage - 1);
+            }
+
+            this.next = function () {
+                if (this.currentPage < this.pages) {
+                    this.showPage(this.currentPage + 1);
+                }
+            }
+
+            this.init = function () {
+                var rows = document.getElementById(tableName).rows;
+                var records = (rows.length - 1);
+                this.pages = Math.ceil(records / itemsPerPage);
+                this.inited = true;
+            }
+
+            this.showPageNav = function (pagerName, positionId) {
+                if (!this.inited) {
+                    alert("not inited");
+                    return;
+                }
+                var element = document.getElementById(positionId);
+
+                var pagerHtml = '<ul class="pagination">';
+                pagerHtml += '<li onclick="' + pagerName + '.prev();"><a>&laquo;</a></li>';
+                for (var page = 1; page <= this.pages; page++)
+                    pagerHtml += '<li id="pg' + page + '" class="pg-normal" onclick="' + pagerName + '.showPage(' + page + ');"><a>' + page + '</a></li>';
+                pagerHtml += '<li onclick="' + pagerName + '.next();"><a>&raquo;</a></li>';
+
+                element.innerHTML = pagerHtml;
+            }
+        }
+    </script>
+     
+                <div id="dvAlertMaster"></div>            
+            </div>

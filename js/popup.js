@@ -382,6 +382,43 @@
 
     // You can now use the imported modules
     console.log("Modules imported successfully");
+
+    // Manual tab handler as fallback
+    function initTabs() {
+      const tabButtons = document.querySelectorAll('#mainTabs .nav-link');
+      const tabPanes = document.querySelectorAll('.tab-pane');
+      
+      tabButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          // Remove active class from all buttons
+          tabButtons.forEach(btn => {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-selected', 'false');
+          });
+          
+          // Add active class to clicked button
+          button.classList.add('active');
+          button.setAttribute('aria-selected', 'true');
+          
+          // Hide all panes
+          tabPanes.forEach(pane => {
+            pane.classList.remove('show', 'active');
+          });
+          
+          // Show target pane
+          const targetId = button.getAttribute('data-bs-target');
+          const targetPane = document.querySelector(targetId);
+          if (targetPane) {
+            targetPane.classList.add('show', 'active');
+          }
+        });
+      });
+    }
+    
+    initTabs();
+    
   } catch (error) {
     console.error("Error importing modules:", error);
   }
