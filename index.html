@@ -125,12 +125,32 @@
                                     <button type="button" id="copyJsonExample" class="btn btn-info text-white">
                                         Copiar Ejemplo
                                     </button>
+                                    <button type="button" id="downloadJsonTemplate" class="btn btn-outline-primary">
+                                        Descargar Plantilla JSON
+                                    </button>
                                 </div>
                             </form>
+                            <hr class="my-3">
+                            <div class="form-group mb-3">
+                                <label for="csvInput" class="form-label">O cargar datos desde CSV:</label>
+                                <input type="file" class="form-control" id="csvInput" accept=".csv">
+                                <div class="form-text">El archivo CSV debe tener la misma estructura que la plantilla. También puede exportar Excel como CSV.</div>
+                            </div>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="button" id="downloadCsvTemplate" class="btn btn-outline-success">
+                                    Descargar Plantilla CSV
+                                </button>
+                                <button type="button" id="loadCsv" class="btn btn-success">
+                                    Cargar CSV
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="card mb-4 shadow-sm">
+               
+
+                </div>
+                     <div class="card mb-4 shadow-sm col">
                         <div class="card-header bg-success text-white">
                             <h5 class="mb-0">Factura Cargada</h5>
                         </div>
@@ -253,8 +273,6 @@
                             </button>
                         </div>
                     </div>
-
-                </div>
             </div>
 
             <!-- Download Tab -->

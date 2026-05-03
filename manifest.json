@@ -45,13 +45,11 @@
     "content_scripts": [
         {
             "matches": [
-                "<all_urls>"
+                "https://*.sat.gob.mx/*",
+                "https://portal.facturaelectronica.sat.gob.mx/*"
             ],
             "js": [
                 "js/popup.js"
-            ],
-            "css": [
-                "css/style.css"
             ]
         }
     ]

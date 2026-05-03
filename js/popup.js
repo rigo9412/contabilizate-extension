@@ -220,6 +220,200 @@
         });
     });
 
+    // Descargar plantilla JSON
+    document.getElementById("downloadJsonTemplate")?.addEventListener("click", () => {
+      const jsonTemplate = {
+        "rfc": "XAXX010101000",
+        "razonSocial": "PUBLICO GENERAL",
+        "codigoPostal": "88240",
+        "regimenFiscal": "Sin obligaciones fiscales",
+        "usoCFDI": "Sin efectos fiscales.",
+        "concepto": {
+          "descripcion": "Servicio basico",
+          "producto": "Programadores de computador",
+          "unidad": "Unidad de servicio",
+          "cantidad": "1",
+          "valor": "1.00",
+          "id": "1",
+          "impuesto": "02",
+          "iva": "0",
+          "retIva": "0",
+          "retIsr": "0"
+        },
+        "total": "0.00",
+        "subtotal": "0.00",
+        "impuestosTrasladados": "0.00",
+        "impuestosRetenidos": "0.00"
+      };
+      const blob = new Blob([JSON.stringify(jsonTemplate, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "plantilla-factura.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      showMessage("Plantilla JSON descargada", "success");
+    });
+
+    // Descargar plantilla CSV
+    document.getElementById("downloadCsvTemplate")?.addEventListener("click", () => {
+      const headers = [
+        "rfc","razonSocial","codigoPostal","regimenFiscal","usoCFDI",
+        "conceptoDescripcion","conceptoProducto","conceptoUnidad","conceptoCantidad","conceptoValor",
+        "conceptoId","conceptoImpuesto","conceptoIva","conceptoRetIva","conceptoRetIsr",
+        "total","subtotal","impuestosTrasladados","impuestosRetenidos"
+      ];
+      const exampleRow = [
+        "XAXX010101000","PUBLICO GENERAL","88240","Sin obligaciones fiscales","Sin efectos fiscales.",
+        "Servicio basico","Programadores de computador","Unidad de servicio","1","1.00",
+        "1","02","0","0","0",
+        "0.00","0.00","0.00","0.00"
+      ];
+      const csvContent = [headers.join(","), exampleRow.join(",")].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "plantilla-factura.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+      showMessage("Plantilla CSV descargada", "success");
+    });
+
+    // Cargar CSV
+    document.getElementById("loadCsv")?.addEventListener("click", async () => {
+      const fileInput = document.getElementById("csvInput");
+      if (!fileInput || fileInput.files.length === 0) {
+        showMessage("Seleccione un archivo CSV primero", "error");
+        return;
+      }
+      try {
+        const file = fileInput.files[0];
+        const text = await file.text();
+        const rows = parseCsv(text);
+        if (rows.length < 2) {
+          throw new Error("El CSV no tiene datos (se requiere encabezado y al menos una fila)");
+        }
+        const headers = rows[0].map(h => h.trim());
+        const dataRow = rows[1];
+        const getValue = (name) => {
+          const idx = headers.indexOf(name);
+          return idx >= 0 ? dataRow[idx] : "";
+        };
+        const storageData = {
+          rfc: getValue("rfc"),
+          razonSocial: getValue("razonSocial"),
+          codigoPostal: getValue("codigoPostal"),
+          regimenFiscal: getValue("regimenFiscal"),
+          usoCFDI: getValue("usoCFDI"),
+          conceptoDescripcion: getValue("conceptoDescripcion"),
+          conceptoProducto: getValue("conceptoProducto"),
+          conceptoUnidad: getValue("conceptoUnidad"),
+          conceptoCantidad: getValue("conceptoCantidad"),
+          conceptoValor: getValue("conceptoValor"),
+          conceptoId: getValue("conceptoId"),
+          conceptoImpuesto: getValue("conceptoImpuesto"),
+          conceptoIva: getValue("conceptoIva"),
+          conceptoRetIva: getValue("conceptoRetIva"),
+          conceptoRetIsr: getValue("conceptoRetIsr"),
+          total: getValue("total"),
+          subtotal: getValue("subtotal"),
+          impuestosTrasladados: getValue("impuestosTrasladados"),
+          impuestosRetenidos: getValue("impuestosRetenidos")
+        };
+        await new Promise((resolve, reject) => {
+          chrome.storage.local.set(storageData, () => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+            } else {
+              resolve();
+            }
+          });
+        });
+        showMessage("Datos CSV guardados correctamente", "success");
+        initDataBill();
+        // También poblar el textarea JSON para que el usuario vea los datos en JSON
+        const jsonEquivalent = {
+          rfc: storageData.rfc,
+          razonSocial: storageData.razonSocial,
+          codigoPostal: storageData.codigoPostal,
+          regimenFiscal: storageData.regimenFiscal,
+          usoCFDI: storageData.usoCFDI,
+          concepto: {
+            descripcion: storageData.conceptoDescripcion,
+            producto: storageData.conceptoProducto,
+            unidad: storageData.conceptoUnidad,
+            cantidad: storageData.conceptoCantidad,
+            valor: storageData.conceptoValor,
+            id: storageData.conceptoId,
+            impuesto: storageData.conceptoImpuesto,
+            iva: storageData.conceptoIva,
+            retIva: storageData.conceptoRetIva,
+            retIsr: storageData.conceptoRetIsr
+          },
+          total: storageData.total,
+          subtotal: storageData.subtotal,
+          impuestosTrasladados: storageData.impuestosTrasladados,
+          impuestosRetenidos: storageData.impuestosRetenidos
+        };
+        const jsonInput = document.getElementById("jsonInput");
+        if (jsonInput) {
+          jsonInput.value = JSON.stringify(jsonEquivalent, null, 2);
+        }
+      } catch (error) {
+        console.error("Error al procesar el CSV:", error);
+        showMessage(`Error: ${error.message}`, "error");
+      }
+    });
+
+    function parseCsv(text) {
+      const rows = [];
+      let currentRow = [];
+      let currentCell = "";
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+        if (inQuotes) {
+          if (char === '"') {
+            if (nextChar === '"') {
+              currentCell += '"';
+              i++;
+            } else {
+              inQuotes = false;
+            }
+          } else {
+            currentCell += char;
+          }
+        } else {
+          if (char === '"') {
+            inQuotes = true;
+          } else if (char === ',') {
+            currentRow.push(currentCell.trim());
+            currentCell = "";
+          } else if (char === '\n') {
+            currentRow.push(currentCell.trim());
+            if (currentRow.length > 1 || currentRow[0] !== "") {
+              rows.push(currentRow);
+            }
+            currentRow = [];
+            currentCell = "";
+          } else if (char === '\r') {
+            // skip carriage return, newline will be handled on \n
+          } else {
+            currentCell += char;
+          }
+        }
+      }
+      if (currentCell !== "" || currentRow.length > 0) {
+        currentRow.push(currentCell.trim());
+        if (currentRow.length > 1 || currentRow[0] !== "") {
+          rows.push(currentRow);
+        }
+      }
+      return rows;
+    }
+
     initConfiguration();
     initDataBill();
 
