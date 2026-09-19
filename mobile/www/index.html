@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Contabilizate</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <style>
+    body { padding: 1rem; padding-top: env(safe-area-inset-top); }
+    #log {
+      background: #1e1e1e; color: #d4d4d4; font-family: ui-monospace, Menlo, monospace;
+      font-size: 11px; padding: .75rem; border-radius: .5rem; height: 38vh;
+      overflow-y: auto; white-space: pre-wrap; margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h5 class="mb-3">Contabilizate · validación</h5>
+
+  <form id="formCredenciales" class="mb-3">
+    <div class="mb-2">
+      <label class="form-label small mb-1">Certificado (.cer) <span id="estadoCert" class="badge bg-secondary">No cargado</span></label>
+      <input type="file" id="inputCert" class="form-control form-control-sm" accept=".cer">
+    </div>
+    <div class="mb-2">
+      <label class="form-label small mb-1">Llave privada (.key) <span id="estadoKey" class="badge bg-secondary">No cargado</span></label>
+      <input type="file" id="inputKey" class="form-control form-control-sm" accept=".key">
+    </div>
+    <div class="mb-2">
+      <label class="form-label small mb-1">Contraseña <span id="estadoPassword" class="badge bg-secondary">No cargado</span></label>
+      <input type="password" id="inputPassword" class="form-control form-control-sm" autocomplete="off">
+    </div>
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Guardar en Keychain</button>
+      <button type="button" id="btnBorrar" class="btn btn-outline-danger btn-sm">Borrar</button>
+    </div>
+  </form>
+
+  <hr>
+
+  <div class="d-grid gap-2">
+    <button id="btnSpike" class="btn btn-success btn-sm">1 · Probar arquitectura (sin credenciales)</button>
+    <button id="btnSpikeLogin" class="btn btn-warning btn-sm">2 · Probar login real con e.firma</button>
+  </div>
+
+  <div id="log"></div>
+
+  <script src="bundle.js"></script>
+</body>
+</html>

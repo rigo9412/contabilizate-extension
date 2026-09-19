@@ -1,0 +1,11 @@
+{
+  "appId": "mx.contabilizate.satbot",
+  "appName": "Contabilizate",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "always"
+  },
+  "server": {
+    "iosScheme": "capacitor"
+  }
+}
