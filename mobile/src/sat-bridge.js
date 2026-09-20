@@ -6,7 +6,7 @@
  * resultado se regresa desde la página con window.mobileApp.postMessage()
  * y aquí se correlaciona por id para resolver la promesa correspondiente.
  */
-import { InAppBrowser, InvisibilityMode, ToolBarType } from '@capgo/capacitor-inappbrowser';
+import { InAppBrowser, InvisibilityMode, ToolBarType, CloseAction } from '@capgo/capacitor-inappbrowser';
 
 // UA de Safari de escritorio: obliga al portal del SAT a servir su layout
 // desktop, que es del que dependen los ids de DevExpress ya mapeados.
@@ -23,14 +23,26 @@ export class SatBridge {
     this.seq = 0;
     this.listeners = [];
     this.lastLoadedUrl = null;
+    // Si la página termina de cargar antes de que alguien llame a
+    // waitForLoad(), el evento se perdería y la espera colgaría hasta el
+    // timeout. Se recuerda aquí para consumirlo en la siguiente espera.
+    this._loadSeen = false;
+    this.visible = true;
   }
 
-  /** Abre el webview oculto y engancha los listeners. Idempotente. */
-  async open(url) {
+  /**
+   * Abre el webview y engancha los listeners. Idempotente.
+   *
+   * Por defecto es visible: permite ver la automatización paso a paso e
+   * intervenir a mano cuando el SAT pide algo que no se puede automatizar.
+   */
+  async open(url, { visible = true } = {}) {
     if (this.webViewId) {
       await this.navigate(url);
       return this.webViewId;
     }
+
+    this.visible = visible;
 
     const msgHandle = await InAppBrowser.addListener('messageFromWebview', (event) => {
       this._onMessage(event);
@@ -40,19 +52,26 @@ export class SatBridge {
     });
     this.listeners.push(msgHandle, loadHandle);
 
+    // Se arma la espera ANTES de abrir: si la carga termina rápido el evento
+    // llegaría antes de que pudiéramos registrarnos.
+    const cargado = this.waitForLoad();
+
     const result = await InAppBrowser.openWebView({
       url,
-      hidden: true,
-      // FAKE_VISIBLE es obligatorio: con AWARE el webview reporta dimensiones
-      // cero y DevExpress no renderiza ni considera "visibles" sus campos.
+      hidden: !visible,
+      // Con AWARE el webview reporta dimensiones cero y DevExpress no
+      // renderiza ni considera "visibles" sus campos.
       invisibilityMode: InvisibilityMode.FAKE_VISIBLE,
       customUserAgent: DESKTOP_UA,
-      toolbarType: ToolBarType.BLANK,
+      // NAVIGATION da atrás/adelante y cerrar, para poder intervenir a mano.
+      toolbarType: visible ? ToolBarType.NAVIGATION : ToolBarType.BLANK,
+      // Al cerrar se oculta en vez de destruirse, así la sesión sobrevive.
+      closeAction: CloseAction.HIDE,
       isInspectable: true,
     });
 
     this.webViewId = result?.id ?? null;
-    await this.waitForLoad();
+    await cargado;
     return this.webViewId;
   }
 
@@ -102,6 +121,11 @@ export class SatBridge {
 
   /** Espera el siguiente evento de carga completa de página. */
   waitForLoad(timeout = DEFAULT_TIMEOUT) {
+    // Una carga que ya ocurrió cuenta para esta espera.
+    if (this._loadSeen) {
+      this._loadSeen = false;
+      return Promise.resolve();
+    }
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         this._loadResolver = null;
@@ -114,6 +138,36 @@ export class SatBridge {
         resolve();
       };
     });
+  }
+
+  /**
+   * Pinta un aviso de progreso sobre la página del SAT. Con el webview visible
+   * tapa la UI de la app, así que el avance hay que mostrarlo aquí.
+   * Es fire-and-forget: nunca debe bloquear la automatización.
+   */
+  status(texto) {
+    const literal = JSON.stringify(String(texto));
+    const code = `(function () {
+  var id = 'sat-bridge-status';
+  var el = document.getElementById(id);
+  if (!el) {
+    el = document.createElement('div');
+    el.id = id;
+    el.style.cssText = [
+      'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:2147483647',
+      'padding:10px 14px', 'background:rgba(10,54,35,.95)', 'color:#fff',
+      'font:600 13px/1.4 -apple-system,BlinkMacSystemFont,sans-serif',
+      'box-shadow:0 2px 8px rgba(0,0,0,.3)'
+    ].join(';');
+    (document.body || document.documentElement).appendChild(el);
+  }
+  el.textContent = ${literal};
+})();`;
+
+    const options = { code };
+    if (this.webViewId) options.id = this.webViewId;
+    // Se ignoran los errores a propósito: es sólo información visual.
+    return InAppBrowser.executeScript(options).catch(() => {});
   }
 
   /** Muestra el webview: necesario cuando el SAT pide captcha o intervención manual. */
@@ -144,7 +198,11 @@ export class SatBridge {
   // --- internos -----------------------------------------------------------
 
   _emitLoad() {
-    if (this._loadResolver) this._loadResolver();
+    if (this._loadResolver) {
+      this._loadResolver();
+    } else {
+      this._loadSeen = true;
+    }
   }
 
   _onMessage(event) {

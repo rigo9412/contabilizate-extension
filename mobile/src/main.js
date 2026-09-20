@@ -3,7 +3,7 @@
  * extensión una vez validada la arquitectura.
  */
 import { saveCredentialFile, savePassword, credentialStatus, clearCredentials, lock } from './secure-store.js';
-import { runSpike, cerrar } from './spike.js';
+import { runSpike, cerrar, ocultar } from './spike.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -62,11 +62,28 @@ async function ejecutar(conCredenciales) {
   } catch (err) {
     log('✗ ' + err.message);
   } finally {
-    await cerrar().catch(() => {});
+    // El webview NO se cierra: queda abierto para poder revisar la página e
+    // intervenir a mano. Se cierra con el botón correspondiente.
+    await ocultar().catch(() => {});
+    log('(el webview sigue abierto: "Ver webview" para volver a él)');
     $('btnSpike').disabled = false;
     $('btnSpikeLogin').disabled = false;
+    $('btnVer').disabled = false;
+    $('btnCerrar').disabled = false;
   }
 }
+
+$('btnVer').addEventListener('click', async () => {
+  const { bridge } = await import('./sat-bridge.js');
+  await bridge.show().catch((e) => log('No se pudo mostrar: ' + e.message));
+});
+
+$('btnCerrar').addEventListener('click', async () => {
+  await cerrar().catch((e) => log('No se pudo cerrar: ' + e.message));
+  log('Webview cerrado.');
+  $('btnVer').disabled = true;
+  $('btnCerrar').disabled = true;
+});
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) lock();

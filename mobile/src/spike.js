@@ -193,10 +193,17 @@ function submitFirma() {
  * `conCredenciales` en false se queda en las pruebas de capacidad.
  */
 export async function runSpike(log, conCredenciales = false) {
-  log('Abriendo webview oculto con UA de escritorio…');
-  await bridge.open(URL_LOGIN_FIEL);
+  // Los pasos principales se anuncian también sobre la página: con el webview
+  // visible, la consola de la app queda tapada.
+  const paso = (texto) => {
+    log(texto);
+    bridge.status(texto);
+  };
 
-  log('Puente activo. Esperando a que la página pinte…');
+  log('Abriendo webview con UA de escritorio…');
+  await bridge.open(URL_LOGIN_FIEL, { visible: true });
+
+  paso('Puente activo. Esperando a que la página pinte…');
   const espera = await bridge.run(esperarContenido, [], 20000);
   log(`  contenido listo: ${espera.listo} (${espera.esperado}ms)`);
 
@@ -212,7 +219,7 @@ export async function runSpike(log, conCredenciales = false) {
   // La página abre en la pestaña de contraseña; los campos del certificado no
   // existen hasta que se cambia de pestaña.
   if (!pagina.idsPresentes.length && pagina.tieneBotonFiel) {
-    log('Cambiando a la pestaña de e.firma…');
+    paso('Cambiando a la pestaña de e.firma…');
     const clic = await bridge.run(abrirPestanaFirma);
     log(`  clic en buttonFiel: ${clic.clicado}${clic.motivo ? ' (' + clic.motivo + ')' : ''}`);
     const campos = await bridge.run(esperarCamposFirma, [], 15000);
@@ -223,7 +230,7 @@ export async function runSpike(log, conCredenciales = false) {
   log(`  ids encontrados: ${pagina.idsPresentes.join(', ') || '(ninguno)'}`);
   if (pagina.idsFaltantes.length) log(`  ids FALTANTES:   ${pagina.idsFaltantes.join(', ')}`);
 
-  log('Probando inyección de archivos en WebKit…');
+  paso('Probando inyección de archivos en WebKit…');
   const files = await bridge.run(probeFileInjection);
   log(`  DataTransfer disponible: ${files.dataTransferDisponible}`);
   log(`  input.files = dt.files:  ${files.setterFunciona}`);
@@ -243,9 +250,12 @@ export async function runSpike(log, conCredenciales = false) {
     : '✗ No se alcanzó el formulario de e.firma (ver diagnóstico arriba).');
 
   const viable = inyeccionOk && paginaOk;
-  if (!conCredenciales || !viable) return { pagina, files, viable };
+  if (!conCredenciales || !viable) {
+    paso(viable ? 'Listo. Puedes revisar la página.' : 'Terminó con fallos, revisa la consola de la app.');
+    return { pagina, files, viable };
+  }
 
-  log('Inyectando e.firma real…');
+  paso('Inyectando e.firma real…');
   const cert = await readCredential('certificado.cer', 'Autoriza el uso de tu e.firma para iniciar sesión');
   const key = await readCredential('llave.key');
   const password = await readCredential('passwordCertificado');
@@ -253,7 +263,7 @@ export async function runSpike(log, conCredenciales = false) {
   const filled = await bridge.run(fillFirma, [cert, key, password]);
   log(`  certificado: ${filled.okCert ? 'ok' : 'falló'} / llave: ${filled.okKey ? 'ok' : 'falló'}`);
 
-  log('Enviando formulario…');
+  paso('Enviando formulario…');
   const navegacion = bridge.waitForLoad(60000);
   await bridge.run(submitFirma);
   await navegacion;
@@ -262,11 +272,17 @@ export async function runSpike(log, conCredenciales = false) {
   const despues = await bridge.run(probePage);
   log(`  URL tras login: ${despues.url}`);
   const autenticado = !despues.url.includes('nidp/app/login');
-  log(autenticado ? '✓ Login con e.firma completado.' : '✗ Sigue en la página de login.');
+  paso(autenticado ? '✓ Login con e.firma completado.' : '✗ Sigue en la página de login.');
 
   return { pagina, files, viable, autenticado, urlFinal: despues.url };
 }
 
+/** Oculta el webview y devuelve el control a la app, sin destruir la sesión. */
+export async function ocultar() {
+  await bridge.hide();
+}
+
+/** Cierra el webview y libera los listeners. */
 export async function cerrar() {
   await bridge.close();
 }
