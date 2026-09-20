@@ -92,47 +92,42 @@ function probePage() {
   };
 }
 
-/** Recorre el documento principal y sus iframes accesibles. */
-function _docsDisponibles() {
-  const docs = [document];
-  document.querySelectorAll('iframe, frame').forEach((f) => {
-    try {
-      if (f.contentDocument) docs.push(f.contentDocument);
-    } catch (e) {
-      /* cross-origin: se ignora */
-    }
-  });
-  return docs;
-}
-
 /**
- * Espera a que la página tenga contenido real, mirando también dentro de los
- * iframes. El evento de carga del webview se dispara antes de que el SAT
- * termine de pintar.
+ * Espera a que la página llegue al estado buscado, sondeando DESDE la app.
+ *
+ * No se puede hacer polling dentro de la página: el login del SAT redirige
+ * (…&option=credential…) y la navegación destruye el script inyectado, que
+ * entonces nunca responde. Reinyectar en cada intento hace que un redirect
+ * cueste sólo un reintento.
  */
-function esperarContenido() {
-  function hayTexto() {
-    const docs = [document];
-    document.querySelectorAll('iframe, frame').forEach((f) => {
-      try { if (f.contentDocument) docs.push(f.contentDocument); } catch (e) {}
-    });
-    return docs.some((d) => {
-      const t = d.body ? d.body.innerText || '' : '';
-      return t.trim().length > 50;
-    });
+async function esperarFormulario(log, limite = 60000) {
+  const inicio = Date.now();
+  let pagina = null;
+  let avisado = 0;
+
+  while (Date.now() - inicio < limite) {
+    try {
+      pagina = await bridge.run(probePage, [], 8000);
+      if (pagina.idsPresentes.length > 0) {
+        return { listo: true, pagina, esperado: Date.now() - inicio };
+      }
+      // La pestaña de e.firma puede requerir un clic previo.
+      if (pagina.tieneBotonFiel) {
+        return { listo: false, necesitaClic: true, pagina, esperado: Date.now() - inicio };
+      }
+    } catch (e) {
+      // Contexto destruido por una navegación en curso: se reintenta.
+    }
+
+    const transcurrido = Date.now() - inicio;
+    if (transcurrido - avisado >= 5000) {
+      avisado = transcurrido;
+      log(`  … esperando el formulario (${Math.round(transcurrido / 1000)}s)`);
+    }
+    await new Promise((r) => setTimeout(r, 750));
   }
 
-  return new Promise((resolve) => {
-    const inicio = Date.now();
-    const revisar = () => {
-      if (hayTexto() || Date.now() - inicio > 20000) {
-        resolve({ listo: hayTexto(), esperado: Date.now() - inicio });
-        return;
-      }
-      setTimeout(revisar, 250);
-    };
-    revisar();
-  });
+  return { listo: false, pagina, esperado: Date.now() - inicio };
 }
 
 /**
@@ -153,29 +148,6 @@ function abrirPestanaFirma() {
     }
   }
   return { clicado: false, motivo: 'no se encontró buttonFiel en ningún frame' };
-}
-
-/** Espera a que aparezcan los campos del certificado, en cualquier frame. */
-function esperarCamposFirma() {
-  function hayCampos() {
-    const docs = [document];
-    document.querySelectorAll('iframe, frame').forEach((f) => {
-      try { if (f.contentDocument) docs.push(f.contentDocument); } catch (e) {}
-    });
-    return docs.some((d) => d.getElementById('fileCertificate') !== null);
-  }
-
-  return new Promise((resolve) => {
-    const inicio = Date.now();
-    const revisar = () => {
-      if (hayCampos() || Date.now() - inicio > 15000) {
-        resolve({ hay: hayCampos(), esperado: Date.now() - inicio });
-        return;
-      }
-      setTimeout(revisar, 250);
-    };
-    revisar();
-  });
 }
 
 /** 3: la prueba decisiva. Se hace sobre un input sintético, sin tocar la página. */
@@ -308,28 +280,28 @@ export async function runSpike(log, conCredenciales = false) {
   log('Abriendo webview con UA de escritorio…');
   await bridge.open(URL_LOGIN_FIEL, { visible: true });
 
-  paso('Puente activo. Esperando a que la página pinte…');
-  const espera = await bridge.run(esperarContenido, [], 20000);
-  log(`  contenido listo: ${espera.listo} (${espera.esperado}ms)`);
+  paso('Esperando el formulario de e.firma…');
+  let espera = await esperarFormulario(log, 60000);
+  log(`  resultado: ${espera.listo ? 'formulario listo' : 'sin formulario'} (${espera.esperado}ms)`);
 
-  let pagina = await bridge.run(probePage);
-  imprimirDiagnostico(log, pagina);
-
-  // La página abre en la pestaña de contraseña; los campos del certificado no
-  // existen hasta que se cambia de pestaña.
-  if (!pagina.idsPresentes.length && pagina.tieneBotonFiel) {
+  // La página puede abrir en la pestaña de contraseña; entonces los campos del
+  // certificado no existen hasta hacer clic en buttonFiel.
+  if (!espera.listo && espera.necesitaClic) {
     paso('Cambiando a la pestaña de e.firma…');
     const clic = await bridge.run(abrirPestanaFirma);
     log(`  clic en buttonFiel: ${clic.clicado} (${clic.donde || clic.motivo})`);
-    const campos = await bridge.run(esperarCamposFirma, [], 20000);
-    log(`  campos visibles: ${campos.hay} (${campos.esperado}ms)`);
-    pagina = await bridge.run(probePage);
-    imprimirDiagnostico(log, pagina);
+    espera = await esperarFormulario(log, 30000);
+    log(`  resultado: ${espera.listo ? 'formulario listo' : 'sin formulario'} (${espera.esperado}ms)`);
   }
 
+  const pagina = espera.pagina;
+  if (!pagina) {
+    log('✗ No se pudo sondear la página en ningún intento.');
+    return { viable: false };
+  }
+  imprimirDiagnostico(log, pagina);
   log(`  ids encontrados: ${pagina.idsPresentes.join(', ') || '(ninguno)'}`);
   if (pagina.contextoFormulario) log(`  formulario en: ${pagina.contextoFormulario}`);
-  if (pagina.idsFaltantes.length) log(`  ids FALTANTES:   ${pagina.idsFaltantes.join(', ')}`);
 
   paso('Probando inyección de archivos en WebKit…');
   const files = await bridge.run(probeFileInjection);
@@ -365,17 +337,32 @@ export async function runSpike(log, conCredenciales = false) {
   log(`  certificado: ${filled.okCert ? 'ok' : 'falló'} / llave: ${filled.okKey ? 'ok' : 'falló'}`);
 
   paso('Enviando formulario…');
-  const navegacion = bridge.waitForLoad(60000);
   await bridge.run(submitFirma);
-  await navegacion;
-  await bridge.run(esperarContenido, [], 20000);
 
-  const despues = await bridge.run(probePage);
-  log(`  URL tras login: ${despues.url}`);
-  const autenticado = !despues.url.includes('nidp/app/login');
+  // El login encadena redirecciones; se sondea desde la app hasta que la URL
+  // deje de ser la de login o se agote el plazo.
+  const inicio = Date.now();
+  let despues = null;
+  while (Date.now() - inicio < 60000) {
+    await new Promise((r) => setTimeout(r, 1000));
+    try {
+      despues = await bridge.run(probePage, [], 8000);
+      if (!despues.urlTop.includes('nidp/app/login')) break;
+    } catch (e) {
+      // Navegación en curso: se reintenta.
+    }
+  }
+
+  if (!despues) {
+    log('✗ No se pudo sondear la página tras enviar.');
+    return { pagina, files, viable, autenticado: false };
+  }
+
+  log(`  URL tras login: ${despues.urlTop}`);
+  const autenticado = !despues.urlTop.includes('nidp/app/login');
   paso(autenticado ? '✓ Login con e.firma completado.' : '✗ Sigue en la página de login.');
 
-  return { pagina, files, viable, autenticado, urlFinal: despues.url };
+  return { pagina, files, viable, autenticado, urlFinal: despues.urlTop };
 }
 
 /** Vuelca el diagnóstico de todos los frames a la consola de la app. */
