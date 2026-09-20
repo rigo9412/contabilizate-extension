@@ -18,8 +18,8 @@ import { readCredential } from './secure-store.js';
 
 const URL_LOGIN_FIEL = 'https://cfdiau.sat.gob.mx/nidp/app/login?id=SATx509Custom';
 
-/** 1+2: entorno de la página y presencia de los ids del formulario de e.firma. */
-function probeEnvironment() {
+/** Diagnóstico de la página: sirve para ver en qué estado real estamos. */
+function probePage() {
   const ids = [
     'fileCertificate',
     'filePrivateKey',
@@ -28,15 +28,73 @@ function probeEnvironment() {
     'privateKeyPassword',
     'submit',
   ];
+  const texto = document.body ? document.body.innerText || '' : '';
   return {
-    userAgent: navigator.userAgent,
-    innerWidth: window.innerWidth,
-    innerHeight: window.innerHeight,
-    title: document.title,
     url: location.href,
+    title: document.title,
+    readyState: document.readyState,
+    largoTexto: texto.length,
+    textoInicio: texto.trim().slice(0, 200),
+    innerWidth: window.innerWidth,
+    userAgent: navigator.userAgent,
+    // Pestañas del login del SAT.
+    tienePassword: texto.includes('Acceso por contraseña'),
+    tieneFirma: texto.includes('Acceso con e.firma'),
+    tieneBotonFiel: document.getElementById('buttonFiel') !== null,
+    // Inventario para descubrir ids nuevos si el SAT cambió la página.
+    inputsEnPagina: Array.from(document.querySelectorAll('input'))
+      .map((el) => el.id || `(sin id, type=${el.type})`)
+      .slice(0, 25),
     idsPresentes: ids.filter((id) => document.getElementById(id) !== null),
     idsFaltantes: ids.filter((id) => document.getElementById(id) === null),
   };
+}
+
+/**
+ * Espera a que la página tenga contenido real. El evento de carga del webview
+ * se dispara antes de que el SAT termine de pintar, así que hay que sondear.
+ */
+function esperarContenido() {
+  return new Promise((resolve) => {
+    const inicio = Date.now();
+    const revisar = () => {
+      const texto = document.body ? document.body.innerText || '' : '';
+      const listo = document.readyState === 'complete' && texto.trim().length > 50;
+      if (listo || Date.now() - inicio > 15000) {
+        resolve({ listo, esperado: Date.now() - inicio });
+        return;
+      }
+      setTimeout(revisar, 250);
+    };
+    revisar();
+  });
+}
+
+/**
+ * Cambia a la pestaña de e.firma. Los campos del certificado no existen en el
+ * DOM hasta que se hace este clic: la página abre en "Acceso por contraseña".
+ */
+function abrirPestanaFirma() {
+  const btn = document.getElementById('buttonFiel');
+  if (!btn) return { clicado: false, motivo: 'no existe buttonFiel' };
+  btn.click();
+  return { clicado: true };
+}
+
+/** Espera a que aparezcan los campos del certificado tras cambiar de pestaña. */
+function esperarCamposFirma() {
+  return new Promise((resolve) => {
+    const inicio = Date.now();
+    const revisar = () => {
+      const hay = document.getElementById('fileCertificate') !== null;
+      if (hay || Date.now() - inicio > 10000) {
+        resolve({ hay, esperado: Date.now() - inicio });
+        return;
+      }
+      setTimeout(revisar, 250);
+    };
+    revisar();
+  });
 }
 
 /** 3: la prueba decisiva. Se hace sobre un input sintético, sin tocar la página. */
@@ -138,14 +196,32 @@ export async function runSpike(log, conCredenciales = false) {
   log('Abriendo webview oculto con UA de escritorio…');
   await bridge.open(URL_LOGIN_FIEL);
 
-  log('Puente activo. Sondeando la página…');
-  const env = await bridge.run(probeEnvironment);
-  log(`  URL:      ${env.url}`);
-  log(`  Título:   ${env.title}`);
-  log(`  Viewport: ${env.innerWidth}x${env.innerHeight}`);
-  log(`  UA:       ${env.userAgent.slice(0, 60)}…`);
-  log(`  ids encontrados: ${env.idsPresentes.join(', ') || '(ninguno)'}`);
-  if (env.idsFaltantes.length) log(`  ids FALTANTES:   ${env.idsFaltantes.join(', ')}`);
+  log('Puente activo. Esperando a que la página pinte…');
+  const espera = await bridge.run(esperarContenido, [], 20000);
+  log(`  contenido listo: ${espera.listo} (${espera.esperado}ms)`);
+
+  let pagina = await bridge.run(probePage);
+  log(`  URL:      ${pagina.url}`);
+  log(`  Título:   ${pagina.title || '(vacío)'}`);
+  log(`  Estado:   ${pagina.readyState}, ${pagina.largoTexto} chars de texto`);
+  log(`  Viewport: ${pagina.innerWidth}px`);
+  if (pagina.textoInicio) log(`  Texto:    "${pagina.textoInicio.replace(/\s+/g, ' ')}"`);
+  log(`  Pestaña contraseña: ${pagina.tienePassword} · e.firma: ${pagina.tieneFirma} · buttonFiel: ${pagina.tieneBotonFiel}`);
+  log(`  inputs en la página: ${pagina.inputsEnPagina.join(', ') || '(ninguno)'}`);
+
+  // La página abre en la pestaña de contraseña; los campos del certificado no
+  // existen hasta que se cambia de pestaña.
+  if (!pagina.idsPresentes.length && pagina.tieneBotonFiel) {
+    log('Cambiando a la pestaña de e.firma…');
+    const clic = await bridge.run(abrirPestanaFirma);
+    log(`  clic en buttonFiel: ${clic.clicado}${clic.motivo ? ' (' + clic.motivo + ')' : ''}`);
+    const campos = await bridge.run(esperarCamposFirma, [], 15000);
+    log(`  campos visibles: ${campos.hay} (${campos.esperado}ms)`);
+    pagina = await bridge.run(probePage);
+  }
+
+  log(`  ids encontrados: ${pagina.idsPresentes.join(', ') || '(ninguno)'}`);
+  if (pagina.idsFaltantes.length) log(`  ids FALTANTES:   ${pagina.idsFaltantes.join(', ')}`);
 
   log('Probando inyección de archivos en WebKit…');
   const files = await bridge.run(probeFileInjection);
@@ -154,10 +230,20 @@ export async function runSpike(log, conCredenciales = false) {
   if (!files.setterFunciona) log(`  fallback defineProperty: ${files.fallbackFunciona}`);
   if (files.error) log(`  error: ${files.error}`);
 
-  const viable = env.idsPresentes.length > 0 && (files.setterFunciona || files.fallbackFunciona);
-  log(viable ? '✓ Arquitectura viable.' : '✗ Arquitectura NO viable con este enfoque.');
+  // Los dos supuestos se evalúan por separado: la inyección de archivos es el
+  // riesgo arquitectónico; los ids son un detalle de navegación de la página.
+  const inyeccionOk = files.setterFunciona || files.fallbackFunciona;
+  const paginaOk = pagina.idsPresentes.length > 0;
 
-  if (!conCredenciales || !viable) return { env, files, viable };
+  log(inyeccionOk
+    ? '✓ Inyección de archivos soportada por WebKit.'
+    : '✗ WebKit no permite inyectar archivos: el login con e.firma no es viable así.');
+  log(paginaOk
+    ? '✓ Formulario de e.firma accesible.'
+    : '✗ No se alcanzó el formulario de e.firma (ver diagnóstico arriba).');
+
+  const viable = inyeccionOk && paginaOk;
+  if (!conCredenciales || !viable) return { pagina, files, viable };
 
   log('Inyectando e.firma real…');
   const cert = await readCredential('certificado.cer', 'Autoriza el uso de tu e.firma para iniciar sesión');
@@ -171,13 +257,14 @@ export async function runSpike(log, conCredenciales = false) {
   const navegacion = bridge.waitForLoad(60000);
   await bridge.run(submitFirma);
   await navegacion;
+  await bridge.run(esperarContenido, [], 20000);
 
-  const despues = await bridge.run(probeEnvironment);
+  const despues = await bridge.run(probePage);
   log(`  URL tras login: ${despues.url}`);
   const autenticado = !despues.url.includes('nidp/app/login');
   log(autenticado ? '✓ Login con e.firma completado.' : '✗ Sigue en la página de login.');
 
-  return { env, files, viable, autenticado, urlFinal: despues.url };
+  return { pagina, files, viable, autenticado, urlFinal: despues.url };
 }
 
 export async function cerrar() {
