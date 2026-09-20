@@ -118,18 +118,27 @@ falla, el spike prueba automáticamente el plan B (redefinir la propiedad `files
 sobre el elemento), que debería bastar porque la página del SAT lee
 `input.files[0]` desde su propio JS.
 
-## Nota sobre biometría
+## Nota sobre biometría (deshabilitada)
 
-`@aparajita/capacitor-biometric-auth` no trae `Package.swift`, así que Capacitor
-lo excluye del build SPM (sólo trae podspec). El código lo maneja: si el plugin
-no responde, se degrada a la protección del Keychain sin Face ID. Para
-habilitarlo hay dos caminos:
+`@aparajita/capacitor-biometric-auth` no publica `Package.swift`, así que
+Capacitor lo excluía del build SPM **pero lo seguía declarando en
+`packageClassList`**. Llamar a un plugin declarado sin clase nativa deja la
+promesa sin resolver: la lectura de credenciales se colgaba indefinidamente,
+justo antes de inyectar la e.firma.
+
+El plugin está desinstalado y el Face ID deshabilitado. La e.firma sigue
+protegida por el Keychain con `whenPasscodeSetThisDeviceOnly`; lo que se pierde
+es la capa extra de confirmación biométrica.
+
+Para reactivarlo:
 
 - regenerar la plataforma con CocoaPods:
   `npx cap add ios --packagemanager CocoaPods`, o
 - sustituirlo por un plugin de biometría con soporte SPM.
 
-Conviene decidirlo una vez que Xcode compile, para poder verificarlo.
+Lección aplicable a cualquier plugin: si `npx cap sync ios` no dice *"All
+Capacitor plugins have a Package.swift file"*, alguno quedará declarado pero no
+enlazado, y sus llamadas colgarán.
 
 ## Seguridad
 

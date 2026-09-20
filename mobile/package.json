@@ -11,7 +11,6 @@
     "run:ios": "npm run build && cap run ios"
   },
   "dependencies": {
-    "@aparajita/capacitor-biometric-auth": "^8.0.0",
     "@aparajita/capacitor-secure-storage": "^8.0.0",
     "@capacitor/core": "^8.0.0",
     "@capacitor/filesystem": "^8.0.0",

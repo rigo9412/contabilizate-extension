@@ -10,51 +10,32 @@
  * localStorage para no pagar el costo de biometría en cada lectura.
  */
 import { SecureStorage, KeychainAccess } from '@aparajita/capacitor-secure-storage';
-import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
 
 const CREDENTIAL_KEYS = ['certificado.cer', 'llave.key', 'passwordCertificado'];
 const BILL_PREFIX = 'bill:';
 
-// El acceso biométrico se cachea un rato para no pedir Face ID en cada uno de
-// los cientos de pasos que tiene una descarga masiva.
-const UNLOCK_TTL_MS = 5 * 60 * 1000;
-let unlockedUntil = 0;
+// NOTA SOBRE BIOMETRÍA
+// -------------------
+// El Face ID está deshabilitado a propósito. El plugin que lo proveía
+// (@aparajita/capacitor-biometric-auth) no publica Package.swift, así que
+// Capacitor lo excluye del build SPM pero lo sigue declarando en
+// packageClassList: llamarlo dejaba la promesa sin resolver y colgaba la
+// lectura de credenciales.
+//
+// La e.firma sigue protegida por el Keychain con whenPasscodeSetThisDeviceOnly
+// (no sale del dispositivo, no va a iCloud, no aparece en backups). Lo que se
+// pierde es la capa extra de confirmación por Face ID.
+//
+// Para reactivarlo: regenerar la plataforma con CocoaPods
+// (npx cap add ios --packagemanager CocoaPods), o usar un plugin de biometría
+// con soporte SPM. Ver mobile/README.md.
 
-async function ensureUnlocked(reason) {
-  if (Date.now() < unlockedUntil) return;
-
-  let biometry;
-  try {
-    biometry = await BiometricAuth.checkBiometry();
-  } catch (e) {
-    // El plugin de biometría no expone Package.swift, así que con SPM no se
-    // compila en iOS (ver README). El Keychain sigue protegiendo los datos;
-    // aquí sólo se pierde la capa extra de Face ID.
-    console.warn('[secure-store] biometría no disponible:', e);
-    unlockedUntil = Date.now() + UNLOCK_TTL_MS;
-    return;
-  }
-
-  if (!biometry.isAvailable) {
-    unlockedUntil = Date.now() + UNLOCK_TTL_MS;
-    return;
-  }
-
-  // Si el usuario cancela, la excepción se propaga y la credencial no se lee.
-  await BiometricAuth.authenticate({
-    reason: reason || 'Autoriza el uso de tu e.firma',
-    cancelTitle: 'Cancelar',
-    allowDeviceCredential: true,
-    iosFallbackTitle: 'Usar código del dispositivo',
-  });
-
-  unlockedUntil = Date.now() + UNLOCK_TTL_MS;
+async function ensureUnlocked() {
+  return;
 }
 
-/** Invalida el desbloqueo en caché (llamar al salir a background). */
-export function lock() {
-  unlockedUntil = 0;
-}
+/** Reservado: invalidará el desbloqueo biométrico cuando se reactive. */
+export function lock() {}
 
 /**
  * Guarda un archivo de la e.firma. `file` es un File/Blob del <input type=file>.
