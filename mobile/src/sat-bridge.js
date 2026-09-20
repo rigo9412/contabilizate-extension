@@ -38,6 +38,9 @@ export class SatBridge {
    */
   async open(url, { visible = true } = {}) {
     if (this.webViewId) {
+      // Al terminar una corrida el webview queda oculto, no cerrado. Sin este
+      // show() la siguiente corrida se ejecutaría sobre un webview invisible.
+      if (visible) await this.show().catch(() => {});
       await this.navigate(url);
       return this.webViewId;
     }

@@ -247,7 +247,28 @@ function fillFirma(cert, key, password) {
   buscar('txtPrivateKey').value = 'llave.key';
   buscar('privateKeyPassword').value = password;
 
-  return { okCert, okKey };
+  // Se relee el formulario: que la asignación no lance no garantiza que el
+  // valor haya quedado puesto.
+  const leer = (id) => {
+    const el = buscar(id);
+    return el ? el.value : '(no existe)';
+  };
+  const archivos = (id) => {
+    const el = buscar(id);
+    return el && el.files ? el.files.length : -1;
+  };
+
+  return {
+    okCert,
+    okKey,
+    verificacion: {
+      fileCertificate: archivos('fileCertificate'),
+      filePrivateKey: archivos('filePrivateKey'),
+      txtCertificate: leer('txtCertificate'),
+      txtPrivateKey: leer('txtPrivateKey'),
+      passwordLargo: leer('privateKeyPassword').length,
+    },
+  };
 }
 
 function submitFirma() {
@@ -335,6 +356,11 @@ export async function runSpike(log, conCredenciales = false) {
 
   const filled = await bridge.run(fillFirma, [cert, key, password]);
   log(`  certificado: ${filled.okCert ? 'ok' : 'falló'} / llave: ${filled.okKey ? 'ok' : 'falló'}`);
+  const v = filled.verificacion;
+  log(`  verificación en el DOM:`);
+  log(`     fileCertificate.files: ${v.fileCertificate} · filePrivateKey.files: ${v.filePrivateKey}`);
+  log(`     txtCertificate: "${v.txtCertificate}" · txtPrivateKey: "${v.txtPrivateKey}"`);
+  log(`     contraseña: ${v.passwordLargo} caracteres`);
 
   paso('Enviando formulario…');
   await bridge.run(submitFirma);
