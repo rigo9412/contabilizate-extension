@@ -18,7 +18,13 @@ import { readCredential } from './secure-store.js';
 
 const URL_LOGIN_FIEL = 'https://cfdiau.sat.gob.mx/nidp/app/login?id=SATx509Custom';
 
-/** Diagnóstico de la página: sirve para ver en qué estado real estamos. */
+/**
+ * Diagnóstico de la página, incluyendo iframes.
+ *
+ * El login del SAT corre sobre NetIQ Access Manager, que renderiza el
+ * formulario dentro de un iframe. Sondear sólo el documento principal
+ * devuelve un DOM vacío aunque la página se vea perfectamente.
+ */
 function probePage() {
   const ids = [
     'fileCertificate',
@@ -28,40 +34,99 @@ function probePage() {
     'privateKeyPassword',
     'submit',
   ];
-  const texto = document.body ? document.body.innerText || '' : '';
+
+  function resumen(doc, etiqueta) {
+    try {
+      const texto = doc.body ? doc.body.innerText || '' : '';
+      return {
+        contexto: etiqueta,
+        accesible: true,
+        url: doc.location ? doc.location.href : '(sin location)',
+        title: doc.title || '',
+        readyState: doc.readyState,
+        largoTexto: texto.trim().length,
+        textoInicio: texto.trim().slice(0, 150).replace(/\s+/g, ' '),
+        inputs: Array.from(doc.querySelectorAll('input'))
+          .map((el) => el.id || `(sin id, type=${el.type})`)
+          .slice(0, 20),
+        idsPresentes: ids.filter((id) => doc.getElementById(id) !== null),
+        tieneBotonFiel: doc.getElementById('buttonFiel') !== null,
+        tienePassword: texto.includes('Acceso por contraseña'),
+        tieneFirma: texto.includes('Acceso con e.firma'),
+      };
+    } catch (e) {
+      // Un iframe de otro origen lanza aquí: es información, no un fallo.
+      return { contexto: etiqueta, accesible: false, error: String(e.message || e) };
+    }
+  }
+
+  const docs = [resumen(document, 'principal')];
+  const marcos = Array.from(document.querySelectorAll('iframe, frame'));
+
+  marcos.forEach((f, i) => {
+    const src = (f.getAttribute('src') || '(sin src)').slice(0, 70);
+    const etiqueta = `frame[${i}] ${f.id ? '#' + f.id + ' ' : ''}${src}`;
+    let doc = null;
+    try {
+      doc = f.contentDocument;
+    } catch (e) {
+      docs.push({ contexto: etiqueta, accesible: false, error: 'cross-origin' });
+      return;
+    }
+    docs.push(doc ? resumen(doc, etiqueta) : { contexto: etiqueta, accesible: false, error: 'sin documento' });
+  });
+
+  const conFormulario = docs.find((d) => d.accesible && d.idsPresentes && d.idsPresentes.length);
+  const conBoton = docs.find((d) => d.accesible && d.tieneBotonFiel);
+
   return {
-    url: location.href,
-    title: document.title,
-    readyState: document.readyState,
-    largoTexto: texto.length,
-    textoInicio: texto.trim().slice(0, 200),
+    urlTop: location.href,
     innerWidth: window.innerWidth,
-    userAgent: navigator.userAgent,
-    // Pestañas del login del SAT.
-    tienePassword: texto.includes('Acceso por contraseña'),
-    tieneFirma: texto.includes('Acceso con e.firma'),
-    tieneBotonFiel: document.getElementById('buttonFiel') !== null,
-    // Inventario para descubrir ids nuevos si el SAT cambió la página.
-    inputsEnPagina: Array.from(document.querySelectorAll('input'))
-      .map((el) => el.id || `(sin id, type=${el.type})`)
-      .slice(0, 25),
-    idsPresentes: ids.filter((id) => document.getElementById(id) !== null),
-    idsFaltantes: ids.filter((id) => document.getElementById(id) === null),
+    totalFrames: marcos.length,
+    docs,
+    idsPresentes: conFormulario ? conFormulario.idsPresentes : [],
+    idsFaltantes: ids.filter((id) => !(conFormulario ? conFormulario.idsPresentes : []).includes(id)),
+    contextoFormulario: conFormulario ? conFormulario.contexto : null,
+    tieneBotonFiel: !!conBoton,
+    contextoBoton: conBoton ? conBoton.contexto : null,
   };
 }
 
+/** Recorre el documento principal y sus iframes accesibles. */
+function _docsDisponibles() {
+  const docs = [document];
+  document.querySelectorAll('iframe, frame').forEach((f) => {
+    try {
+      if (f.contentDocument) docs.push(f.contentDocument);
+    } catch (e) {
+      /* cross-origin: se ignora */
+    }
+  });
+  return docs;
+}
+
 /**
- * Espera a que la página tenga contenido real. El evento de carga del webview
- * se dispara antes de que el SAT termine de pintar, así que hay que sondear.
+ * Espera a que la página tenga contenido real, mirando también dentro de los
+ * iframes. El evento de carga del webview se dispara antes de que el SAT
+ * termine de pintar.
  */
 function esperarContenido() {
+  function hayTexto() {
+    const docs = [document];
+    document.querySelectorAll('iframe, frame').forEach((f) => {
+      try { if (f.contentDocument) docs.push(f.contentDocument); } catch (e) {}
+    });
+    return docs.some((d) => {
+      const t = d.body ? d.body.innerText || '' : '';
+      return t.trim().length > 50;
+    });
+  }
+
   return new Promise((resolve) => {
     const inicio = Date.now();
     const revisar = () => {
-      const texto = document.body ? document.body.innerText || '' : '';
-      const listo = document.readyState === 'complete' && texto.trim().length > 50;
-      if (listo || Date.now() - inicio > 15000) {
-        resolve({ listo, esperado: Date.now() - inicio });
+      if (hayTexto() || Date.now() - inicio > 20000) {
+        resolve({ listo: hayTexto(), esperado: Date.now() - inicio });
         return;
       }
       setTimeout(revisar, 250);
@@ -71,24 +136,40 @@ function esperarContenido() {
 }
 
 /**
- * Cambia a la pestaña de e.firma. Los campos del certificado no existen en el
- * DOM hasta que se hace este clic: la página abre en "Acceso por contraseña".
+ * Cambia a la pestaña de e.firma, buscando el botón en cualquier frame.
+ * Los campos del certificado no existen hasta hacer este clic.
  */
 function abrirPestanaFirma() {
-  const btn = document.getElementById('buttonFiel');
-  if (!btn) return { clicado: false, motivo: 'no existe buttonFiel' };
-  btn.click();
-  return { clicado: true };
+  const docs = [document];
+  document.querySelectorAll('iframe, frame').forEach((f) => {
+    try { if (f.contentDocument) docs.push(f.contentDocument); } catch (e) {}
+  });
+
+  for (const d of docs) {
+    const btn = d.getElementById('buttonFiel');
+    if (btn) {
+      btn.click();
+      return { clicado: true, donde: d === document ? 'principal' : 'iframe' };
+    }
+  }
+  return { clicado: false, motivo: 'no se encontró buttonFiel en ningún frame' };
 }
 
-/** Espera a que aparezcan los campos del certificado tras cambiar de pestaña. */
+/** Espera a que aparezcan los campos del certificado, en cualquier frame. */
 function esperarCamposFirma() {
+  function hayCampos() {
+    const docs = [document];
+    document.querySelectorAll('iframe, frame').forEach((f) => {
+      try { if (f.contentDocument) docs.push(f.contentDocument); } catch (e) {}
+    });
+    return docs.some((d) => d.getElementById('fileCertificate') !== null);
+  }
+
   return new Promise((resolve) => {
     const inicio = Date.now();
     const revisar = () => {
-      const hay = document.getElementById('fileCertificate') !== null;
-      if (hay || Date.now() - inicio > 10000) {
-        resolve({ hay, esperado: Date.now() - inicio });
+      if (hayCampos() || Date.now() - inicio > 15000) {
+        resolve({ hay: hayCampos(), esperado: Date.now() - inicio });
         return;
       }
       setTimeout(revisar, 250);
@@ -151,8 +232,24 @@ function fillFirma(cert, key, password) {
     return new File([arr], filename, { type: mimeType });
   }
 
+  function docs() {
+    const lista = [document];
+    document.querySelectorAll('iframe, frame').forEach((f) => {
+      try { if (f.contentDocument) lista.push(f.contentDocument); } catch (e) {}
+    });
+    return lista;
+  }
+
+  function buscar(id) {
+    for (const d of docs()) {
+      const el = d.getElementById(id);
+      if (el) return el;
+    }
+    return null;
+  }
+
   function setFile(inputId, file) {
-    const input = document.getElementById(inputId);
+    const input = buscar(inputId);
     if (!input) throw new Error(`No existe el input ${inputId}`);
     try {
       const dt = new DataTransfer();
@@ -174,15 +271,23 @@ function fillFirma(cert, key, password) {
   const okCert = setFile('fileCertificate', base64ToFile(cert.content, 'certificado.cer', cert.type));
   const okKey = setFile('filePrivateKey', base64ToFile(key.content, 'llave.key', key.type));
 
-  document.getElementById('txtCertificate').value = 'certificado.cer';
-  document.getElementById('txtPrivateKey').value = 'llave.key';
-  document.getElementById('privateKeyPassword').value = password;
+  buscar('txtCertificate').value = 'certificado.cer';
+  buscar('txtPrivateKey').value = 'llave.key';
+  buscar('privateKeyPassword').value = password;
 
   return { okCert, okKey };
 }
 
 function submitFirma() {
-  const btn = document.getElementById('submit');
+  const docs = [document];
+  document.querySelectorAll('iframe, frame').forEach((f) => {
+    try { if (f.contentDocument) docs.push(f.contentDocument); } catch (e) {}
+  });
+  let btn = null;
+  for (const d of docs) {
+    btn = d.getElementById('submit');
+    if (btn) break;
+  }
   if (!btn) throw new Error('No se encontró el botón de enviar');
   btn.click();
   return true;
@@ -208,26 +313,22 @@ export async function runSpike(log, conCredenciales = false) {
   log(`  contenido listo: ${espera.listo} (${espera.esperado}ms)`);
 
   let pagina = await bridge.run(probePage);
-  log(`  URL:      ${pagina.url}`);
-  log(`  Título:   ${pagina.title || '(vacío)'}`);
-  log(`  Estado:   ${pagina.readyState}, ${pagina.largoTexto} chars de texto`);
-  log(`  Viewport: ${pagina.innerWidth}px`);
-  if (pagina.textoInicio) log(`  Texto:    "${pagina.textoInicio.replace(/\s+/g, ' ')}"`);
-  log(`  Pestaña contraseña: ${pagina.tienePassword} · e.firma: ${pagina.tieneFirma} · buttonFiel: ${pagina.tieneBotonFiel}`);
-  log(`  inputs en la página: ${pagina.inputsEnPagina.join(', ') || '(ninguno)'}`);
+  imprimirDiagnostico(log, pagina);
 
   // La página abre en la pestaña de contraseña; los campos del certificado no
   // existen hasta que se cambia de pestaña.
   if (!pagina.idsPresentes.length && pagina.tieneBotonFiel) {
     paso('Cambiando a la pestaña de e.firma…');
     const clic = await bridge.run(abrirPestanaFirma);
-    log(`  clic en buttonFiel: ${clic.clicado}${clic.motivo ? ' (' + clic.motivo + ')' : ''}`);
-    const campos = await bridge.run(esperarCamposFirma, [], 15000);
+    log(`  clic en buttonFiel: ${clic.clicado} (${clic.donde || clic.motivo})`);
+    const campos = await bridge.run(esperarCamposFirma, [], 20000);
     log(`  campos visibles: ${campos.hay} (${campos.esperado}ms)`);
     pagina = await bridge.run(probePage);
+    imprimirDiagnostico(log, pagina);
   }
 
   log(`  ids encontrados: ${pagina.idsPresentes.join(', ') || '(ninguno)'}`);
+  if (pagina.contextoFormulario) log(`  formulario en: ${pagina.contextoFormulario}`);
   if (pagina.idsFaltantes.length) log(`  ids FALTANTES:   ${pagina.idsFaltantes.join(', ')}`);
 
   paso('Probando inyección de archivos en WebKit…');
@@ -275,6 +376,36 @@ export async function runSpike(log, conCredenciales = false) {
   paso(autenticado ? '✓ Login con e.firma completado.' : '✗ Sigue en la página de login.');
 
   return { pagina, files, viable, autenticado, urlFinal: despues.url };
+}
+
+/** Vuelca el diagnóstico de todos los frames a la consola de la app. */
+function imprimirDiagnostico(log, pagina) {
+  log(`  URL top: ${pagina.urlTop}`);
+  log(`  Viewport: ${pagina.innerWidth}px · frames: ${pagina.totalFrames}`);
+  pagina.docs.forEach((d) => {
+    if (!d.accesible) {
+      log(`  [${d.contexto}] INACCESIBLE: ${d.error}`);
+      return;
+    }
+    log(`  [${d.contexto}]`);
+    log(`     url: ${d.url}`);
+    log(`     título: ${d.title || '(vacío)'} · ${d.readyState} · ${d.largoTexto} chars`);
+    if (d.textoInicio) log(`     texto: "${d.textoInicio}"`);
+    log(`     inputs: ${d.inputs.join(', ') || '(ninguno)'}`);
+    log(`     buttonFiel: ${d.tieneBotonFiel} · pestaña pwd: ${d.tienePassword} · e.firma: ${d.tieneFirma}`);
+  });
+}
+
+/**
+ * Re-sondea la página en el estado en que esté ahora mismo. Sirve cuando el
+ * SAT tarda más de lo previsto o cuando se navegó a mano.
+ */
+export async function diagnosticar(log) {
+  const pagina = await bridge.run(probePage);
+  imprimirDiagnostico(log, pagina);
+  log(`  ids encontrados: ${pagina.idsPresentes.join(', ') || '(ninguno)'}`);
+  if (pagina.contextoFormulario) log(`  formulario en: ${pagina.contextoFormulario}`);
+  return pagina;
 }
 
 /** Oculta el webview y devuelve el control a la app, sin destruir la sesión. */

@@ -3,7 +3,7 @@
  * extensión una vez validada la arquitectura.
  */
 import { saveCredentialFile, savePassword, credentialStatus, clearCredentials, lock } from './secure-store.js';
-import { runSpike, cerrar, ocultar } from './spike.js';
+import { runSpike, cerrar, ocultar, diagnosticar } from './spike.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -70,8 +70,18 @@ async function ejecutar(conCredenciales) {
     $('btnSpikeLogin').disabled = false;
     $('btnVer').disabled = false;
     $('btnCerrar').disabled = false;
+    $('btnDiag').disabled = false;
   }
 }
+
+$('btnDiag').addEventListener('click', async () => {
+  log('--- re-sondeando la página ---');
+  try {
+    await diagnosticar(log);
+  } catch (err) {
+    log('✗ ' + err.message);
+  }
+});
 
 $('btnVer').addEventListener('click', async () => {
   const { bridge } = await import('./sat-bridge.js');
@@ -83,6 +93,7 @@ $('btnCerrar').addEventListener('click', async () => {
   log('Webview cerrado.');
   $('btnVer').disabled = true;
   $('btnCerrar').disabled = true;
+  $('btnDiag').disabled = true;
 });
 
 document.addEventListener('visibilitychange', () => {
