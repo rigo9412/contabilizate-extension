@@ -7,10 +7,20 @@
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <style>
     body { padding: 1rem; padding-top: env(safe-area-inset-top); }
+    .consola { margin-top: 1rem; }
+    .consola-titulo {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+      color: #6c757d; margin-bottom: .25rem;
+    }
     #log {
       background: #1e1e1e; color: #d4d4d4; font-family: ui-monospace, Menlo, monospace;
       font-size: 11px; padding: .75rem; border-radius: .5rem; height: 38vh;
-      overflow-y: auto; white-space: pre-wrap; margin-top: 1rem;
+      overflow-y: auto; white-space: pre-wrap;
+    }
+    /* Sin esto el panel vacío se lee como una app rota. */
+    #log:empty::before {
+      content: 'La salida del spike aparecerá aquí.';
+      color: #6c757d; font-style: italic;
     }
   </style>
 </head>
@@ -43,7 +53,10 @@
     <button id="btnSpikeLogin" class="btn btn-warning btn-sm">2 · Probar login real con e.firma</button>
   </div>
 
-  <div id="log"></div>
+  <div class="consola">
+    <div class="consola-titulo">Consola</div>
+    <div id="log"></div>
+  </div>
 
   <script src="bundle.js"></script>
 </body>
