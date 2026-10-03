@@ -1,7 +1,7 @@
 import { hasTokens } from "./auto-dates";
 import { ratesOf } from "./bill-calc";
 import { cfdiUsages, keyProductService, taxRegimes, unitMeasure } from "./catalogs";
-import { receptorErrors } from "./cfdi-rules";
+import { receptorErrors, resolveGlobalInfo } from "./cfdi-rules";
 import type { BillDraft } from "./types";
 
 export const SAT_BILL_URL = "https://portal.facturaelectronica.sat.gob.mx/Factura/GeneraFactura";
@@ -44,9 +44,16 @@ export function toLegacyBill(bill: BillDraft): { entries?: LegacyBillEntries; er
   if (errors.length > 0 || !item) return { errors };
 
   const rates = ratesOf(item);
+  const global = resolveGlobalInfo(bill);
   return {
     errors,
     entries: {
+      ...(global && {
+        facturaGlobal: "1",
+        globalPeriodicidad: global.periodicidad,
+        globalMeses: global.meses,
+        globalAnio: global.anio,
+      }),
       rfc: bill.rfcReceptor,
       razonSocial: bill.nameReceptor ?? "",
       codigoPostal: bill.postalCodeReceptor ?? "",
@@ -71,7 +78,11 @@ export function toLegacyBill(bill: BillDraft): { entries?: LegacyBillEntries; er
 }
 
 /** Deja la factura lista para el script de llenado y abre el portal del SAT. */
+const GLOBAL_KEYS = ["facturaGlobal", "globalPeriodicidad", "globalMeses", "globalAnio"];
+
 export async function issueInSat(entries: LegacyBillEntries): Promise<void> {
+  // Que no se quede la factura global de una emisión anterior.
+  await chrome.storage.local.remove(GLOBAL_KEYS);
   await chrome.storage.local.set({ ...entries, [STAGED_BY_APP_KEY]: "app" });
   await chrome.tabs.create({ url: SAT_BILL_URL });
 }

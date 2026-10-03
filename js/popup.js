@@ -9,7 +9,7 @@ const BILL_KEYS = [
   "conceptoDescripcion", "conceptoProducto", "conceptoUnidad", "conceptoCantidad",
   "conceptoValor", "conceptoId", "conceptoImpuesto", "conceptoIva", "conceptoRetIva",
   "conceptoRetIsr", "subtotal", "impuestosTrasladados", "impuestosRetenidos", "total",
-  "billStagedBy",
+  "facturaGlobal", "globalPeriodicidad", "globalMeses", "globalAnio", "billStagedBy",
 ];
 
 async function showVaultStatus() {

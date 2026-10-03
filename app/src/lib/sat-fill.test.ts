@@ -93,3 +93,29 @@ describe("toLegacyBill con fechas automáticas", () => {
     );
   });
 });
+
+describe("toLegacyBill con factura global", () => {
+  it("manda periodicidad, mes y año; vacíos se toman de la fecha", () => {
+    const item = computeItem(baseItem, { iva: 0.16, retIva: null, retIsr: null });
+    const global = {
+      ...bill([item]),
+      nameReceptor: "PUBLICO EN GENERAL",
+      date: `${new Date().getFullYear()}-09-30`,
+      globalInfo: { periodicidad: "04", meses: "", anio: "" },
+    };
+    const { entries, errors } = toLegacyBill(global);
+    expect(errors).toEqual([]);
+    expect(entries).toMatchObject({
+      razonSocial: "PUBLICO EN GENERAL",
+      facturaGlobal: "1",
+      globalPeriodicidad: "04",
+      globalMeses: "09",
+      globalAnio: String(new Date().getFullYear()),
+    });
+  });
+
+  it("una factura normal no lleva llaves de factura global", () => {
+    const { entries } = toLegacyBill(bill([computeItem(baseItem, { iva: 0.16, retIva: null, retIsr: null })]));
+    expect(entries).not.toHaveProperty("facturaGlobal");
+  });
+});

@@ -4,9 +4,9 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { localDate } from "@/lib/auto-dates";
 import { computeTotals, formatCurrency } from "@/lib/bill-calc";
-import { receptorErrors } from "@/lib/cfdi-rules";
-import { cfdiUsages, currency, paymentForms, paymentMethods, taxRegimes, typeCFDI } from "@/lib/catalogs";
-import type { BillDraft } from "@/lib/types";
+import { GLOBAL_RECEPTOR_NAME, receptorErrors, RFC_GENERIC } from "@/lib/cfdi-rules";
+import { cfdiUsages, currency, months, paymentForms, paymentMethods, periodicities, taxRegimes, typeCFDI } from "@/lib/catalogs";
+import type { BillDraft, GlobalInfo } from "@/lib/types";
 import { TriangleAlert } from "lucide-react";
 import { ItemsEditor } from "./item-editor";
 
@@ -51,6 +51,26 @@ export function BillForm({
     onChange({ ...value, [key]: key === "rfcReceptor" || key === "rfcEmisor" ? e.target.value.toUpperCase() : e.target.value });
   const totals = computeTotals(value.items);
   const receptorWarnings = receptorErrors(value);
+  const isGeneric = value.rfcReceptor.trim().toUpperCase() === RFC_GENERIC;
+
+  function toggleGlobal(enabled: boolean) {
+    if (!enabled) {
+      onChange({ ...value, globalInfo: undefined });
+      return;
+    }
+    // Los datos que el SAT exige al receptor de una factura global.
+    onChange({
+      ...value,
+      globalInfo: { periodicidad: "04", meses: "", anio: "" },
+      nameReceptor: GLOBAL_RECEPTOR_NAME,
+      typeReceptorRegistration: "616",
+      useCFDIReceptor: "S01",
+      postalCodeReceptor: value.postalCodeEmisor || value.postalCodeReceptor,
+      typeBill: "I",
+    });
+  }
+  const setGlobal = (key: keyof GlobalInfo) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    onChange({ ...value, globalInfo: { ...value.globalInfo!, [key]: e.target.value } });
 
   return (
     <div className="grid gap-6">
@@ -115,6 +135,38 @@ export function BillForm({
           <Field label="Uso del CFDI" className="sm:col-span-2">
             <NativeSelect value={value.useCFDIReceptor ?? ""} options={cfdiUsages} placeholder="Selecciona" onChange={set("useCFDIReceptor")} required />
           </Field>
+          {isGeneric && (
+            <div className="grid gap-4 rounded-lg border bg-secondary/40 p-4 sm:col-span-4 sm:grid-cols-3">
+              <label className="flex items-center gap-2 text-sm font-medium sm:col-span-3">
+                <input type="checkbox" checked={!!value.globalInfo} onChange={(e) => toggleGlobal(e.target.checked)} />
+                Factura global (ventas al público en general)
+              </label>
+              {value.globalInfo && (
+                <>
+                  <Field label="Periodicidad">
+                    <NativeSelect value={value.globalInfo.periodicidad} options={periodicities} onChange={setGlobal("periodicidad")} />
+                  </Field>
+                  <Field label="Mes">
+                    <NativeSelect
+                      value={value.globalInfo.meses}
+                      options={months}
+                      placeholder="Automático (según fecha de emisión)"
+                      onChange={setGlobal("meses")}
+                    />
+                  </Field>
+                  <Field label="Año">
+                    <Input
+                      value={value.globalInfo.anio}
+                      onChange={setGlobal("anio")}
+                      inputMode="numeric"
+                      maxLength={4}
+                      placeholder="Automático"
+                    />
+                  </Field>
+                </>
+              )}
+            </div>
+          )}
           {receptorWarnings.length > 0 && (
             <ul className="grid gap-1 rounded-md bg-destructive/10 p-3 text-sm text-destructive sm:col-span-4">
               {receptorWarnings.map((w) => (

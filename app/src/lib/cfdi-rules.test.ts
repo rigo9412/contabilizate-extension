@@ -21,7 +21,7 @@ describe("receptorErrors", () => {
   it("detecta los dos errores que devolvió el SAT", () => {
     const errors = receptorErrors(bill({ nameReceptor: "PUBLICO EN GENERAL", useCFDIReceptor: "G03" }));
     expect(errors).toHaveLength(2);
-    expect(errors[0]).toContain("factura global");
+    expect(errors[0]).toContain('marca "Factura global"');
     expect(errors[1]).toBe("Con RFC XAXX010101000 el uso del CFDI debe ser S01 - Sin efectos fiscales.");
     expect(receptorErrors(bill({ nameReceptor: "Público General" }))[0]).toContain("factura global");
   });
@@ -49,6 +49,17 @@ describe("receptorErrors", () => {
     ]);
     expect(receptorErrors(bill({ rfcReceptor: "TNM140723GFA", typeReceptorRegistration: "603", useCFDIReceptor: "P01" }))[0]).toContain(
       "no es válido en CFDI 4.0",
+    );
+  });
+
+  it("factura global: exige el nombre exacto y un año válido", () => {
+    const globalInfo = { periodicidad: "04", meses: "09", anio: String(new Date().getFullYear()) };
+    expect(receptorErrors(bill({ nameReceptor: "PUBLICO EN GENERAL", globalInfo }))).toEqual([]);
+    expect(receptorErrors(bill({ nameReceptor: "PUBLICO GENERAL", globalInfo }))).toEqual([
+      'En una factura global el nombre del receptor debe ser "PUBLICO EN GENERAL".',
+    ]);
+    expect(receptorErrors(bill({ nameReceptor: "PUBLICO EN GENERAL", globalInfo: { ...globalInfo, anio: "2020" } }))[0]).toContain(
+      "El año de la factura global debe ser",
     );
   });
 });

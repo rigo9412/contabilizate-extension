@@ -191,6 +191,23 @@ var FORM_BILL_KEYS = {
     tabindex: "46",
     id: "135textboxautocomplete179",
   },
+  // Sección "Factura Global" (InformacionGlobal del CFDI).
+  global_check: {
+    "view-model": "E1350003PFAC111",
+    id: "135checkbox40",
+  },
+  global_periodicidad: {
+    "view-model": "E1350012PPeriodicidad",
+    id: "135select45",
+  },
+  global_meses: {
+    "view-model": "E1350012PMeses",
+    id: "135select46",
+  },
+  global_anio: {
+    "view-model": "E1350012PAnn",
+    id: "135textbox47",
+  },
   impuestos_trasladados_total: {
     id: "135textbox268",
   },
@@ -225,6 +242,7 @@ const BILL_STORAGE_KEYS = [
   "conceptoDescripcion", "conceptoProducto", "conceptoUnidad", "conceptoCantidad",
   "conceptoValor", "conceptoId", "conceptoImpuesto", "conceptoIva", "conceptoRetIva",
   "conceptoRetIsr", "subtotal", "impuestosTrasladados", "impuestosRetenidos", "total",
+  "facturaGlobal", "globalPeriodicidad", "globalMeses", "globalAnio",
 ];
 
 async function clearBillStagedByApp() {
@@ -258,6 +276,12 @@ async function loadConfigFromStorage() {
         IVA: storageData.conceptoIva || "",
         RET_IVA: storageData.conceptoRetIva || "",
         RET_ISR: storageData.conceptoRetIsr || "",
+      },
+      GLOBAL: {
+        ENABLED: storageData.facturaGlobal === "1",
+        PERIODICIDAD: storageData.globalPeriodicidad || "",
+        MESES: storageData.globalMeses || "",
+        ANIO: storageData.globalAnio || "",
       },
       SUBTOTAL: storageData.subtotal || "",
       IMPUESTOS_TRASLADADOS: storageData.impuestosTrasladados || "",
@@ -696,6 +720,47 @@ async function verifyTotals(expectedValues) {
   return true;
 }
 
+function getFormElement(key) {
+  const input = FORM_BILL_KEYS[key];
+  return (
+    document.getElementById(input.id) ||
+    document.querySelector(`[view-model="${input["view-model"]}"]`)
+  );
+}
+
+// Marca "Es una Factura Global" y captura periodicidad, mes y año. El portal
+// puede tener la casilla oculta; se marca igual porque el binding responde al clic.
+async function fillGlobalInfo(global) {
+  const checkbox = getFormElement("global_check");
+  if (!checkbox) throw new Error("No se encontró la casilla de Factura Global en el portal");
+  if (!checkbox.checked) checkbox.click();
+  await delay(CONFIG.TIMEOUTS.DELAY * 2);
+
+  const periodicidad = getFormElement("global_periodicidad");
+  const meses = getFormElement("global_meses");
+  const anio = getFormElement("global_anio");
+  if (!periodicidad || !meses || !anio) {
+    throw new Error("No se encontraron los campos de Información Global en el portal");
+  }
+  simulateSelectOptionById(global.PERIODICIDAD, periodicidad.id);
+  await delay(CONFIG.TIMEOUTS.SHORT_DELAY * 4);
+  simulateSelectOptionById(global.MESES, meses.id);
+  await delay(CONFIG.TIMEOUTS.SHORT_DELAY * 4);
+  await InputTypeTextById(anio.id, global.ANIO);
+}
+
+function verifyGlobalInfo(global) {
+  if (!global.ENABLED) return true;
+  const checkbox = getFormElement("global_check");
+  const ok =
+    checkbox?.checked &&
+    getFormElement("global_periodicidad")?.value === global.PERIODICIDAD &&
+    getFormElement("global_meses")?.value === global.MESES &&
+    getFormElement("global_anio")?.value === global.ANIO;
+  if (!ok) console.log("Información Global incompleta en el portal");
+  return Boolean(ok);
+}
+
 async function FillBillProcess() {
   const storageConfig = await loadConfigFromStorage();
   if (!storageConfig) {
@@ -728,6 +793,20 @@ async function FillBillProcess() {
 
     bodyElement.classList.add("client-info-filled");
     showToast("Información del cliente completada", "success");
+  }
+
+  if (storageConfig.GLOBAL.ENABLED && !bodyElement.classList.contains("global-info-filled")) {
+    showToast("Llenando información de factura global...", "info");
+    try {
+      await fillGlobalInfo(storageConfig.GLOBAL);
+      bodyElement.classList.add("global-info-filled");
+      showToast("Información global completada", "success");
+    } catch (error) {
+      console.error(error);
+      setBackgroundColor(CONFIG.COLORS.ERROR);
+      showToast(error.message, "error");
+      return;
+    }
   }
 
   if (!bodyElement.classList.contains("concept-info-filled")) {
@@ -840,6 +919,9 @@ async function FillBillProcess() {
 
     try {
       await delay(CONFIG.TIMEOUTS.DELAY * 2);
+      if (!verifyGlobalInfo(storageConfig.GLOBAL)) {
+        throw new Error("La información de factura global no quedó capturada");
+      }
       await verifyTotals({
         subtotal: storageConfig.SUBTOTAL,
         impuestosTransladados:

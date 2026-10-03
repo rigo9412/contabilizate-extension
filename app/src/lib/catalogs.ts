@@ -148,3 +148,26 @@ export const TAXES_ISR = "001";
 export const TAXES_IVA = "002";
 export const TYPE_TAXES_RETENTION = "retencion";
 export const TYPE_TAXES_TRASLATE = "traslado";
+
+// c_Periodicidad y c_Meses de la factura global, como los ofrece el portal.
+export const periodicities: Record<string, string> = {
+  "01": "Diario",
+  "02": "Semanal",
+  "03": "Quincenal",
+  "04": "Mensual",
+};
+
+export const months: Record<string, string> = {
+  "01": "Enero",
+  "02": "Febrero",
+  "03": "Marzo",
+  "04": "Abril",
+  "05": "Mayo",
+  "06": "Junio",
+  "07": "Julio",
+  "08": "Agosto",
+  "09": "Septiembre",
+  "10": "Octubre",
+  "11": "Noviembre",
+  "12": "Diciembre",
+};

@@ -1,9 +1,20 @@
 // Reglas de los catálogos del SAT (CFDI 4.0) que el portal valida al sellar.
 // Se revisan antes de emitir para no llegar al SAT con una factura que rechazará.
 import { cfdiUsages, taxRegimes } from "./catalogs";
-import type { BillDraft } from "./types";
+import type { BillDraft, GlobalInfo } from "./types";
 
 export const RFC_GENERIC = "XAXX010101000";
+export const GLOBAL_RECEPTOR_NAME = "PUBLICO EN GENERAL";
+
+/** Completa mes y año vacíos con los de la fecha del comprobante. */
+export function resolveGlobalInfo(bill: Pick<BillDraft, "globalInfo" | "date">): GlobalInfo | undefined {
+  if (!bill.globalInfo) return undefined;
+  return {
+    ...bill.globalInfo,
+    meses: bill.globalInfo.meses || bill.date.slice(5, 7),
+    anio: bill.globalInfo.anio || bill.date.slice(0, 4),
+  };
+}
 
 // c_RegimenFiscal: qué tipo de persona puede tener cada régimen.
 const REGIMES_FISICA = ["605", "606", "607", "608", "610", "611", "612", "614", "615", "616", "621", "625", "626"];
@@ -57,11 +68,21 @@ export function receptorErrors(bill: BillDraft): string[] {
 
   if (rfc === RFC_GENERIC) {
     const name = normalizeName(bill.nameReceptor ?? "");
-    if (name === "PUBLICO EN GENERAL" || name === "PUBLICO GENERAL") {
+    const isPublicName = name === GLOBAL_RECEPTOR_NAME || name === "PUBLICO GENERAL";
+    if (bill.globalInfo) {
+      if (name !== GLOBAL_RECEPTOR_NAME) {
+        errors.push(`En una factura global el nombre del receptor debe ser "${GLOBAL_RECEPTOR_NAME}".`);
+      }
+      if (bill.typeBill && bill.typeBill !== "I") errors.push("La factura global debe ser de tipo Ingreso.");
+      const year = Number(bill.globalInfo.anio);
+      const currentYear = new Date().getFullYear();
+      if (bill.globalInfo.anio && !(year === currentYear || year === currentYear - 1)) {
+        errors.push(`El año de la factura global debe ser ${currentYear} o ${currentYear - 1}.`);
+      }
+    } else if (isPublicName) {
       errors.push(
-        "Con RFC XAXX010101000 y nombre \"PUBLICO EN GENERAL\" el SAT la trata como factura global y exige " +
-          "Información Global (periodicidad, mes y año), que el llenado automático todavía no captura. " +
-          "Si es para una persona sin RFC, escribe su nombre.",
+        'Con RFC XAXX010101000 y nombre "PUBLICO EN GENERAL" el SAT la trata como factura global: ' +
+          'marca "Factura global" para capturar periodicidad, mes y año, o escribe el nombre de la persona.',
       );
     }
     if (regime !== "616") errors.push("Con RFC XAXX010101000 el régimen fiscal debe ser 616 - Sin obligaciones fiscales.");

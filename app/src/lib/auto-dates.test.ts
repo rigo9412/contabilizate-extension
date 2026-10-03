@@ -62,3 +62,18 @@ describe("localDate", () => {
     expect(localDate(new Date(2026, 9, 3, 23, 30))).toBe("2026-10-03");
   });
 });
+
+describe("applyAutoDates con factura global", () => {
+  it("toma mes y año del periodo facturado, no de la fecha de emisión", () => {
+    const bill = {
+      date: "2026-01-01",
+      items: [{ description: "Ventas del {inicio} al {fin}" }],
+      globalInfo: { periodicidad: "04", meses: "", anio: "" },
+    } as unknown as BillDraft;
+    const result = applyAutoDates(bill, auto("mes", "anterior"), d("2026-01-05"));
+    expect(result.globalInfo).toEqual({ periodicidad: "04", meses: "12", anio: "2025" });
+    // Si el usuario fijó el mes, se respeta.
+    const fixed = applyAutoDates({ ...bill, globalInfo: { periodicidad: "04", meses: "11", anio: "2025" } }, auto("mes", "anterior"), d("2026-01-05"));
+    expect(fixed.globalInfo?.meses).toBe("11");
+  });
+});

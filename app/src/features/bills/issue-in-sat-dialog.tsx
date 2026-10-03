@@ -13,6 +13,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { formatCurrency, withTotals } from "@/lib/bill-calc";
+import { months, periodicities } from "@/lib/catalogs";
+import { resolveGlobalInfo } from "@/lib/cfdi-rules";
 import { issueInSat, toLegacyBill } from "@/lib/sat-fill";
 import type { BillDraft } from "@/lib/types";
 import { useVaultStatus } from "@/lib/use-vault-status";
@@ -26,6 +28,7 @@ export function IssueInSatDialog({ bill, trigger }: { bill: BillDraft; trigger?:
   const vaultStatus = useVaultStatus();
   const draft = withTotals(bill);
   const { entries, errors } = toLegacyBill(draft);
+  const global = resolveGlobalInfo(draft);
 
   async function onConfirm() {
     if (!entries) return;
@@ -66,6 +69,14 @@ export function IssueInSatDialog({ bill, trigger }: { bill: BillDraft; trigger?:
             </dd>
             <dt className="text-muted-foreground">Concepto</dt>
             <dd>{draft.items[0]?.description}</dd>
+            {global && (
+              <>
+                <dt className="text-muted-foreground">Factura global</dt>
+                <dd>
+                  {periodicities[global.periodicidad]} · {months[global.meses]} {global.anio}
+                </dd>
+              </>
+            )}
             <dt className="text-muted-foreground">Total</dt>
             <dd className="font-semibold">{formatCurrency(draft.total)}</dd>
           </dl>

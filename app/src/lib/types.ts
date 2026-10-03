@@ -61,6 +61,16 @@ export interface BillItem {
   taxes: BillTax[];
 }
 
+/**
+ * InformacionGlobal del CFDI (factura global a público en general). Mes o año
+ * vacíos = se toman del periodo de la fecha de emisión al emitir.
+ */
+export interface GlobalInfo {
+  periodicidad: string;
+  meses: string;
+  anio: string;
+}
+
 export interface Bill extends SyncRecord {
   folio?: string;
   description?: string;
@@ -84,6 +94,7 @@ export interface Bill extends SyncRecord {
   total: number;
   count: boolean;
   items: BillItem[];
+  globalInfo?: GlobalInfo;
 }
 
 export type BillDraft = Omit<Bill, keyof SyncRecord>;

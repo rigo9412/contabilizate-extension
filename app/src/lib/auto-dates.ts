@@ -59,11 +59,18 @@ export function applyAutoDates(bill: BillDraft, auto: AutoDates | undefined, dat
   if (!auto?.enabled) return bill;
   const range = periodRange(date, auto);
   const items = bill.items.map((item) => ({ ...item, description: resolveText(item.description, range) }));
+  // En factura global, el mes y año automáticos son los del periodo facturado.
+  const globalInfo = bill.globalInfo && {
+    ...bill.globalInfo,
+    meses: bill.globalInfo.meses || range.start.slice(5, 7),
+    anio: bill.globalInfo.anio || range.start.slice(0, 4),
+  };
   return {
     ...bill,
     date: localDate(date),
     items,
     description: items.map((i) => i.description).join(", "),
+    ...(globalInfo && { globalInfo }),
   };
 }
 
