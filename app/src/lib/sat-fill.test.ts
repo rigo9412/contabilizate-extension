@@ -20,7 +20,7 @@ function bill(items: BillDraft["items"]): BillDraft {
     typeBill: "I",
     rfcEmisor: "AAAA000101AAA",
     rfcReceptor: "XAXX010101000",
-    nameReceptor: "PUBLICO GENERAL",
+    nameReceptor: "JUAN PEREZ LOPEZ",
     postalCodeReceptor: "88240",
     typeReceptorRegistration: "616",
     useCFDIReceptor: "S01",
@@ -51,7 +51,7 @@ describe("toLegacyBill", () => {
     expect(errors).toEqual([]);
     expect(entries).toEqual({
       rfc: "XAXX010101000",
-      razonSocial: "PUBLICO GENERAL",
+      razonSocial: "JUAN PEREZ LOPEZ",
       codigoPostal: "88240",
       regimenFiscal: "Sin obligaciones fiscales",
       usoCFDI: "Sin efectos fiscales",

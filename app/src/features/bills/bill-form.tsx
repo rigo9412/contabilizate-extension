@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { localDate } from "@/lib/auto-dates";
 import { computeTotals, formatCurrency } from "@/lib/bill-calc";
+import { receptorErrors } from "@/lib/cfdi-rules";
 import { cfdiUsages, currency, paymentForms, paymentMethods, taxRegimes, typeCFDI } from "@/lib/catalogs";
 import type { BillDraft } from "@/lib/types";
+import { TriangleAlert } from "lucide-react";
 import { ItemsEditor } from "./item-editor";
 
 export function emptyBill(rfcEmisor = "", postalCodeEmisor = ""): BillDraft {
@@ -48,6 +50,7 @@ export function BillForm({
   const set = <K extends keyof BillDraft>(key: K) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     onChange({ ...value, [key]: key === "rfcReceptor" || key === "rfcEmisor" ? e.target.value.toUpperCase() : e.target.value });
   const totals = computeTotals(value.items);
+  const receptorWarnings = receptorErrors(value);
 
   return (
     <div className="grid gap-6">
@@ -112,6 +115,15 @@ export function BillForm({
           <Field label="Uso del CFDI" className="sm:col-span-2">
             <NativeSelect value={value.useCFDIReceptor ?? ""} options={cfdiUsages} placeholder="Selecciona" onChange={set("useCFDIReceptor")} required />
           </Field>
+          {receptorWarnings.length > 0 && (
+            <ul className="grid gap-1 rounded-md bg-destructive/10 p-3 text-sm text-destructive sm:col-span-4">
+              {receptorWarnings.map((w) => (
+                <li key={w} className="flex items-start gap-2">
+                  <TriangleAlert className="mt-0.5 size-4 shrink-0" /> {w}
+                </li>
+              ))}
+            </ul>
+          )}
         </CardContent>
       </Card>
 

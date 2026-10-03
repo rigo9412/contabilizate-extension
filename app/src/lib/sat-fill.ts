@@ -1,6 +1,7 @@
 import { hasTokens } from "./auto-dates";
 import { ratesOf } from "./bill-calc";
 import { cfdiUsages, keyProductService, taxRegimes, unitMeasure } from "./catalogs";
+import { receptorErrors } from "./cfdi-rules";
 import type { BillDraft } from "./types";
 
 export const SAT_BILL_URL = "https://portal.facturaelectronica.sat.gob.mx/Factura/GeneraFactura";
@@ -29,6 +30,7 @@ export function toLegacyBill(bill: BillDraft): { entries?: LegacyBillEntries; er
   if (!bill.postalCodeReceptor) errors.push("Falta el código postal del cliente.");
   if (!bill.typeReceptorRegistration) errors.push("Falta el régimen fiscal del cliente.");
   if (!bill.useCFDIReceptor) errors.push("Falta el uso del CFDI.");
+  errors.push(...receptorErrors(bill));
   const item = bill.items[0];
   if (item) {
     if (!item.description) errors.push("Falta la descripción del concepto.");
