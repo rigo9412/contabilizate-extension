@@ -9,6 +9,10 @@
       chrome.runtime.getURL("js/utils/form-configuration-extension.js")
     );
 
+    document.getElementById("btnOpenApp")?.addEventListener("click", () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL("app/index.html") });
+    });
+
     document.getElementById("btnSite")?.addEventListener("click", () => {
       chrome.tabs.create({
         url: "https://portal.facturaelectronica.sat.gob.mx/",

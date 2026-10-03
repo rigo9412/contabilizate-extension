@@ -12,10 +12,27 @@ A Chrome extension designed to automate form filling in the Mexican SAT (Tax Adm
 
 ## Installation
 
-1. Clone this repository
+1. Clone this repository and run `npm install && npm run build`
 2. Open Chrome and navigate to `chrome://extensions/`
 3. Enable "Developer mode" in the top right
-4. Click "Load unpacked" and select the extension directory
+4. Click "Load unpacked" and select the `dist/` directory
+
+Use `npm run dev` to rebuild on every change, and `npm test` to run the tests.
+
+## Full app (React)
+
+The popup's "Abrir app completa" button opens a full-page React app
+(`app/`) that works without the Contabilizate website:
+
+- Data lives locally in IndexedDB (Dexie). Every record has `updatedAt` and
+  soft deletes, so backups merge by "newest wins", and the same rule will
+  power sync between devices.
+- The e.firma is stored encrypted (AES-GCM, key derived from the e.firma
+  password). Unlocking it puts the files in `chrome.storage.session` for the
+  sign-in script; it is cleared when the browser closes unless you choose to
+  keep it unlocked.
+- Backup: export everything to a `.json` file (optionally encrypted with a
+  password) and import it in another browser.
 
 ## Configuration
 
