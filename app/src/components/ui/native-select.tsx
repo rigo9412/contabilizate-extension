@@ -5,10 +5,12 @@ export interface NativeSelectProps extends React.SelectHTMLAttributes<HTMLSelect
   /** Catálogo clave → descripción; cada opción se muestra como "clave - descripción". */
   options: Record<string, string>;
   placeholder?: string;
+  /** false muestra solo la descripción (para opciones cuya clave no dice nada). */
+  showKey?: boolean;
 }
 
 export const NativeSelect = React.forwardRef<HTMLSelectElement, NativeSelectProps>(
-  ({ className, options, placeholder, ...props }, ref) => (
+  ({ className, options, placeholder, showKey = true, ...props }, ref) => (
     <select
       ref={ref}
       className={cn(
@@ -23,7 +25,7 @@ export const NativeSelect = React.forwardRef<HTMLSelectElement, NativeSelectProp
         .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
         .map(([key, label]) => (
         <option key={key} value={key}>
-          {key === label ? label : `${key} - ${label}`}
+          {!showKey || key === label ? label : `${key} - ${label}`}
         </option>
       ))}
     </select>

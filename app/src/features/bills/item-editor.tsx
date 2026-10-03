@@ -19,7 +19,11 @@ import { typeObjectImp, unitMeasure } from "@/lib/catalogs";
 import type { BillItem } from "@/lib/types";
 
 const NONE = "";
-const rateOptions = (rates: number[]) => Object.fromEntries(rates.map((r) => [String(r), formatRate(r)]));
+// Incluye la tasa actual aunque no sea de las comunes (p. ej. 5.33% importada del popup).
+const rateOptions = (rates: number[], current: number | null) =>
+  Object.fromEntries(
+    [...new Set(current === null ? rates : [...rates, current])].map((r) => [String(r), formatRate(r)]),
+  );
 
 const EMPTY_ITEM = {
   serviceId: "",
@@ -158,13 +162,13 @@ function ItemForm({ initial, onSave, onCancel }: { initial?: BillItem; onSave: (
         <NativeSelect value={fields.objectImp} options={typeObjectImp} onChange={(e) => set("objectImp", e.target.value)} />
       </Field>
       <Field label="IVA trasladado" className="sm:col-span-1">
-        <NativeSelect value={rates.iva ?? NONE} options={rateOptions(IVA_RATES)} placeholder="No aplica" onChange={setRate("iva")} />
+        <NativeSelect value={rates.iva ?? NONE} options={rateOptions(IVA_RATES, rates.iva)} showKey={false} placeholder="No aplica" onChange={setRate("iva")} />
       </Field>
       <Field label="Retención IVA" className="sm:col-span-1">
-        <NativeSelect value={rates.retIva ?? NONE} options={rateOptions(RET_IVA_RATES)} placeholder="No aplica" onChange={setRate("retIva")} />
+        <NativeSelect value={rates.retIva ?? NONE} options={rateOptions(RET_IVA_RATES, rates.retIva)} showKey={false} placeholder="No aplica" onChange={setRate("retIva")} />
       </Field>
       <Field label="Retención ISR" className="sm:col-span-1">
-        <NativeSelect value={rates.retIsr ?? NONE} options={rateOptions(RET_ISR_RATES)} placeholder="No aplica" onChange={setRate("retIsr")} />
+        <NativeSelect value={rates.retIsr ?? NONE} options={rateOptions(RET_ISR_RATES, rates.retIsr)} showKey={false} placeholder="No aplica" onChange={setRate("retIsr")} />
       </Field>
       <div className="flex flex-wrap items-center gap-3 sm:col-span-6">
         <Button type="button" disabled={!valid} onClick={() => onSave(preview)}>

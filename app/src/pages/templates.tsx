@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { PageTitle } from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ImportLegacyDialog } from "@/features/bills/import-legacy-dialog";
 import { IssueInSatDialog } from "@/features/bills/issue-in-sat-dialog";
 import { formatCurrency } from "@/lib/bill-calc";
 import { alive, db, softDelete } from "@/lib/db";
@@ -22,17 +23,20 @@ export function TemplatesPage() {
     <>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <PageTitle title="Plantillas" description="Facturas que emites seguido, listas para mandar al SAT en un clic." />
-        <Button asChild>
-          <Link to="/templates/new">
-            <Plus /> Nueva plantilla
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <ImportLegacyDialog />
+          <Button asChild>
+            <Link to="/templates/new">
+              <Plus /> Nueva plantilla
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {templates.length === 0 ? (
         <Card>
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            Crea una plantilla con los datos de tu cliente y el concepto que facturas cada mes.
+            Crea una plantilla con los datos de tu cliente y el concepto que facturas cada mes, o importa el JSON que usabas en el popup.
           </CardContent>
         </Card>
       ) : (
