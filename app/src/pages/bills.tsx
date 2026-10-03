@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Link } from "react-router-dom";
-import { FileUp, Pencil, Plus, Send, Trash2 } from "lucide-react";
+import { FileUp, Pencil, Plus, Send, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { PageTitle } from "@/components/page-title";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +22,49 @@ export function BillsPage() {
   const [importing, setImporting] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
-  async function onImportXml(files: FileList | null) {
+  // Arrastrar y soltar: el contador evita que el aviso parpadee al pasar sobre elementos hijos.
+  const [dragging, setDragging] = useState(false);
+  const dragDepth = useRef(0);
+  const hasFiles = (e: React.DragEvent) => e.dataTransfer.types.includes("Files");
+
+  // Si sueltan el archivo fuera de la zona, que el navegador no abra el XML y saque de la app.
+  useEffect(() => {
+    const block = (e: DragEvent) => {
+      if (e.dataTransfer?.types.includes("Files")) e.preventDefault();
+    };
+    window.addEventListener("dragover", block);
+    window.addEventListener("drop", block);
+    return () => {
+      window.removeEventListener("dragover", block);
+      window.removeEventListener("drop", block);
+    };
+  }, []);
+
+  function onDragEnter(e: React.DragEvent) {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    dragDepth.current++;
+    setDragging(true);
+  }
+
+  function onDragLeave(e: React.DragEvent) {
+    if (!hasFiles(e)) return;
+    dragDepth.current = Math.max(0, dragDepth.current - 1);
+    if (dragDepth.current === 0) setDragging(false);
+  }
+
+  function onDrop(e: React.DragEvent) {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    dragDepth.current = 0;
+    setDragging(false);
+    const xmls = Array.from(e.dataTransfer.files).filter((f) => /\.xml$/i.test(f.name) || f.type.includes("xml"));
+    const skipped = e.dataTransfer.files.length - xmls.length;
+    if (skipped > 0) toast.warning(skipped === 1 ? "1 archivo no es XML y se omitió" : `${skipped} archivos no son XML y se omitieron`);
+    onImportXml(xmls);
+  }
+
+  async function onImportXml(files: FileList | File[] | null) {
     if (!files?.length) return;
     setImporting(true);
     let ok = 0;
@@ -56,9 +98,21 @@ export function BillsPage() {
   }
 
   return (
-    <>
+    <div
+      className="relative min-h-[60vh]"
+      onDragEnter={onDragEnter}
+      onDragOver={(e) => hasFiles(e) && e.preventDefault()}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
+      {dragging && (
+        <div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary bg-background/90 text-primary">
+          <Upload className="size-8" />
+          <p className="font-medium">Suelta tus XML para agregarlos a Facturas</p>
+        </div>
+      )}
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <PageTitle title="Facturas" description="Tus facturas emitidas y recibidas." />
+        <PageTitle title="Facturas" description="Tus facturas emitidas y recibidas. Arrastra aquí tus XML para importarlos." />
         <div className="flex gap-2">
           <input
             ref={fileInput}
@@ -84,7 +138,9 @@ export function BillsPage() {
           <Input placeholder="Buscar por RFC, cliente, concepto o folio" value={query} onChange={(e) => setQuery(e.target.value)} />
           {filtered.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              {bills.length === 0 ? "Aún no tienes facturas registradas." : "Ninguna factura coincide con la búsqueda."}
+              {bills.length === 0
+                ? "Aún no tienes facturas. Arrastra aquí tus XML, impórtalos con el botón o descárgalos del SAT."
+                : "Ninguna factura coincide con la búsqueda."}
             </p>
           ) : (
             <Table>
@@ -146,6 +202,6 @@ export function BillsPage() {
           )}
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }
