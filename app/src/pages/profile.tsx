@@ -2,12 +2,14 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Lock, Unlock } from "lucide-react";
 import { toast } from "sonner";
+import { Field } from "@/components/field";
 import { PageTitle } from "@/components/page-title";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { taxRegimes } from "@/lib/catalogs";
 import { db, PROFILE_ID, save, VAULT_ID } from "@/lib/db";
 import { RFC_REGEX } from "@/lib/sat";
 import type { Profile } from "@/lib/types";
@@ -47,8 +49,6 @@ function ProfileForm() {
       return;
     }
     await save<Profile>(db.profile, { id: PROFILE_ID, ...form, rfc });
-    // El script de inicio de sesión del SAT lee el RFC de aquí.
-    await chrome.storage.local.set({ rfc });
     toast.success("Perfil guardado");
   }
 
@@ -69,7 +69,12 @@ function ProfileForm() {
             <Input value={form.postalCode} onChange={set("postalCode")} inputMode="numeric" maxLength={5} />
           </Field>
           <Field label="Régimen fiscal">
-            <Input value={form.regimenFiscal} onChange={set("regimenFiscal")} placeholder="626 - RESICO" />
+            <NativeSelect
+              value={form.regimenFiscal}
+              onChange={(e) => setForm((f) => ({ ...f, regimenFiscal: e.target.value }))}
+              options={taxRegimes}
+              placeholder="Selecciona"
+            />
           </Field>
           <div className="sm:col-span-2">
             <Button type="submit">Guardar perfil</Button>
@@ -180,14 +185,5 @@ function VaultCard() {
         </form>
       </CardContent>
     </Card>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="grid gap-1.5">
-      <Label>{label}</Label>
-      {children}
-    </div>
   );
 }

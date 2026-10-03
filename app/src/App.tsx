@@ -1,13 +1,19 @@
 import { HashRouter, NavLink, Route, Routes } from "react-router-dom";
-import { DatabaseBackup, LayoutDashboard, UserRound } from "lucide-react";
+import { DatabaseBackup, FileText, LayoutDashboard, LayoutTemplate, UserRound } from "lucide-react";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import { DashboardPage } from "@/pages/dashboard";
 import { ProfilePage } from "@/pages/profile";
 import { BackupPage } from "@/pages/backup";
+import { BillEditPage } from "@/pages/bill-edit";
+import { BillsPage } from "@/pages/bills";
+import { TemplateEditPage } from "@/pages/template-edit";
+import { TemplatesPage } from "@/pages/templates";
 
 const NAV = [
   { to: "/", label: "Inicio", icon: LayoutDashboard },
+  { to: "/bills", label: "Facturas", icon: FileText },
+  { to: "/templates", label: "Plantillas", icon: LayoutTemplate },
   { to: "/profile", label: "Perfil y e.firma", icon: UserRound },
   { to: "/backup", label: "Respaldo", icon: DatabaseBackup },
 ];
@@ -22,7 +28,7 @@ export function App() {
             <NavLink
               key={to}
               to={to}
-              end
+              end={to === "/"}
               className={({ isActive }) =>
                 cn(
                   "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary",
@@ -41,7 +47,7 @@ export function App() {
               <NavLink
                 key={to}
                 to={to}
-                end
+                end={to === "/"}
                 className={({ isActive }) =>
                   cn("whitespace-nowrap rounded-md px-3 py-1.5 text-sm", isActive && "bg-primary text-primary-foreground")
                 }
@@ -53,6 +59,12 @@ export function App() {
           <main className="mx-auto w-full max-w-5xl flex-1 p-4 md:p-8">
             <Routes>
               <Route path="/" element={<DashboardPage />} />
+              <Route path="/bills" element={<BillsPage />} />
+              <Route path="/bills/new" element={<BillEditPage />} />
+              <Route path="/bills/:id" element={<BillEditPage />} />
+              <Route path="/templates" element={<TemplatesPage />} />
+              <Route path="/templates/new" element={<TemplateEditPage />} />
+              <Route path="/templates/:id" element={<TemplateEditPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/backup" element={<BackupPage />} />
             </Routes>

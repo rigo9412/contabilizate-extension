@@ -44,10 +44,15 @@ export interface BillTax {
 }
 
 export interface BillItem {
+  /** Clave de producto o servicio del SAT (p. ej. 81111600). */
   serviceId: string;
+  /** Nombre del producto tal como aparece en el buscador del portal del SAT. */
+  serviceName?: string;
   description: string;
   quantity: number;
+  /** Nombre de la unidad (texto libre del CFDI). */
   unitId: string;
+  /** Clave de unidad del SAT (p. ej. E48). */
   unit: string;
   noIdentification: string;
   objectImp: string;
@@ -81,9 +86,11 @@ export interface Bill extends SyncRecord {
   items: BillItem[];
 }
 
+export type BillDraft = Omit<Bill, keyof SyncRecord>;
+
 export interface Template extends SyncRecord {
   alias: string;
-  bill: Omit<Bill, keyof SyncRecord>;
+  bill: BillDraft;
 }
 
 export interface SatDownload extends SyncRecord {

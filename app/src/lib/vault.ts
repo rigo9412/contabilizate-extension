@@ -1,4 +1,4 @@
-import { db, PROFILE_ID, save, VAULT_ID } from "./db";
+import { db, save, VAULT_ID } from "./db";
 import { decryptJson, encryptJson } from "./crypto";
 import type { Vault, VaultSecrets } from "./types";
 
@@ -56,9 +56,6 @@ function legacyEntries(secrets: VaultSecrets) {
 export async function unlockVault(password: string, remember: boolean): Promise<void> {
   const secrets = await readVault(password);
   const entries = legacyEntries(secrets);
-  // El RFC no es secreto, pero tras importar un respaldo aún no está en storage.
-  const profile = await db.profile.get(PROFILE_ID);
-  if (profile?.rfc) await chrome.storage.local.set({ rfc: profile.rfc });
   if (remember) {
     await chrome.storage.local.set(entries);
   } else {

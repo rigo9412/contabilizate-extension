@@ -217,6 +217,22 @@ async function getStorageData() {
   });
 }
 
+// Llaves de la factura que escribe la app (app/src/lib/sat-fill.ts). Si la
+// factura vino de la app se borran tras sellar, para no volver a emitirla al
+// recargar el portal; las cargadas desde el popup se conservan como antes.
+const BILL_STORAGE_KEYS = [
+  "rfc", "razonSocial", "codigoPostal", "regimenFiscal", "usoCFDI",
+  "conceptoDescripcion", "conceptoProducto", "conceptoUnidad", "conceptoCantidad",
+  "conceptoValor", "conceptoId", "conceptoImpuesto", "conceptoIva", "conceptoRetIva",
+  "conceptoRetIsr", "subtotal", "impuestosTrasladados", "impuestosRetenidos", "total",
+];
+
+async function clearBillStagedByApp() {
+  const { billStagedBy } = await chrome.storage.local.get("billStagedBy");
+  if (billStagedBy !== "app") return;
+  await chrome.storage.local.remove([...BILL_STORAGE_KEYS, "billStagedBy"]);
+}
+
 async function loadConfigFromStorage() {
   try {
     const storageData = await getStorageData();
@@ -827,6 +843,7 @@ async function FillBillProcess() {
       showToast("Totales correctos, sellando factura...", "success");
       
       document.querySelector('a.btn-sellar-factura[tabindex="2002"]').click();
+      await clearBillStagedByApp();
       
       showCompletedBadge(storageConfig.TOTAL);
       showToast("¡Factura completada exitosamente!", "success");
