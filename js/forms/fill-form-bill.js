@@ -642,14 +642,25 @@ function InputFillAutocomplete(key, data) {
   return InputTypeAutocomplete(input.id, data);
 }
 
+// El portal muestra los importes con separador de miles ("8,333.33") y deja
+// vacíos los que valen cero; se comparan como números, al centavo.
+function parseAmount(value) {
+  const clean = String(value ?? "").replace(/[$,\s]/g, "");
+  if (clean === "") return 0;
+  const number = Number(clean);
+  return Number.isFinite(number) ? Math.round(number * 100) : NaN;
+}
+
 const checkValue = async (elementId, expectedValue) => {
   const element = document.getElementById(elementId);
   if (!element) {
     console.log(`No se encontró el elemento con ID: ${elementId}`);
     return false;
   }
-   console.log("Elemento encontrado", element.value);
-  if (element.value !== expectedValue) {
+  console.log("Elemento encontrado", element.value);
+  const actual = parseAmount(element.value);
+  const expected = parseAmount(expectedValue);
+  if (Number.isNaN(actual) || actual !== expected) {
     console.log(
       `El valor ${elementId} no coincide. Esperado: ${expectedValue}, Actual: ${element.value}`
     );
