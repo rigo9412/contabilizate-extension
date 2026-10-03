@@ -1,6 +1,6 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { Link } from "react-router-dom";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Copy, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageTitle } from "@/components/page-title";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,24 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ImportLegacyDialog } from "@/features/bills/import-legacy-dialog";
 import { IssueInSatDialog } from "@/features/bills/issue-in-sat-dialog";
 import { formatCurrency } from "@/lib/bill-calc";
-import { alive, db, softDelete } from "@/lib/db";
+import { alive, db, newId, save, softDelete } from "@/lib/db";
+import type { Template } from "@/lib/types";
 
 export function TemplatesPage() {
   const templates = useLiveQuery(async () => alive(await db.templates.orderBy("alias").toArray()), [], []);
+
+  const navigate = useNavigate();
+
+  async function onDuplicate(template: Template) {
+    const id = newId();
+    await save<Template>(db.templates, {
+      id,
+      alias: `${template.alias} (copia)`,
+      bill: structuredClone(template.bill),
+    });
+    toast.success("Plantilla duplicada");
+    navigate(`/templates/${id}`);
+  }
 
   async function onDelete(id: string) {
     if (!confirm("¿Eliminar esta plantilla?")) return;
@@ -59,6 +73,9 @@ export function TemplatesPage() {
                   <Link to={`/templates/${t.id}`}>
                     <Pencil />
                   </Link>
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => onDuplicate(t)} aria-label="Duplicar">
+                  <Copy />
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => onDelete(t.id)} aria-label="Eliminar">
                   <Trash2 />
