@@ -1,16 +1,17 @@
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ExternalLink, FileText, KeyRound, LayoutTemplate } from "lucide-react";
+import { Eye, EyeOff, ExternalLink, FileText, KeyRound, LayoutTemplate } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PageTitle } from "@/components/page-title";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { NativeSelect } from "@/components/ui/native-select";
+import { CategoryPie } from "@/features/dashboard/category-pie";
 import { IncomeChart } from "@/features/dashboard/income-chart";
-import { formatCurrency } from "@/lib/bill-calc";
-import { availableYears, monthlySummary } from "@/lib/dashboard";
+import { availableYears, categorySummary, monthlySummary } from "@/lib/dashboard";
 import { alive, db, PROFILE_ID } from "@/lib/db";
+import { useHideAmounts } from "@/lib/privacy";
 import { openSatPortal } from "@/lib/sat";
 import { useVaultStatus } from "@/lib/use-vault-status";
 
@@ -28,6 +29,12 @@ export function DashboardPage() {
   const years = useMemo(() => availableYears(bills), [bills]);
   const [year, setYear] = useState(new Date().getFullYear());
   const months = useMemo(() => monthlySummary(bills, profile?.rfc ?? "", year), [bills, profile?.rfc, year]);
+  const [origin, setOrigin] = useState<"incomes" | "expenses">("expenses");
+  const slices = useMemo(
+    () => categorySummary(bills, profile?.rfc ?? "", year, origin),
+    [bills, profile?.rfc, year, origin],
+  );
+  const { hide, toggle } = useHideAmounts();
   const totals = useMemo(
     () => ({
       incomes: months.reduce((a, m) => a + m.incomes, 0),
@@ -45,6 +52,11 @@ export function DashboardPage() {
       <PageTitle
         title={profile?.name ? `Hola, ${profile.name}` : "Bienvenido"}
         description="Tus datos viven en este navegador. Respáldalos desde la sección Respaldo."
+        actions={
+          <Button variant="outline" size="sm" onClick={toggle} aria-pressed={hide}>
+            {hide ? <Eye /> : <EyeOff />} {hide ? "Mostrar montos" : "Ocultar montos"}
+          </Button>
+        }
       />
 
       {!profile && (
@@ -126,6 +138,36 @@ export function DashboardPage() {
         </CardContent>
       </Card>
 
+      {!!profile?.rfc && billCount > 0 && (
+        <Card className="mt-6">
+          <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
+            <div>
+              <CardTitle>{origin === "expenses" ? "¿De dónde vienen tus gastos?" : "¿De dónde vienen tus ingresos?"}</CardTitle>
+              <CardDescription>
+                {origin === "expenses"
+                  ? `Gastos de ${year} agrupados por quién te facturó.`
+                  : `Ingresos de ${year} agrupados por cliente.`}
+              </CardDescription>
+            </div>
+            <NativeSelect
+              className="w-32"
+              showKey={false}
+              aria-label="Origen"
+              value={origin}
+              options={{ expenses: "Gastos", incomes: "Ingresos" }}
+              onChange={(e) => setOrigin(e.target.value as "incomes" | "expenses")}
+            />
+          </CardHeader>
+          <CardContent>
+            {slices.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No hay {origin === "expenses" ? "gastos" : "ingresos"} en {year}.</p>
+            ) : (
+              <CategoryPie data={slices} label={`Origen de ${origin === "expenses" ? "gastos" : "ingresos"} ${year}`} />
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="mt-6">
         <CardHeader>
           <CardTitle>Portal del SAT</CardTitle>
@@ -157,10 +199,11 @@ function StatCard({ icon: Icon, label, value }: { icon: typeof FileText; label: 
 }
 
 function Stat({ label, value }: { label: string; value: number }) {
+  const { money } = useHideAmounts();
   return (
     <div>
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-xl font-semibold tabular-nums">{formatCurrency(value)}</dd>
+      <dd className="text-xl font-semibold tabular-nums">{money(value)}</dd>
     </div>
   );
 }

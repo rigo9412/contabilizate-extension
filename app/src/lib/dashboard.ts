@@ -67,3 +67,53 @@ export function availableYears(bills: Bill[], current = new Date().getFullYear()
   }
   return [...years].sort((a, b) => b - a);
 }
+
+export interface CategorySlice {
+  key: string;
+  name: string;
+  total: number;
+  count: number;
+}
+
+/**
+ * Agrupa por contraparte: de quién viene cada gasto (emisor) o a quién le
+ * facturaste cada ingreso (receptor). Muestra las `max` mayores y junta el
+ * resto en "Otros".
+ */
+export function categorySummary(
+  bills: Bill[],
+  rfc: string,
+  year: number,
+  kind: "incomes" | "expenses",
+  max = 6,
+): CategorySlice[] {
+  const groups = new Map<string, CategorySlice>();
+  for (const bill of countable(bills)) {
+    if (Number(bill.date.slice(0, 4)) !== year) continue;
+    const mine = kind === "incomes" ? isIncome(bill, rfc) : isExpense(bill, rfc);
+    if (!mine) continue;
+    // Nómina: el emisor soy yo y el receptor es el patrón; en ingresos siempre se agrupa por quien paga.
+    const incoming = kind === "expenses";
+    const key = (incoming ? bill.rfcEmisor : bill.rfcReceptor) || "SIN-RFC";
+    const name = (incoming ? bill.nameEmisor : bill.nameReceptor) || key;
+    const slice = groups.get(key) ?? { key, name, total: 0, count: 0 };
+    slice.total += bill.total;
+    slice.count += 1;
+    groups.set(key, slice);
+  }
+  const sorted = [...groups.values()]
+    .filter((s) => s.total > 0)
+    .map((s) => ({ ...s, total: round2(s.total) }))
+    .sort((a, b) => b.total - a.total);
+  if (sorted.length <= max) return sorted;
+  const rest = sorted.slice(max);
+  return [
+    ...sorted.slice(0, max),
+    {
+      key: "__otros",
+      name: `Otros (${rest.length})`,
+      total: round2(rest.reduce((a, s) => a + s.total, 0)),
+      count: rest.reduce((a, s) => a + s.count, 0),
+    },
+  ];
+}

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Table2, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatCurrency } from "@/lib/bill-calc";
 import type { MonthSummary } from "@/lib/dashboard";
+import { useHideAmounts } from "@/lib/privacy";
 
 const SERIES = [
   { key: "incomes", label: "Ingresos", color: "var(--series-income)" },
@@ -35,6 +35,7 @@ function barPath(x: number, y: number, w: number, h: number): string {
 }
 
 export function IncomeChart({ data, year }: { data: MonthSummary[]; year: number }) {
+  const { money, hide } = useHideAmounts();
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(640);
   const [hover, setHover] = useState<number | null>(null);
@@ -85,8 +86,8 @@ export function IncomeChart({ data, year }: { data: MonthSummary[]; year: number
             {data.map((d) => (
               <TableRow key={d.month}>
                 <TableCell>{d.label}</TableCell>
-                <TableCell className="text-right tabular-nums">{formatCurrency(d.incomes)}</TableCell>
-                <TableCell className="text-right tabular-nums">{formatCurrency(d.expenses)}</TableCell>
+                <TableCell className="text-right tabular-nums">{money(d.incomes)}</TableCell>
+                <TableCell className="text-right tabular-nums">{money(d.expenses)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -105,7 +106,7 @@ export function IncomeChart({ data, year }: { data: MonthSummary[]; year: number
                   strokeDasharray={t === 0 ? undefined : "2 4"}
                 />
                 <text x={MARGIN.left - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-muted-foreground text-[11px]">
-                  {t === 0 ? "$0" : `$${compact.format(t)}`}
+                  {hide ? "••" : t === 0 ? "$0" : `$${compact.format(t)}`}
                 </text>
               </g>
             ))}
@@ -150,7 +151,7 @@ export function IncomeChart({ data, year }: { data: MonthSummary[]; year: number
                     <span className="size-2 rounded-sm" style={{ background: s.color }} aria-hidden />
                     {s.label}
                   </span>
-                  <span className="tabular-nums">{formatCurrency(hovered[s.key])}</span>
+                  <span className="tabular-nums">{money(hovered[s.key])}</span>
                 </div>
               ))}
             </div>

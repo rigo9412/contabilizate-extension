@@ -8,17 +8,21 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IssueInSatDialog } from "@/features/bills/issue-in-sat-dialog";
 import { formatCurrency } from "@/lib/bill-calc";
 import { typeCFDI } from "@/lib/catalogs";
 import { importCfdiXml } from "@/lib/bill-import";
+import { isExpense, isIncome } from "@/lib/dashboard";
 import { alive, db, PROFILE_ID, softDelete } from "@/lib/db";
 
 export function BillsPage() {
   const bills = useLiveQuery(async () => alive(await db.bills.orderBy("date").reverse().toArray()), [], []);
   const profile = useLiveQuery(() => db.profile.get(PROFILE_ID));
   const [query, setQuery] = useState("");
+  const [kind, setKind] = useState("");
+  const [rfc, setRfc] = useState("");
   const [importing, setImporting] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -83,13 +87,32 @@ export function BillsPage() {
     if (failed.length > 0) toast.error(`No se pudieron leer: ${failed.slice(0, 3).join(", ")}${failed.length > 3 ? "…" : ""}`);
   }
 
+  // RFC de las contrapartes que ya existen en tus facturas (sin el tuyo): "RFC" → nombre.
+  const rfcOptions = useMemo(() => {
+    const own = profile?.rfc;
+    const found: Record<string, string> = {};
+    for (const b of bills) {
+      for (const [id, name] of [[b.rfcEmisor, b.nameEmisor], [b.rfcReceptor, b.nameReceptor]]) {
+        if (!id || id === own) continue;
+        if (!found[id] || (name && found[id] === id)) found[id] = name || id;
+      }
+    }
+    return found;
+  }, [bills, profile?.rfc]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return bills;
-    return bills.filter((b) =>
-      [b.rfcReceptor, b.rfcEmisor, b.nameReceptor, b.nameEmisor, b.description, b.folio].some((v) => v?.toLowerCase().includes(q)),
-    );
-  }, [bills, query]);
+    const own = profile?.rfc ?? "";
+    return bills.filter((b) => {
+      if (kind === "incomes" && !isIncome(b, own)) return false;
+      if (kind === "expenses" && !isExpense(b, own)) return false;
+      if (rfc && b.rfcEmisor !== rfc && b.rfcReceptor !== rfc) return false;
+      if (!q) return true;
+      return [b.rfcReceptor, b.rfcEmisor, b.nameReceptor, b.nameEmisor, b.description, b.folio].some((v) =>
+        v?.toLowerCase().includes(q),
+      );
+    });
+  }, [bills, query, kind, rfc, profile?.rfc]);
 
   async function onDelete(id: string) {
     if (!confirm("¿Eliminar esta factura de tus registros? No se cancela en el SAT.")) return;
@@ -135,7 +158,26 @@ export function BillsPage() {
 
       <Card>
         <CardContent className="grid gap-4 pt-6">
-          <Input placeholder="Buscar por RFC, cliente, concepto o folio" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+            <Input placeholder="Buscar por RFC, cliente, concepto o folio" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <NativeSelect
+              className="sm:w-40"
+              aria-label="Tipo"
+              placeholder="Ingresos y gastos"
+              showKey={false}
+              value={kind}
+              options={{ expenses: "Gastos", incomes: "Ingresos" }}
+              onChange={(e) => setKind(e.target.value)}
+            />
+            <NativeSelect
+              className="sm:w-64"
+              aria-label="RFC"
+              placeholder="Todos los RFC"
+              value={rfc}
+              options={rfcOptions}
+              onChange={(e) => setRfc(e.target.value)}
+            />
+          </div>
           {filtered.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
               {bills.length === 0
