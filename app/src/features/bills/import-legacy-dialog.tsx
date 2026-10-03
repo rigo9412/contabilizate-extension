@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/bill-calc";
 import { db, newId, PROFILE_ID, save } from "@/lib/db";
-import { fromLegacyJson, legacyJsonFromStorage, parseLegacyJson, type LegacyBillJson, type LegacyImport } from "@/lib/legacy-import";
+import { fromLegacyJson, legacyJsonFromStorage, parseLegacyText, type LegacyBillJson, type LegacyImport } from "@/lib/legacy-import";
 import type { Template } from "@/lib/types";
 
 interface Candidate extends LegacyImport {
@@ -36,7 +36,7 @@ export function ImportLegacyDialog() {
 
   async function onPreview() {
     try {
-      await load(parseLegacyJson(text));
+      await load(parseLegacyText(text));
     } catch (err) {
       toast.error((err as Error).message);
     }
@@ -47,7 +47,7 @@ export function ImportLegacyDialog() {
     const content = await file.text();
     setText(content);
     try {
-      await load(parseLegacyJson(content));
+      await load(parseLegacyText(content));
     } catch (err) {
       toast.error((err as Error).message);
     }
@@ -77,15 +77,15 @@ export function ImportLegacyDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <FileJson /> Importar JSON
+          <FileJson /> Importar JSON / CSV
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Importar plantilla del popup</DialogTitle>
           <DialogDescription>
-            Pega el JSON que usabas en "Cargar JSON" (un objeto o una lista), sube el archivo, o toma la factura que
-            el popup tiene cargada ahora.
+            Pega el JSON que usabas en "Cargar JSON" (un objeto o una lista) o el CSV de la plantilla del popup,
+            sube el archivo, o toma la factura que el popup tiene cargada ahora.
           </DialogDescription>
         </DialogHeader>
 
@@ -104,7 +104,7 @@ export function ImportLegacyDialog() {
               <Button type="button" variant="outline" onClick={onFromPopup}>
                 Usar lo cargado en el popup
               </Button>
-              <Input type="file" accept=".json,application/json" className="max-w-60" onChange={(e) => onFile(e.target.files?.[0])} />
+              <Input type="file" accept=".json,.csv,application/json,text/csv" className="max-w-60" onChange={(e) => onFile(e.target.files?.[0])} />
             </div>
           </div>
         ) : (

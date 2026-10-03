@@ -16,18 +16,6 @@
         "https://*.sat.gob.mx/*",
         "https://portal.facturaelectronica.sat.gob.mx/*"
     ],
-    "web_accessible_resources": [
-        {
-            "resources": [
-                "certificado.cer",
-                "llave.key",
-                "js/*"
-            ],
-            "matches": [
-                "<all_urls>"
-            ]
-        }
-    ],
     "action": {
         "default_popup": "index.html",
         "default_icon": {
@@ -42,16 +30,5 @@
     "background": {
         "service_worker": "js/background.js",
         "type": "module"
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "https://*.sat.gob.mx/*",
-                "https://portal.facturaelectronica.sat.gob.mx/*"
-            ],
-            "js": [
-                "js/popup.js"
-            ]
-        }
-    ]
+    }
 }

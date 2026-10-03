@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fromLegacyJson, legacyJsonFromStorage, parseLegacyJson } from "./legacy-import";
+import { fromLegacyJson, legacyJsonFromStorage, parseLegacyJson, parseLegacyText } from "./legacy-import";
 import { toLegacyBill } from "./sat-fill";
 
 const TECNM = {
@@ -99,5 +99,21 @@ describe("legacyJsonFromStorage", () => {
     const json = legacyJsonFromStorage({ rfc: "X", razonSocial: "Y", conceptoDescripcion: "Z", conceptoIva: "16" });
     expect(json).toMatchObject({ rfc: "X", razonSocial: "Y", concepto: { descripcion: "Z", iva: "16" } });
     expect(legacyJsonFromStorage({ passwordCertificado: "x" })).toBeNull();
+  });
+});
+
+describe("parseLegacyCsv", () => {
+  it("lee la plantilla CSV del popup, una plantilla por fila", () => {
+    const csv = [
+      "rfc,razonSocial,codigoPostal,regimenFiscal,usoCFDI,conceptoDescripcion,conceptoProducto,conceptoUnidad,conceptoCantidad,conceptoValor,conceptoId,conceptoImpuesto,conceptoIva,conceptoRetIva,conceptoRetIsr,total,subtotal,impuestosTrasladados,impuestosRetenidos",
+      'XAXX010101000,PUBLICO GENERAL,88240,Sin obligaciones fiscales,Sin efectos fiscales.,"Servicio, basico",Programadores de computador,Unidad de servicio,1,1.00,1,02,16,0,0,1.16,1.00,0.16,0.00',
+      "TNM140723GFA,TECNM,03330,Personas Morales con Fines no Lucrativos,Gastos en general,Apoyo,Programadores de computador,Unidad de servicio,1,7200,1,02,8,5.33,0,7392.24,7200.00,576.00,383.76",
+    ].join("\r\n");
+    const list = parseLegacyText(csv);
+    expect(list).toHaveLength(2);
+    expect(list[0].concepto?.descripcion).toBe("Servicio, basico");
+    const { bill, warnings } = fromLegacyJson(list[1]);
+    expect(warnings).toEqual([]);
+    expect(bill.total).toBe(7392.24);
   });
 });

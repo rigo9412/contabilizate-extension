@@ -1,5 +1,5 @@
 import { HashRouter, NavLink, Route, Routes } from "react-router-dom";
-import { DatabaseBackup, FileText, LayoutDashboard, LayoutTemplate, UserRound } from "lucide-react";
+import { DatabaseBackup, Download, FileText, LayoutDashboard, LayoutTemplate, UserRound } from "lucide-react";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import { DashboardPage } from "@/pages/dashboard";
@@ -7,6 +7,7 @@ import { ProfilePage } from "@/pages/profile";
 import { BackupPage } from "@/pages/backup";
 import { BillEditPage } from "@/pages/bill-edit";
 import { BillsPage } from "@/pages/bills";
+import { DownloadsPage } from "@/pages/downloads";
 import { TemplateEditPage } from "@/pages/template-edit";
 import { TemplatesPage } from "@/pages/templates";
 
@@ -14,6 +15,7 @@ const NAV = [
   { to: "/", label: "Inicio", icon: LayoutDashboard },
   { to: "/bills", label: "Facturas", icon: FileText },
   { to: "/templates", label: "Plantillas", icon: LayoutTemplate },
+  { to: "/downloads", label: "Descargar del SAT", icon: Download },
   { to: "/profile", label: "Perfil y e.firma", icon: UserRound },
   { to: "/backup", label: "Respaldo", icon: DatabaseBackup },
 ];
@@ -65,6 +67,7 @@ export function App() {
               <Route path="/templates" element={<TemplatesPage />} />
               <Route path="/templates/new" element={<TemplateEditPage />} />
               <Route path="/templates/:id" element={<TemplateEditPage />} />
+              <Route path="/downloads" element={<DownloadsPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/backup" element={<BackupPage />} />
             </Routes>

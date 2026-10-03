@@ -179,3 +179,53 @@ export function legacyJsonFromStorage(s: Record<string, unknown>): LegacyBillJso
     impuestosRetenidos: str("impuestosRetenidos"),
   };
 }
+
+/** Parser de CSV con comillas, igual al del popup. */
+function parseCsvRows(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let inQuotes = false;
+  const pushRow = () => {
+    row.push(cell.trim());
+    if (row.length > 1 || row[0] !== "") rows.push(row);
+    row = [];
+    cell = "";
+  };
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (inQuotes) {
+      if (char === '"' && text[i + 1] === '"') {
+        cell += '"';
+        i++;
+      } else if (char === '"') inQuotes = false;
+      else cell += char;
+    } else if (char === '"') inQuotes = true;
+    else if (char === ",") {
+      row.push(cell.trim());
+      cell = "";
+    } else if (char === "\n") pushRow();
+    else if (char !== "\r") cell += char;
+  }
+  if (cell !== "" || row.length > 0) pushRow();
+  return rows;
+}
+
+/**
+ * CSV de la plantilla del popup: encabezados con las mismas llaves planas que
+ * chrome.storage (rfc, razonSocial, conceptoDescripcion…). Cada fila es una plantilla.
+ */
+export function parseLegacyCsv(text: string): LegacyBillJson[] {
+  const [headers, ...rows] = parseCsvRows(text.replace(/^﻿/, ""));
+  if (!headers || rows.length === 0) throw new Error("El CSV no tiene datos (se requiere encabezado y al menos una fila)");
+  const list = rows
+    .map((row) => legacyJsonFromStorage(Object.fromEntries(headers.map((h, i) => [h.trim(), row[i] ?? ""]))))
+    .filter((json): json is LegacyBillJson => json !== null);
+  if (list.length === 0) throw new Error("El CSV no tiene las columnas de la plantilla del popup");
+  return list;
+}
+
+/** Detecta si el texto es JSON o CSV. */
+export function parseLegacyText(text: string): LegacyBillJson[] {
+  return /^\s*[[{]/.test(text) ? parseLegacyJson(text) : parseLegacyCsv(text);
+}

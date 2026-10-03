@@ -54,5 +54,3 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
    //console.log("La pestaña se actualizó:", tab.title, tab.url);
   }
 });
-
-// El popup se abre automáticamente según la configuración de manifest.json (default_popup)

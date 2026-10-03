@@ -49,25 +49,23 @@ The extension requires:
 
 ## Usage
 
-1. Click on the extension icon in Chrome
-2. Configure your credentials and certificate files
-3. Navigate to the SAT portal
-4. Use the extension buttons to:
-   - "Ir al Sitio SAT" (Go to SAT website)
-   - "Iniciar Sesión (Firma)" (Login with e.firma)
-   - "Llenar Factura" (Fill invoice form)
+The toolbar popup is a small launcher: it shows whether the e.firma is
+unlocked and whether an invoice is waiting to be issued (with a button to
+discard it). Everything else lives in the full app ("Abrir Contabilizate"):
+profile and e.firma, invoices, templates (including importing the old popup
+JSON/CSV), downloading CFDI from the SAT, and backups.
 
 ## File Structure
 
 ```
-├── index.html           # Extension popup interface
 ├── manifest.json        # Extension configuration
-├── css/                # Styles
+├── index.html           # Popup (launcher)
+├── app/                 # Full React app (Vite), built into dist/app
 ├── js/
-    ├── background.js   # Background script
-    ├── popup.js        # Popup logic
-    ├── forms/          # Form filling scripts
-    └── utils/          # Utility functions
+│   ├── background.js    # Injects the fill scripts on SAT pages
+│   ├── popup.js         # Popup logic
+│   └── forms/           # Scripts that fill the SAT login and invoice forms
+└── dist/                # Build output: load this folder in chrome://extensions
 ```
 
 ## Security
