@@ -51,7 +51,7 @@ export function BillForm({
     onChange({ ...value, [key]: key === "rfcReceptor" || key === "rfcEmisor" ? e.target.value.toUpperCase() : e.target.value });
   const totals = computeTotals(value.items);
   const receptorWarnings = receptorErrors(value);
-  const isGeneric = value.rfcReceptor.trim().toUpperCase() === RFC_GENERIC;
+  const isGeneric = (value.rfcReceptor ?? "").trim().toUpperCase() === RFC_GENERIC;
 
   function toggleGlobal(enabled: boolean) {
     if (!enabled) {

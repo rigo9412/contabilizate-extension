@@ -61,7 +61,7 @@ function personType(rfc: string): "fisica" | "moral" | null {
 /** Errores del receptor que harían que el SAT rechace la factura al sellar. */
 export function receptorErrors(bill: BillDraft): string[] {
   const errors: string[] = [];
-  const rfc = bill.rfcReceptor.trim().toUpperCase();
+  const rfc = (bill.rfcReceptor ?? "").trim().toUpperCase();
   const regime = bill.typeReceptorRegistration ?? "";
   const uso = bill.useCFDIReceptor ?? "";
   if (!rfc || !regime || !uso) return errors;

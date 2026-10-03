@@ -6,16 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DriveSyncCard } from "@/features/sync/drive-sync-card";
 import { backupFileName, BackupNeedsPasswordError, exportBackup, importBackup } from "@/lib/backup";
 
 export function BackupPage() {
   return (
     <>
       <PageTitle
-        title="Respaldo"
-        description="Exporta todos tus datos a un archivo y restáuralos en otro navegador o en la app del iPhone."
+        title="Respaldo y sincronización"
+        description="Sincroniza tus datos con Google Drive o expórtalos a un archivo para restaurarlos en otro navegador."
       />
       <div className="grid gap-6 md:grid-cols-2">
+        <DriveSyncCard />
         <ExportCard />
         <ImportCard />
       </div>

@@ -1,6 +1,8 @@
-import { HashRouter, NavLink, Route, Routes } from "react-router-dom";
+import { HashRouter, NavLink, Route, Routes, useLocation } from "react-router-dom";
 import { DatabaseBackup, Download, FileText, LayoutDashboard, LayoutTemplate, UserRound } from "lucide-react";
 import { Toaster } from "sonner";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { useAutoSync } from "@/lib/use-auto-sync";
 import { cn } from "@/lib/utils";
 import { DashboardPage } from "@/pages/dashboard";
 import { ProfilePage } from "@/pages/profile";
@@ -17,10 +19,11 @@ const NAV = [
   { to: "/templates", label: "Plantillas", icon: LayoutTemplate },
   { to: "/downloads", label: "Descargar del SAT", icon: Download },
   { to: "/profile", label: "Perfil y e.firma", icon: UserRound },
-  { to: "/backup", label: "Respaldo", icon: DatabaseBackup },
+  { to: "/backup", label: "Respaldo y sincronización", icon: DatabaseBackup },
 ];
 
 export function App() {
+  useAutoSync();
   return (
     <HashRouter>
       <div className="flex min-h-screen bg-secondary/40">
@@ -59,6 +62,7 @@ export function App() {
             ))}
           </nav>
           <main className="mx-auto w-full max-w-5xl flex-1 p-4 md:p-8">
+            <RouteErrorBoundary>
             <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/bills" element={<BillsPage />} />
@@ -71,10 +75,17 @@ export function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/backup" element={<BackupPage />} />
             </Routes>
+            </RouteErrorBoundary>
           </main>
         </div>
       </div>
       <Toaster richColors position="top-right" />
     </HashRouter>
   );
+}
+
+/** Se reinicia al cambiar de pantalla, para que un error no bloquee el resto de la app. */
+function RouteErrorBoundary({ children }: { children: React.ReactNode }) {
+  const { pathname } = useLocation();
+  return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>;
 }
