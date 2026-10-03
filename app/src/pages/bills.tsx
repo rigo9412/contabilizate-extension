@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Link } from "react-router-dom";
-import { Pencil, Plus, Send, Trash2 } from "lucide-react";
+import { FileUp, Pencil, Plus, Send, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageTitle } from "@/components/page-title";
 import { Badge } from "@/components/ui/badge";
@@ -12,18 +12,40 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { IssueInSatDialog } from "@/features/bills/issue-in-sat-dialog";
 import { formatCurrency } from "@/lib/bill-calc";
 import { typeCFDI } from "@/lib/catalogs";
+import { importCfdiXml } from "@/lib/bill-import";
 import { alive, db, PROFILE_ID, softDelete } from "@/lib/db";
 
 export function BillsPage() {
   const bills = useLiveQuery(async () => alive(await db.bills.orderBy("date").reverse().toArray()), [], []);
   const profile = useLiveQuery(() => db.profile.get(PROFILE_ID));
   const [query, setQuery] = useState("");
+  const [importing, setImporting] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  async function onImportXml(files: FileList | null) {
+    if (!files?.length) return;
+    setImporting(true);
+    let ok = 0;
+    const failed: string[] = [];
+    for (const file of Array.from(files)) {
+      try {
+        await importCfdiXml(await file.text());
+        ok++;
+      } catch {
+        failed.push(file.name);
+      }
+    }
+    setImporting(false);
+    if (fileInput.current) fileInput.current.value = "";
+    if (ok > 0) toast.success(ok === 1 ? "1 factura importada" : `${ok} facturas importadas`);
+    if (failed.length > 0) toast.error(`No se pudieron leer: ${failed.slice(0, 3).join(", ")}${failed.length > 3 ? "…" : ""}`);
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return bills;
     return bills.filter((b) =>
-      [b.rfcReceptor, b.rfcEmisor, b.nameReceptor, b.description, b.folio].some((v) => v?.toLowerCase().includes(q)),
+      [b.rfcReceptor, b.rfcEmisor, b.nameReceptor, b.nameEmisor, b.description, b.folio].some((v) => v?.toLowerCase().includes(q)),
     );
   }, [bills, query]);
 
@@ -37,11 +59,24 @@ export function BillsPage() {
     <>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <PageTitle title="Facturas" description="Tus facturas emitidas y recibidas." />
-        <Button asChild>
-          <Link to="/bills/new">
-            <Plus /> Nueva factura
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <input
+            ref={fileInput}
+            type="file"
+            accept=".xml,text/xml,application/xml"
+            multiple
+            hidden
+            onChange={(e) => onImportXml(e.target.files)}
+          />
+          <Button variant="outline" isLoading={importing} onClick={() => fileInput.current?.click()}>
+            <FileUp /> Importar XML
+          </Button>
+          <Button asChild>
+            <Link to="/bills/new">
+              <Plus /> Nueva factura
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -73,10 +108,15 @@ export function BillsPage() {
                         <Badge variant={issued ? "primary" : "secondary"}>
                           {typeCFDI[bill.typeBill] ?? bill.typeBill} {issued ? "emitida" : "recibida"}
                         </Badge>
+                        {bill.cancelled && (
+                          <Badge variant="destructive" className="ml-1">
+                            Cancelada
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{issued ? bill.nameReceptor : bill.rfcEmisor}</div>
-                        <div className="text-xs text-muted-foreground">{issued ? bill.rfcReceptor : ""}</div>
+                        <div className="font-medium">{issued ? bill.nameReceptor : bill.nameEmisor || bill.rfcEmisor}</div>
+                        <div className="text-xs text-muted-foreground">{issued ? bill.rfcReceptor : bill.rfcEmisor}</div>
                       </TableCell>
                       <TableCell className="max-w-56 truncate">{bill.description}</TableCell>
                       <TableCell className="text-right">{formatCurrency(bill.total, bill.currency)}</TableCell>

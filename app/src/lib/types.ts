@@ -82,6 +82,7 @@ export interface Bill extends SyncRecord {
   version?: string;
   noCertificate?: string;
   rfcEmisor: string;
+  nameEmisor?: string;
   rfcReceptor: string;
   nameReceptor?: string;
   postalCodeEmisor?: string;
@@ -93,6 +94,8 @@ export interface Bill extends SyncRecord {
   totalTaxesRetention: number;
   total: number;
   count: boolean;
+  /** Cancelada en el SAT (según la consulta del portal); no cuenta en el resumen. */
+  cancelled?: boolean;
   items: BillItem[];
   globalInfo?: GlobalInfo;
 }

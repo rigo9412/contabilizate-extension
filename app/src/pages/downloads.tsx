@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { importCfdiXml } from "@/lib/bill-import";
 import { alive, db, newId, save } from "@/lib/db";
 import {
   DownloadCancelledError,
@@ -49,9 +50,22 @@ export function DownloadsPage() {
     setProgress({ status: "Abriendo el portal del SAT…", percent: 0, done: 0, total: 0 });
     let status = "completada";
     let count = 0;
+    let imported = 0;
+    const notImported: string[] = [];
     try {
-      const result = await downloadFromSat(request, setProgress, () => cancelled.current);
+      const result = await downloadFromSat(request, setProgress, () => cancelled.current, async (xml, info) => {
+        // Cada XML descargado también queda en Facturas para el dashboard.
+        try {
+          await importCfdiXml(xml, { cancelled: info.cancelled });
+          imported++;
+        } catch (err) {
+          console.error("No se pudo importar", info.uuid, err);
+          notImported.push(info.uuid);
+        }
+      });
       count = result.uuids.length;
+      if (imported > 0) toast.success(`${imported} facturas agregadas a Facturas`);
+      if (notImported.length > 0) toast.warning(`${notImported.length} XML no se pudieron leer`);
       if (result.failed.length > 0) {
         status = "con errores";
         toast.warning(`${count} descargadas, ${result.failed.length} fallaron`);
@@ -78,7 +92,7 @@ export function DownloadsPage() {
     <>
       <PageTitle
         title="Descargar facturas"
-        description="Descarga el XML y el PDF de tus CFDI desde el portal del SAT a la carpeta Descargas/contabilizate."
+        description="Descarga el XML y el PDF de tus CFDI del portal del SAT a Descargas/contabilizate y los agrega a Facturas."
       />
       <div className="grid gap-6">
         <Card>

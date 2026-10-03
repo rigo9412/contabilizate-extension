@@ -88,3 +88,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Series de las gráficas (validadas con el validador de paleta de dataviz). */
+:root {
+  --series-income: #1a7f4b;
+  --series-expense: #86c232;
+}

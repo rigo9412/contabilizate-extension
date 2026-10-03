@@ -28,7 +28,11 @@ interface PortalInvoice {
   uuid: string;
   xmlUrl: string | null;
   pdfUrl: string | null;
+  /** La fila del portal dice "Cancelado" en el estado del comprobante. */
+  cancelled: boolean;
 }
+
+export type XmlHandler = (xml: string, info: { uuid: string; cancelled: boolean }) => Promise<void>;
 
 const PORTAL = "https://portalcfdi.facturaelectronica.sat.gob.mx";
 const QUERY_URL: Record<InvoiceType, string> = {
@@ -168,6 +172,7 @@ function readInvoiceTable(): PortalInvoice[] {
       uuid: uuidCell.textContent!.trim(),
       xmlUrl: xmlOnclick.match(/RecuperaCfdi\.aspx\?Datos=([^']+)/)?.[1] ?? null,
       pdfUrl: pdfOnclick?.match(/recuperaRepresentacionImpresa\('([^']+)'\)/)?.[1] ?? null,
+      cancelled: /\bCancelad[oa]\b/i.test((row as HTMLElement).innerText ?? row.textContent ?? ""),
     });
   });
   return invoices;
@@ -231,6 +236,7 @@ export async function downloadFromSat(
   request: DownloadRequest,
   onProgress: (p: DownloadProgress) => void,
   isCancelled: () => boolean,
+  onXml?: XmlHandler,
 ): Promise<DownloadResult> {
   const url = QUERY_URL[request.type];
   const tab = await chrome.tabs.create({ url, active: true });
@@ -294,6 +300,7 @@ export async function downloadFromSat(
         filename: `${folder}/${invoice.uuid}.xml`,
         conflictAction: "overwrite",
       });
+      await onXml?.(xml.content, { uuid: invoice.uuid, cancelled: invoice.cancelled });
       if (request.includePdf && invoice.pdfUrl) {
         const pdf = await run(tabId, fetchPdf, [invoice.pdfUrl]);
         if (pdf.ok) {
