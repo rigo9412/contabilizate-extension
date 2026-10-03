@@ -1,3 +1,4 @@
+import { localDate } from "./auto-dates";
 import { db, SYNC_TABLES, type SyncTableName } from "./db";
 import { decryptJson, encryptJson } from "./crypto";
 import type { EncryptedPayload, SyncRecord } from "./types";
@@ -97,5 +98,5 @@ export async function importBackup(file: File, password?: string): Promise<Merge
 }
 
 export function backupFileName(): string {
-  return `contabilizate-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
+  return `contabilizate-respaldo-${localDate()}.json`;
 }

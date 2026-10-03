@@ -84,3 +84,12 @@ describe("toLegacyBill", () => {
     expect(errors).toContain("El llenado automático del SAT solo soporta facturas con un concepto.");
   });
 });
+
+describe("toLegacyBill con fechas automáticas", () => {
+  it("no deja emitir si quedan marcadores sin resolver", () => {
+    const item = computeItem({ ...baseItem, description: "Del {inicio} al {fin}" }, { iva: 0.16, retIva: null, retIsr: null });
+    expect(toLegacyBill(bill([item])).errors).toContain(
+      "La descripción tiene {inicio}/{fin}: activa las fechas automáticas en la plantilla.",
+    );
+  });
+});

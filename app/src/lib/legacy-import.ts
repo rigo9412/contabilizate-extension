@@ -1,3 +1,4 @@
+import { localDate } from "./auto-dates";
 import { computeItem, computeTotals, round2, withTotals, type ItemRates } from "./bill-calc";
 import { cfdiUsages, keyProductService, taxRegimes, unitMeasure } from "./catalogs";
 import type { BillDraft } from "./types";
@@ -96,7 +97,7 @@ export function fromLegacyJson(json: LegacyBillJson, emisor: { rfc?: string; pos
   );
 
   const bill = withTotals<BillDraft>({
-    date: new Date().toISOString().slice(0, 10),
+    date: localDate(),
     typeBill: "I",
     typePayment: "03",
     paymentMethod: "PUE",

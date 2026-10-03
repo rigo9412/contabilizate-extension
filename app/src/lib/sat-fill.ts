@@ -1,3 +1,4 @@
+import { hasTokens } from "./auto-dates";
 import { ratesOf } from "./bill-calc";
 import { cfdiUsages, keyProductService, taxRegimes, unitMeasure } from "./catalogs";
 import type { BillDraft } from "./types";
@@ -31,6 +32,9 @@ export function toLegacyBill(bill: BillDraft): { entries?: LegacyBillEntries; er
   const item = bill.items[0];
   if (item) {
     if (!item.description) errors.push("Falta la descripción del concepto.");
+    if (hasTokens(item.description)) {
+      errors.push("La descripción tiene {inicio}/{fin}: activa las fechas automáticas en la plantilla.");
+    }
     if (!item.serviceId && !item.serviceName) errors.push("Falta el producto o servicio del concepto.");
     if (!item.unit && !item.unitId) errors.push("Falta la unidad del concepto.");
     if (!(item.quantity > 0) || !(item.unitValue > 0)) errors.push("Cantidad y precio deben ser mayores a cero.");

@@ -88,9 +88,17 @@ export interface Bill extends SyncRecord {
 
 export type BillDraft = Omit<Bill, keyof SyncRecord>;
 
+/** Fechas que cambian solas en la descripción según la fecha de emisión. */
+export interface AutoDates {
+  enabled: boolean;
+  period: "quincena" | "mes";
+  which: "actual" | "anterior";
+}
+
 export interface Template extends SyncRecord {
   alias: string;
   bill: BillDraft;
+  autoDates?: AutoDates;
 }
 
 export interface SatDownload extends SyncRecord {

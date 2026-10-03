@@ -6,17 +6,20 @@ import { PageTitle } from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { AutoDatesCard, DEFAULT_AUTO_DATES } from "@/features/bills/auto-dates-card";
 import { BillForm, emptyBill } from "@/features/bills/bill-form";
 import { IssueInSatDialog } from "@/features/bills/issue-in-sat-dialog";
+import { applyAutoDates } from "@/lib/auto-dates";
 import { withTotals } from "@/lib/bill-calc";
 import { db, newId, PROFILE_ID, save } from "@/lib/db";
-import type { BillDraft, Template } from "@/lib/types";
+import type { AutoDates, BillDraft, Template } from "@/lib/types";
 
 export function TemplateEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [alias, setAlias] = useState("");
   const [draft, setDraft] = useState<BillDraft | null>(null);
+  const [autoDates, setAutoDates] = useState<AutoDates>(DEFAULT_AUTO_DATES);
 
   useEffect(() => {
     (async () => {
@@ -29,6 +32,7 @@ export function TemplateEditPage() {
         }
         setAlias(template.alias);
         setDraft(template.bill);
+        setAutoDates(template.autoDates ?? DEFAULT_AUTO_DATES);
       } else {
         const profile = await db.profile.get(PROFILE_ID);
         setDraft(emptyBill(profile?.rfc, profile?.postalCode));
@@ -45,7 +49,7 @@ export function TemplateEditPage() {
       toast.error("Agrega al menos un concepto");
       return;
     }
-    await save<Template>(db.templates, { id: id ?? newId(), alias: alias.trim(), bill: withTotals(draft) });
+    await save<Template>(db.templates, { id: id ?? newId(), alias: alias.trim(), bill: withTotals(draft), autoDates });
     toast.success("Plantilla guardada");
     navigate("/templates");
   }
@@ -61,9 +65,12 @@ export function TemplateEditPage() {
         </CardContent>
       </Card>
       <BillForm value={draft} onChange={setDraft} showBillFields={false} />
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-6">
+        <AutoDatesCard value={autoDates} onChange={setAutoDates} bill={draft} onBillChange={setDraft} />
+      </div>
+      <div className="flex flex-wrap gap-3">
         <Button type="submit">Guardar</Button>
-        <IssueInSatDialog bill={draft} />
+        <IssueInSatDialog bill={applyAutoDates(draft, autoDates)} />
         <Button type="button" variant="ghost" onClick={() => navigate("/templates")}>
           Cancelar
         </Button>

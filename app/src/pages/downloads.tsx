@@ -1,3 +1,4 @@
+import { localDate } from "@/lib/auto-dates";
 import { useRef, useState, type FormEvent } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Download, X } from "lucide-react";
@@ -23,7 +24,7 @@ import { useVaultStatus } from "@/lib/use-vault-status";
 
 const TYPES: Record<InvoiceType, string> = { emitidas: "Emitidas", recibidas: "Recibidas" };
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = localDate;
 const firstOfMonth = () => today().slice(0, 8) + "01";
 
 export function DownloadsPage() {

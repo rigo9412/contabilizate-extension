@@ -2,6 +2,7 @@ import { Field } from "@/components/field";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
+import { localDate } from "@/lib/auto-dates";
 import { computeTotals, formatCurrency } from "@/lib/bill-calc";
 import { cfdiUsages, currency, paymentForms, paymentMethods, taxRegimes, typeCFDI } from "@/lib/catalogs";
 import type { BillDraft } from "@/lib/types";
@@ -9,7 +10,7 @@ import { ItemsEditor } from "./item-editor";
 
 export function emptyBill(rfcEmisor = "", postalCodeEmisor = ""): BillDraft {
   return {
-    date: new Date().toISOString().slice(0, 10),
+    date: localDate(),
     typeBill: "I",
     typePayment: "03",
     paymentMethod: "PUE",

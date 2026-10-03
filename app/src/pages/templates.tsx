@@ -1,12 +1,13 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { Link, useNavigate } from "react-router-dom";
-import { Copy, Pencil, Plus, Trash2 } from "lucide-react";
+import { CalendarClock, Copy, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageTitle } from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImportLegacyDialog } from "@/features/bills/import-legacy-dialog";
 import { IssueInSatDialog } from "@/features/bills/issue-in-sat-dialog";
+import { applyAutoDates } from "@/lib/auto-dates";
 import { formatCurrency } from "@/lib/bill-calc";
 import { alive, db, newId, save, softDelete } from "@/lib/db";
 import type { Template } from "@/lib/types";
@@ -22,6 +23,7 @@ export function TemplatesPage() {
       id,
       alias: `${template.alias} (copia)`,
       bill: structuredClone(template.bill),
+      autoDates: template.autoDates,
     });
     toast.success("Plantilla duplicada");
     navigate(`/templates/${id}`);
@@ -55,7 +57,9 @@ export function TemplatesPage() {
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {templates.map((t) => (
+          {templates.map((t) => {
+            const bill = applyAutoDates(t.bill, t.autoDates);
+            return (
             <Card key={t.id} className="flex flex-col">
               <CardHeader>
                 <CardTitle>{t.alias}</CardTitle>
@@ -64,11 +68,16 @@ export function TemplatesPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1 text-sm">
-                <p className="line-clamp-2 text-muted-foreground">{t.bill.description}</p>
+                <p className="line-clamp-2 text-muted-foreground">{bill.description}</p>
+                {t.autoDates?.enabled && (
+                  <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                    <CalendarClock className="size-3" /> Fechas automáticas
+                  </p>
+                )}
                 <p className="mt-2 text-2xl font-bold">{formatCurrency(t.bill.total, t.bill.currency)}</p>
               </CardContent>
               <CardFooter className="gap-2">
-                <IssueInSatDialog bill={t.bill} />
+                <IssueInSatDialog bill={bill} />
                 <Button variant="ghost" size="icon" asChild aria-label="Editar">
                   <Link to={`/templates/${t.id}`}>
                     <Pencil />
@@ -82,7 +91,8 @@ export function TemplatesPage() {
                 </Button>
               </CardFooter>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
     </>
