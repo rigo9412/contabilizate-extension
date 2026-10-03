@@ -64,17 +64,33 @@ copy, merges it with the local database (newest record wins, deletions travel
 as tombstones) and uploads the result. It runs when the app opens, a few
 seconds after each change and when you come back to the tab.
 
-It needs a Google OAuth Client ID (one time, free):
+Users don't configure anything: they click **Conectar con Google Drive** and
+sign in. The extension ships with a fixed ID and a Google OAuth Client ID tied
+to it.
+
+### Fixed extension ID
+
+`manifest.json` has a `key` (public key), so the extension ID is always
+`bmjbdlkhekcomlilcaehabmpdpcdbjdo`, no matter which folder `dist/` is loaded
+from or on which computer. The matching private key lives in `.keys/` (git
+ignored); it's only needed to pack a `.crx` by hand. If the extension is
+published to the Chrome Web Store, replace `key` with the public key the store
+shows in the developer dashboard (Package → View public key) and update the
+OAuth client with the new ID.
+
+### Google OAuth client (one time, by whoever publishes the extension)
 
 1. In [Google Cloud Console](https://console.cloud.google.com) create a project and enable the **Google Drive API**.
-2. Configure the **OAuth consent screen** as External and add your Gmail account as a test user.
-3. Under **Credentials** create an **OAuth client ID** of type **Chrome Extension**, using the extension ID
-   shown in `chrome://extensions` (also shown in the app under "Respaldo y sincronización").
-4. Copy `.env.example` to `.env` and set `VITE_GOOGLE_CLIENT_ID`.
-5. Run `npm run build` and reload the extension.
+2. Configure the **OAuth consent screen** as External, add the `drive.appdata` scope and **publish the app**
+   (status *In production*). `drive.appdata` is a non-sensitive scope, so only basic verification applies;
+   while the app stays in *Testing* only the listed test users can connect.
+3. Under **Credentials** create an **OAuth client ID** of type **Chrome Extension** with item ID
+   `bmjbdlkhekcomlilcaehabmpdpcdbjdo`.
+4. Put the Client ID in `manifest.json` → `oauth2.client_id` and commit it. A Client ID is not a secret.
+5. Run `npm run build`.
 
-The extension ID of an unpacked extension depends on the folder it was loaded
-from; if you move `dist/` the ID changes and the OAuth client must be updated.
+While `oauth2.client_id` is still the `__GOOGLE_CLIENT_ID__` placeholder the
+build drops `oauth2` and the app says Drive isn't available.
 
 ## File Structure
 

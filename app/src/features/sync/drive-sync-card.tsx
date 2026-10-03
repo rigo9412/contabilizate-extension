@@ -106,39 +106,18 @@ export function DriveSyncCard() {
   );
 }
 
+// Solo aparece en una compilación sin el Client ID de Google en manifest.json
+// (ver "Google Drive sync" en el README); quien usa la extensión no configura nada.
 function SetupInstructions() {
   return (
     <Card className="md:col-span-2">
       <CardHeader>
-        <CardTitle>Google Drive (falta configurar)</CardTitle>
+        <CardTitle>Google Drive (no disponible)</CardTitle>
         <CardDescription>
-          Para sincronizar, la extensión necesita un Client ID de Google. Se crea una sola vez y es gratis.
+          Esta copia de la extensión se compiló sin la conexión con Google. Mientras tanto puedes pasar tus datos a otro
+          navegador con un respaldo en archivo.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <ol className="grid list-decimal gap-1 pl-5 text-sm">
-          <li>
-            En <span className="font-medium">console.cloud.google.com</span> crea un proyecto y habilita la{" "}
-            <span className="font-medium">Google Drive API</span>.
-          </li>
-          <li>
-            En "Pantalla de consentimiento de OAuth" elige <span className="font-medium">Externo</span>, y en usuarios de
-            prueba agrega tu cuenta de Gmail.
-          </li>
-          <li>
-            En "Credenciales" crea un <span className="font-medium">ID de cliente de OAuth</span> de tipo{" "}
-            <span className="font-medium">Extensión de Chrome</span> con este ID de elemento:
-            <code className="ml-1 rounded bg-secondary px-1.5 py-0.5 text-xs">{chrome.runtime.id}</code>
-          </li>
-          <li>
-            Copia el Client ID a un archivo <code className="rounded bg-secondary px-1 text-xs">.env</code> en la raíz del
-            proyecto: <code className="rounded bg-secondary px-1 text-xs">VITE_GOOGLE_CLIENT_ID=…</code>
-          </li>
-          <li>
-            Corre <code className="rounded bg-secondary px-1 text-xs">npm run build</code> y recarga la extensión.
-          </li>
-        </ol>
-      </CardContent>
     </Card>
   );
 }
