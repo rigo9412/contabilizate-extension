@@ -1,0 +1,123 @@
+import { useCallback, useEffect, useState } from "react";
+import { CloudOff, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { disconnect, isDriveConfigured } from "@/lib/drive";
+import { getSyncSettings, syncNow, updateSyncSettings, type SyncSettings } from "@/lib/sync";
+
+function useSyncSettings() {
+  const [settings, setSettings] = useState<SyncSettings>({ enabled: false });
+  const refresh = useCallback(() => {
+    getSyncSettings().then(setSettings);
+  }, []);
+  useEffect(() => {
+    refresh();
+    chrome.storage.onChanged.addListener(refresh);
+    return () => chrome.storage.onChanged.removeListener(refresh);
+  }, [refresh]);
+  return [settings, refresh] as const;
+}
+
+const summary = (r?: { added: number; updated: number }) =>
+  !r || r.added + r.updated === 0 ? "sin cambios de otros dispositivos" : `${r.added} nuevos y ${r.updated} actualizados desde Drive`;
+
+export function DriveSyncCard() {
+  const [settings, refresh] = useSyncSettings();
+  const [busy, setBusy] = useState(false);
+
+  async function onSync(interactive: boolean) {
+    setBusy(true);
+    try {
+      const result = await syncNow({ interactive });
+      if (!settings.enabled) await updateSyncSettings({ enabled: true });
+      toast.success(`Sincronizado: ${summary(result)}`);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setBusy(false);
+      refresh();
+    }
+  }
+
+  async function onDisconnect() {
+    if (!confirm("¿Dejar de sincronizar? Tus datos se quedan en este navegador y en Drive.")) return;
+    await disconnect();
+    await updateSyncSettings({ enabled: false, lastError: undefined });
+    refresh();
+    toast.success("Google Drive desconectado");
+  }
+
+  if (!isDriveConfigured()) return <SetupInstructions />;
+
+  return (
+    <Card className="md:col-span-2">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          Google Drive
+          <Badge variant={settings.enabled ? "primary" : "secondary"}>{settings.enabled ? "Activa" : "Desactivada"}</Badge>
+        </CardTitle>
+        <CardDescription>
+          Sincroniza facturas, plantillas, perfil y e.firma (cifrada) entre tus navegadores. Se guarda en la carpeta
+          oculta de la app en tu Drive: no aparece entre tus archivos y solo esta extensión puede leerla.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        {settings.enabled ? (
+          <>
+            <div className="text-sm">
+              {settings.lastSyncAt ? (
+                <p>
+                  Última sincronización: {new Date(settings.lastSyncAt).toLocaleString("es-MX")} ·{" "}
+                  <span className="text-muted-foreground">{summary(settings.lastResult)}</span>
+                </p>
+              ) : (
+                <p className="text-muted-foreground">Aún no se ha sincronizado.</p>
+              )}
+              {settings.lastError && <p className="mt-1 text-destructive">Último error: {settings.lastError}</p>}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Se sincroniza sola al abrir la app, unos segundos después de cada cambio y al volver a esta pestaña.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {/* Interactivo por si el permiso de Google venció o se revocó. */}
+              <Button onClick={() => onSync(true)} isLoading={busy}>
+                <RefreshCw /> Sincronizar ahora
+              </Button>
+              <Button variant="ghost" onClick={onDisconnect}>
+                <CloudOff /> Desconectar
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3">
+            <Button onClick={() => onSync(true)} isLoading={busy}>
+              Conectar con Google Drive
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Usa la cuenta de Google con la que iniciaste sesión en Chrome. Si ya tienes datos en Drive de otro
+              navegador, se combinan con los de aquí.
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// Solo aparece en una compilación sin el Client ID de Google en manifest.json
+// (ver "Google Drive sync" en el README); quien usa la extensión no configura nada.
+function SetupInstructions() {
+  return (
+    <Card className="md:col-span-2">
+      <CardHeader>
+        <CardTitle>Google Drive (no disponible)</CardTitle>
+        <CardDescription>
+          Esta copia de la extensión se compiló sin la conexión con Google. Mientras tanto puedes pasar tus datos a otro
+          navegador con un respaldo en archivo.
+        </CardDescription>
+      </CardHeader>
+    </Card>
+  );
+}

@@ -9,19 +9,23 @@ function submitSignIn() {
   }, 500);
 }
 
-function readFile(name) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get(name, (result) => {
-      if (chrome.runtime.lastError) {
-        console.error("Error reading data:", chrome.runtime.lastError);
-        reject(chrome.runtime.lastError);
-      } else if (!result[name]) {
-        reject(new Error(`No data found with name: ${name}`));
-      } else {
-        resolve(result[name]);
-      }
-    });
-  });
+// La app guarda la e.firma desbloqueada en storage.session (solo en memoria);
+// el popup clásico y la opción "mantener desbloqueada" la dejan en storage.local.
+async function readStorage(key) {
+  try {
+    const session = await chrome.storage.session.get(key);
+    if (session[key]) return session[key];
+  } catch (e) {
+    console.log("storage.session no disponible:", e);
+  }
+  const local = await chrome.storage.local.get(key);
+  return local[key];
+}
+
+async function readFile(name) {
+  const data = await readStorage(name);
+  if (!data) throw new Error(`No data found with name: ${name}`);
+  return data;
 }
 
 function base64ToFile(base64, filename, mimeType) {
@@ -70,16 +74,10 @@ function waitForText(searchText, callback, timeout = 10000, interval = 100) {
 
 async function setUpValueFromStorage(input, key) {
   try {
-    chrome.storage.local.get([key], function (result) {
-      if (result[key]) {
-        setUpValue(input, result[key]);
-        return Promise.resolve();
-      }
-    });
-  }
-   catch (e) {
+    const value = await readStorage(key);
+    if (value) setUpValue(input, value);
+  } catch (e) {
     console.log("Error setting up value from storage:", e);
-    return Promise.resolve("");
   }
 }
 

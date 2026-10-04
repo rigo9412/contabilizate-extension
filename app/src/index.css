@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 162 94% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 162 94% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 162 94% 10%;
+    --primary: 162 94% 10%;
+    --primary-foreground: 85 97% 47%;
+    --secondary: 162 10% 96%;
+    --secondary-foreground: 162 94% 10%;
+    --muted: 162 10% 96%;
+    --muted-foreground: 162 20% 45%;
+    --accent: 85 97% 47%;
+    --accent-foreground: 162 94% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 162 20% 90%;
+    --input: 162 20% 90%;
+    --ring: 162 94% 10%;
+    --chart-1: 85 97% 47%;
+    --chart-2: 162 94% 10%;
+    --chart-3: 162 40% 45%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 84% 60%;
+    --radius: 1rem;
+    --brand-accent: 85 97% 47%;
+    --brand-accent-foreground: 162 94% 10%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 160 5% 26%;
+    --sidebar-primary: 162 94% 20%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 162 10% 95%;
+    --sidebar-accent-foreground: 162 50% 5%;
+    --sidebar-border: 162 10% 91%;
+    --sidebar-ring: 162 91% 59%;
+  }
+  .dark {
+    --background: 162 94% 2%;
+    --foreground: 85 97% 98%;
+    --card: 162 94% 3%;
+    --card-foreground: 85 97% 98%;
+    --popover: 162 94% 3%;
+    --popover-foreground: 85 97% 98%;
+    --primary: 85 97% 47%;
+    --primary-foreground: 162 94% 2%;
+    --secondary: 162 50% 10%;
+    --secondary-foreground: 85 97% 98%;
+    --muted: 162 50% 10%;
+    --muted-foreground: 162 20% 65%;
+    --accent: 85 97% 47%;
+    --accent-foreground: 162 94% 2%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 85 97% 98%;
+    --border: 162 50% 15%;
+    --input: 162 50% 15%;
+    --ring: 85 97% 47%;
+    --chart-1: 85 97% 47%;
+    --chart-2: 158 64% 52%;
+    --chart-3: 162 94% 10%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 62% 30%;
+    --sidebar-background: 162 94% 3%;
+    --sidebar-foreground: 85 97% 90%;
+    --sidebar-primary: 85 97% 47%;
+    --sidebar-primary-foreground: 162 94% 2%;
+    --sidebar-accent: 162 50% 15%;
+    --sidebar-accent-foreground: 85 97% 98%;
+    --sidebar-border: 162 50% 15%;
+    --sidebar-ring: 85 97% 47%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Series de las gráficas (validadas con el validador de paleta de dataviz). */
+:root {
+  --series-income: #1a7f4b;
+  --series-expense: #86c232;
+  --category-1: #1a7f4b;
+  --category-2: #2b6cb0;
+  --category-3: #d97706;
+  --category-4: #9333ea;
+  --category-5: #db2777;
+  --category-6: #0891b2;
+  --category-other: #94a3b8;
+}

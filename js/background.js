@@ -6,6 +6,10 @@ const URL_LOGIN_FIEL =
 const URL_PASSWORD_LOGIN =
   "https://cfdiau.sat.gob.mx/nidp/wsfed/ep?id=SATUPCFDiCon";
 
+// Los scripts de llenado corren como content scripts y necesitan leer la
+// e.firma desbloqueada que la app deja en storage.session.
+chrome.storage.session.setAccessLevel({ accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS" });
+
 function ActiveQueryByURL(tabId, url) {
   if (url) {
   
@@ -50,5 +54,3 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
    //console.log("La pestaña se actualizó:", tab.title, tab.url);
   }
 });
-
-// El popup se abre automáticamente según la configuración de manifest.json (default_popup)

@@ -1,31 +1,22 @@
 {
     "name": "SAT Bot Form Fill",
     "description": "Automated form filling extension for SAT Billing.",
-    "version": "1.3",
+    "version": "2.0",
     "manifest_version": 3,
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyvrPgMQDpA28p/9PpVAnX9aDeSo/br/Q+f4HnrvyXx3Ycr3FLBPMiLMPXfHAtZe2SouwTA3B3JvPM2wzJp2/CEg5NG9Ey4msh5++J9mMfb7gIJsDNg0EDDgwrRFhMoB+OT0HfnY0f/qnupccxRe82x+YvNbaWHmFLc1dkSg1+8siDgVeN0g1IyXgWvPJYi3Ryy89ZzTLgT+DyE1z7AZ1+HGigqcy8C6C0o3dJTOBDbcxHQsH3HiM+1jQB9BXqwLVoEHrpuT/LQvDF4UC4xUxuIwz1NDyiuGotRcibPB7iSJg6vg21brp+Sg6ef4rq32oNY+NpC2zGxEvE61I9R04owIDAQAB",
     "permissions": [
         "activeTab",
         "scripting",
         "tabs",
         "nativeMessaging",
         "storage",
-        "downloads"
+        "downloads",
+        "unlimitedStorage",
+        "identity"
     ],
     "host_permissions": [
         "https://*.sat.gob.mx/*",
         "https://portal.facturaelectronica.sat.gob.mx/*"
-    ],
-    "web_accessible_resources": [
-        {
-            "resources": [
-                "certificado.cer",
-                "llave.key",
-                "js/*"
-            ],
-            "matches": [
-                "<all_urls>"
-            ]
-        }
     ],
     "action": {
         "default_popup": "index.html",
@@ -42,15 +33,10 @@
         "service_worker": "js/background.js",
         "type": "module"
     },
-    "content_scripts": [
-        {
-            "matches": [
-                "https://*.sat.gob.mx/*",
-                "https://portal.facturaelectronica.sat.gob.mx/*"
-            ],
-            "js": [
-                "js/popup.js"
-            ]
-        }
-    ]
+    "oauth2": {
+        "client_id": "__GOOGLE_CLIENT_ID__",
+        "scopes": [
+            "https://www.googleapis.com/auth/drive.appdata"
+        ]
+    }
 }
