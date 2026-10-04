@@ -23,8 +23,12 @@ function copyLegacyExtension(): Plugin {
       }
       // Mientras manifest.json no tenga el Client ID real de Google se quita
       // oauth2 (Chrome lo rechazaría) y la app avisa que Drive no está disponible.
+      // También se quita "identity", que sin oauth2 no se usa.
       const manifest = JSON.parse(readFileSync(resolve(ROOT, "manifest.json"), "utf8"));
-      if (manifest.oauth2?.client_id?.startsWith("__")) delete manifest.oauth2;
+      if (manifest.oauth2?.client_id?.startsWith("__")) {
+        delete manifest.oauth2;
+        manifest.permissions = manifest.permissions.filter((p: string) => p !== "identity");
+      }
       writeFileSync(resolve(dist, "manifest.json"), JSON.stringify(manifest, null, 4) + "\n");
     },
   };

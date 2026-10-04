@@ -1,14 +1,11 @@
 {
-    "name": "SAT Bot Form Fill",
-    "description": "Automated form filling extension for SAT Billing.",
+    "name": "Contabilizate",
+    "description": "Factura en el portal del SAT y lleva tus ingresos, gastos e impuestos. Gratis y privado: tus datos se quedan en tu navegador.",
     "version": "2.0",
     "manifest_version": 3,
     "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyvrPgMQDpA28p/9PpVAnX9aDeSo/br/Q+f4HnrvyXx3Ycr3FLBPMiLMPXfHAtZe2SouwTA3B3JvPM2wzJp2/CEg5NG9Ey4msh5++J9mMfb7gIJsDNg0EDDgwrRFhMoB+OT0HfnY0f/qnupccxRe82x+YvNbaWHmFLc1dkSg1+8siDgVeN0g1IyXgWvPJYi3Ryy89ZzTLgT+DyE1z7AZ1+HGigqcy8C6C0o3dJTOBDbcxHQsH3HiM+1jQB9BXqwLVoEHrpuT/LQvDF4UC4xUxuIwz1NDyiuGotRcibPB7iSJg6vg21brp+Sg6ef4rq32oNY+NpC2zGxEvE61I9R04owIDAQAB",
     "permissions": [
-        "activeTab",
         "scripting",
-        "tabs",
-        "nativeMessaging",
         "storage",
         "downloads",
         "unlimitedStorage",

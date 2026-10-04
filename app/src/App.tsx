@@ -1,5 +1,5 @@
 import { HashRouter, NavLink, Route, Routes, useLocation } from "react-router-dom";
-import { DatabaseBackup, Download, FileText, LayoutDashboard, LayoutTemplate, UserRound } from "lucide-react";
+import { CreditCard, DatabaseBackup, Download, FileText, LayoutDashboard, LayoutTemplate, UserRound } from "lucide-react";
 import { Toaster } from "sonner";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { useAutoSync } from "@/lib/use-auto-sync";
@@ -9,6 +9,8 @@ import { ProfilePage } from "@/pages/profile";
 import { BackupPage } from "@/pages/backup";
 import { BillEditPage } from "@/pages/bill-edit";
 import { BillsPage } from "@/pages/bills";
+import { CardAnalysisPage } from "@/pages/card-analysis";
+import { CardsPage } from "@/pages/cards";
 import { DownloadsPage } from "@/pages/downloads";
 import { TemplateEditPage } from "@/pages/template-edit";
 import { TemplatesPage } from "@/pages/templates";
@@ -17,6 +19,7 @@ const NAV = [
   { to: "/", label: "Inicio", icon: LayoutDashboard },
   { to: "/bills", label: "Facturas", icon: FileText },
   { to: "/templates", label: "Plantillas", icon: LayoutTemplate },
+  { to: "/cards", label: "Tarjetas", icon: CreditCard },
   { to: "/downloads", label: "Descargar del SAT", icon: Download },
   { to: "/profile", label: "Perfil y e.firma", icon: UserRound },
   { to: "/backup", label: "Respaldo y sincronización", icon: DatabaseBackup },
@@ -71,6 +74,8 @@ export function App() {
               <Route path="/templates" element={<TemplatesPage />} />
               <Route path="/templates/new" element={<TemplateEditPage />} />
               <Route path="/templates/:id" element={<TemplateEditPage />} />
+              <Route path="/cards" element={<CardsPage />} />
+              <Route path="/cards/analysis" element={<CardAnalysisPage />} />
               <Route path="/downloads" element={<DownloadsPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/backup" element={<BackupPage />} />

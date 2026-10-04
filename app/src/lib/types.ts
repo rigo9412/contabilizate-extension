@@ -122,3 +122,41 @@ export interface SatDownload extends SyncRecord {
   status: string;
   numberCFDI: number;
 }
+
+export interface CardMovement {
+  /** Fecha de la operación (YYYY-MM-DD). */
+  date: string;
+  /** Fecha en que el banco aplicó el cargo (YYYY-MM-DD). */
+  chargeDate: string;
+  description: string;
+  /** Categoría que asigna el banco (Nu la imprime junto a cada compra). */
+  bankCategory?: string;
+  /** Positivo = cargo (compra), negativo = abono (pago, devolución). */
+  amount: number;
+  /** RFC del comercio, cuando el banco lo imprime (Nu). */
+  merchantRfc?: string;
+  /** Últimos 4 dígitos de la tarjeta digital con que se hizo la compra. */
+  digitalCard?: string;
+  /** Compra en otra moneda: monto original y tipo de cambio que aplicó el banco. */
+  foreignCurrency?: string;
+  foreignAmount?: number;
+  exchangeRate?: number;
+}
+
+/** Estado de cuenta de tarjeta de crédito; el id es banco + tarjeta + fecha de corte. */
+export interface CardStatement extends SyncRecord {
+  bank: string;
+  cardName: string;
+  cardLast4: string;
+  periodStart: string;
+  /** Fecha de corte. */
+  periodEnd: string;
+  dueDate?: string;
+  previousBalance?: number;
+  totalCharges: number;
+  totalPayments: number;
+  paymentNoInterest?: number;
+  minimumPayment?: number;
+  creditLimit?: number;
+  movements: CardMovement[];
+}
