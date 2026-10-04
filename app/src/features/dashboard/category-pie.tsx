@@ -17,7 +17,16 @@ function arc(start: number, end: number): string {
   return `M${pt(start, R)}A${R},${R} 0 ${large} 1 ${pt(end, R)}L${pt(end, INNER)}A${INNER},${INNER} 0 ${large} 0 ${pt(start, INNER)}Z`;
 }
 
-export function CategoryPie({ data, label }: { data: CategorySlice[]; label: string }) {
+export function CategoryPie({
+  data,
+  label,
+  unit = ["factura", "facturas"],
+}: {
+  data: CategorySlice[];
+  label: string;
+  /** Qué cuenta `count`, en singular y plural. */
+  unit?: [string, string];
+}) {
   const { money, hide } = useHideAmounts();
   const [hover, setHover] = useState<number | null>(null);
   const total = data.reduce((a, s) => a + s.total, 0);
@@ -68,7 +77,7 @@ export function CategoryPie({ data, label }: { data: CategorySlice[]; label: str
                 {s.name}
               </span>
               <span className="shrink-0 text-xs text-muted-foreground">
-                {s.count} {s.count === 1 ? "factura" : "facturas"}
+                {s.count} {s.count === 1 ? unit[0] : unit[1]}
               </span>
             </span>
             <span className="ml-5 tabular-nums sm:ml-0">

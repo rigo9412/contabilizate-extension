@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { NativeSelect } from "@/components/ui/native-select";
 import { CategoryPie } from "@/features/dashboard/category-pie";
 import { IncomeChart } from "@/features/dashboard/income-chart";
+import { monthlyCardCharges } from "@/lib/card-movements";
 import { availableYears, categorySummary, monthlySummary } from "@/lib/dashboard";
 import { alive, db, PROFILE_ID } from "@/lib/db";
 import { useHideAmounts } from "@/lib/privacy";
@@ -29,21 +30,28 @@ export function DashboardPage() {
   const years = useMemo(() => availableYears(bills), [bills]);
   const [year, setYear] = useState(new Date().getFullYear());
   const months = useMemo(() => monthlySummary(bills, profile?.rfc ?? "", year), [bills, profile?.rfc, year]);
+  const statements = useLiveQuery(async () => alive(await db.statements.toArray()), [], []);
+  const cards = useMemo(() => monthlyCardCharges(statements, year), [statements, year]);
   const [origin, setOrigin] = useState<"incomes" | "expenses">("expenses");
   const slices = useMemo(
     () => categorySummary(bills, profile?.rfc ?? "", year, origin),
     [bills, profile?.rfc, year, origin],
   );
   const { hide, toggle } = useHideAmounts();
-  const totals = useMemo(
-    () => ({
-      incomes: months.reduce((a, m) => a + m.incomes, 0),
-      expenses: months.reduce((a, m) => a + m.expenses, 0),
+  const totals = useMemo(() => {
+    const incomes = months.reduce((a, m) => a + m.incomes, 0);
+    const expenses = months.reduce((a, m) => a + m.expenses, 0);
+    const cardCharges = cards.reduce((a, c) => a + c.months.reduce((x, y) => x + y, 0), 0);
+    return {
+      incomes,
+      expenses,
+      cardCharges,
+      // Mismo cálculo que la línea de margen de la gráfica.
+      margin: incomes - expenses - cardCharges,
       translated: months.reduce((a, m) => a + m.taxesTranslated, 0),
       retention: months.reduce((a, m) => a + m.taxesRetention, 0),
-    }),
-    [months],
-  );
+    };
+  }, [months, cards]);
   const templateCount = useLiveQuery(async () => alive(await db.templates.toArray()).length, [], 0);
   const vaultStatus = useVaultStatus();
 
@@ -119,9 +127,11 @@ export function DashboardPage() {
             </p>
           ) : (
             <>
-              <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
                 <Stat label={`Ingresos ${year}`} value={totals.incomes} />
                 <Stat label={`Gastos ${year}`} value={totals.expenses} />
+                <Stat label="Tarjetas" value={totals.cardCharges} />
+                <Stat label={`Margen ${year}`} value={totals.margin} signed />
                 <Stat label="IVA trasladado" value={totals.translated} />
                 <Stat label="Retenciones" value={totals.retention} />
               </dl>
@@ -131,7 +141,7 @@ export function DashboardPage() {
                   XML en <Link to="/bills" className="underline">Facturas</Link>.
                 </p>
               ) : (
-                <IncomeChart data={months} year={year} />
+                <IncomeChart data={months} year={year} cards={cards} />
               )}
             </>
           )}
@@ -198,12 +208,14 @@ function StatCard({ icon: Icon, label, value }: { icon: typeof FileText; label: 
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value, signed }: { label: string; value: number; signed?: boolean }) {
   const { money } = useHideAmounts();
   return (
     <div>
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-xl font-semibold tabular-nums">{money(value)}</dd>
+      <dd className={`text-xl font-semibold tabular-nums ${signed && value < 0 ? "text-destructive" : ""}`}>
+        {money(value)}
+      </dd>
     </div>
   );
 }

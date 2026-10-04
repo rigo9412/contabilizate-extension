@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Table2, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import type { CardSeries } from "@/lib/card-movements";
 import type { MonthSummary } from "@/lib/dashboard";
 import { useHideAmounts } from "@/lib/privacy";
 
@@ -9,6 +10,11 @@ const SERIES = [
   { key: "incomes", label: "Ingresos", color: "var(--series-income)" },
   { key: "expenses", label: "Gastos", color: "var(--series-expense)" },
 ] as const;
+
+/** Las tarjetas usan la paleta categórica sin el verde de ingresos (--category-1). */
+function cardColor(i: number) {
+  return i < 5 ? `var(--category-${i + 2})` : "var(--category-other)";
+}
 
 const HEIGHT = 260;
 const MARGIN = { top: 12, right: 8, bottom: 28, left: 56 };
@@ -18,13 +24,26 @@ const RADIUS = 4;
 
 const compact = new Intl.NumberFormat("es-MX", { notation: "compact", maximumFractionDigits: 1 });
 
-/** Escala "bonita": 4 divisiones con pasos 1/2/2.5/5 × 10ⁿ. */
-function niceTicks(max: number): number[] {
-  if (max <= 0) return [0, 1000, 2000, 3000, 4000];
-  const raw = max / 4;
+/** Margen: lo que queda de los ingresos tras gastos y tarjetas. */
+const MARGIN_SERIES = { label: "Margen", color: "hsl(var(--foreground))" };
+
+/** Escala "bonita" con ~4 divisiones (pasos 1/2/2.5/5 × 10ⁿ); incluye el 0 y baja si hay negativos. */
+function niceTicks(min: number, max: number): number[] {
+  min = Math.min(min, 0);
+  max = Math.max(max, 0);
+  if (max - min <= 0) return [0, 1000, 2000, 3000, 4000];
+  const raw = (max - min) / 4;
   const pow = 10 ** Math.floor(Math.log10(raw));
   const step = [1, 2, 2.5, 5, 10].map((m) => m * pow).find((s) => s >= raw)!;
-  return Array.from({ length: 5 }, (_, i) => i * step);
+  const lo = Math.floor(min / step);
+  const hi = Math.ceil(max / step);
+  return Array.from({ length: hi - lo + 1 }, (_, i) => (lo + i) * step);
+}
+
+/** Segmento intermedio de una barra apilada: rectángulo sin redondear. */
+function rectPath(x: number, y: number, w: number, h: number): string {
+  if (h <= 0) return "";
+  return `M${x},${y + h}V${y}H${x + w}V${y + h}Z`;
 }
 
 /** Barra con la punta redondeada y la base cuadrada sobre el eje. */
@@ -34,7 +53,16 @@ function barPath(x: number, y: number, w: number, h: number): string {
   return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
 }
 
-export function IncomeChart({ data, year }: { data: MonthSummary[]; year: number }) {
+export function IncomeChart({
+  data,
+  year,
+  cards = [],
+}: {
+  data: MonthSummary[];
+  year: number;
+  /** Cargos de tarjeta por mes; se apilan sobre la barra de gastos. */
+  cards?: CardSeries[];
+}) {
   const { money, hide } = useHideAmounts();
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(640);
@@ -48,13 +76,20 @@ export function IncomeChart({ data, year }: { data: MonthSummary[]; year: number
     return () => observer.disconnect();
   }, [showTable]);
 
-  const ticks = niceTicks(Math.max(...data.flatMap((d) => [d.incomes, d.expenses])));
+  const cardTotal = (i: number) => cards.reduce((a, c) => a + c.months[i], 0);
+  const margins = data.map((d, i) => Math.round((d.incomes - d.expenses - cardTotal(i)) * 100) / 100);
+  const ticks = niceTicks(
+    Math.min(...margins),
+    Math.max(...data.flatMap((d, i) => [d.incomes, d.expenses + cardTotal(i)])),
+  );
+  const bottom = ticks[0];
   const top = ticks[ticks.length - 1];
   const plotW = Math.max(width - MARGIN.left - MARGIN.right, 100);
   const plotH = HEIGHT - MARGIN.top - MARGIN.bottom;
   const band = plotW / data.length;
   const barW = Math.min(BAR_MAX, (band * 0.7 - BAR_GAP) / 2);
-  const y = (v: number) => MARGIN.top + plotH - (v / top) * plotH;
+  const y = (v: number) => MARGIN.top + plotH - ((v - bottom) / (top - bottom)) * plotH;
+  const cxOf = (i: number) => MARGIN.left + band * i + band / 2;
   const hovered = hover === null ? null : data[hover];
 
   return (
@@ -67,6 +102,16 @@ export function IncomeChart({ data, year }: { data: MonthSummary[]; year: number
               {s.label}
             </li>
           ))}
+          {cards.map((c, i) => (
+            <li key={c.key} className="flex items-center gap-2">
+              <span className="size-3 rounded-sm" style={{ background: cardColor(i) }} aria-hidden />
+              {c.label}
+            </li>
+          ))}
+          <li className="flex items-center gap-2">
+            <span className="h-0.5 w-3 rounded-full" style={{ background: MARGIN_SERIES.color }} aria-hidden />
+            {MARGIN_SERIES.label}
+          </li>
         </ul>
         <Button variant="ghost" size="sm" onClick={() => setShowTable((v) => !v)}>
           {showTable ? <BarChart3 /> : <Table2 />} {showTable ? "Ver gráfica" : "Ver tabla"}
@@ -80,21 +125,35 @@ export function IncomeChart({ data, year }: { data: MonthSummary[]; year: number
               <TableHead>Mes {year}</TableHead>
               <TableHead className="text-right">Ingresos</TableHead>
               <TableHead className="text-right">Gastos</TableHead>
+              {cards.map((c) => (
+                <TableHead key={c.key} className="text-right">
+                  {c.label}
+                </TableHead>
+              ))}
+              <TableHead className="text-right">{MARGIN_SERIES.label}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((d) => (
+            {data.map((d, i) => (
               <TableRow key={d.month}>
                 <TableCell>{d.label}</TableCell>
                 <TableCell className="text-right tabular-nums">{money(d.incomes)}</TableCell>
                 <TableCell className="text-right tabular-nums">{money(d.expenses)}</TableCell>
+                {cards.map((c) => (
+                  <TableCell key={c.key} className="text-right tabular-nums">
+                    {money(c.months[i])}
+                  </TableCell>
+                ))}
+                <TableCell className={`text-right tabular-nums ${margins[i] < 0 ? "text-destructive" : ""}`}>
+                  {money(margins[i])}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       ) : (
         <div ref={ref} className="relative" onMouseLeave={() => setHover(null)}>
-          <svg width={width} height={HEIGHT} role="img" aria-label={`Ingresos y gastos por mes de ${year}`}>
+          <svg width={width} height={HEIGHT} role="img" aria-label={`Ingresos, gastos y margen por mes de ${year}`}>
             {ticks.map((t) => (
               <g key={t}>
                 <line
@@ -111,13 +170,27 @@ export function IncomeChart({ data, year }: { data: MonthSummary[]; year: number
               </g>
             ))}
             {data.map((d, i) => {
-              const cx = MARGIN.left + band * i + band / 2;
+              const cx = cxOf(i);
               return (
                 <g key={d.month} opacity={hover === null || hover === i ? 1 : 0.45}>
                   {SERIES.map((s, j) => {
-                    const v = d[s.key];
                     const x = cx - barW - BAR_GAP / 2 + j * (barW + BAR_GAP);
-                    return <path key={s.key} d={barPath(x, y(v), barW, y(0) - y(v))} fill={s.color} />;
+                    // Gastos: facturas en la base y encima un segmento por tarjeta; solo la punta se redondea.
+                    const segments =
+                      s.key === "expenses"
+                        ? [
+                            { key: s.key, v: d.expenses, color: s.color },
+                            ...cards.map((c, k) => ({ key: c.key, v: c.months[i], color: cardColor(k) })),
+                          ].filter((seg) => seg.v > 0)
+                        : [{ key: s.key, v: d[s.key], color: s.color }];
+                    let base = 0;
+                    return segments.map((seg, k) => {
+                      const y0 = y(base);
+                      base += seg.v;
+                      const y1 = y(base);
+                      const draw = k === segments.length - 1 ? barPath : rectPath;
+                      return <path key={seg.key} d={draw(x, y1, barW, y0 - y1)} fill={seg.color} />;
+                    });
                   })}
                   <text x={cx} y={HEIGHT - 8} textAnchor="middle" className="fill-muted-foreground text-[11px]">
                     {d.label}
@@ -134,6 +207,27 @@ export function IncomeChart({ data, year }: { data: MonthSummary[]; year: number
                 </g>
               );
             })}
+            {/* Línea de margen encima de las barras; no captura el mouse para no tapar las zonas de hover. */}
+            <g className="pointer-events-none">
+              <polyline
+                points={margins.map((m, i) => `${cxOf(i)},${y(m)}`).join(" ")}
+                fill="none"
+                stroke={MARGIN_SERIES.color}
+                strokeWidth={2}
+                strokeLinejoin="round"
+              />
+              {margins.map((m, i) => (
+                <circle
+                  key={i}
+                  cx={cxOf(i)}
+                  cy={y(m)}
+                  r={hover === i ? 4.5 : 3}
+                  fill={m < 0 ? "hsl(var(--destructive))" : MARGIN_SERIES.color}
+                  stroke="hsl(var(--background))"
+                  strokeWidth={1.5}
+                />
+              ))}
+            </g>
           </svg>
           {hovered && (
             <div
@@ -154,6 +248,27 @@ export function IncomeChart({ data, year }: { data: MonthSummary[]; year: number
                   <span className="tabular-nums">{money(hovered[s.key])}</span>
                 </div>
               ))}
+              {cards
+                .map((c, k) => ({ c, k, v: c.months[hover!] }))
+                .filter(({ v }) => v > 0)
+                .map(({ c, k, v }) => (
+                  <div key={c.key} className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <span className="size-2 rounded-sm" style={{ background: cardColor(k) }} aria-hidden />
+                      {c.label}
+                    </span>
+                    <span className="tabular-nums">{money(v)}</span>
+                  </div>
+                ))}
+              <div className="mt-1 flex items-center justify-between gap-3 border-t pt-1 font-medium">
+                <span className="flex items-center gap-1.5">
+                  <span className="h-0.5 w-2 rounded-full" style={{ background: MARGIN_SERIES.color }} aria-hidden />
+                  {MARGIN_SERIES.label}
+                </span>
+                <span className={`tabular-nums ${margins[hover!] < 0 ? "text-destructive" : ""}`}>
+                  {money(margins[hover!])}
+                </span>
+              </div>
             </div>
           )}
         </div>
