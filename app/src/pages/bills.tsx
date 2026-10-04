@@ -14,7 +14,7 @@ import { IssueInSatDialog } from "@/features/bills/issue-in-sat-dialog";
 import { formatCurrency } from "@/lib/bill-calc";
 import { typeCFDI } from "@/lib/catalogs";
 import { importCfdiXml } from "@/lib/bill-import";
-import { isExpense, isIncome } from "@/lib/dashboard";
+import { isExpense, isIncome, MONTH_LABELS } from "@/lib/dashboard";
 import { alive, db, PROFILE_ID, softDelete } from "@/lib/db";
 
 export function BillsPage() {
@@ -23,6 +23,7 @@ export function BillsPage() {
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState("");
   const [rfc, setRfc] = useState("");
+  const [month, setMonth] = useState("");
   const [importing, setImporting] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -100,19 +101,30 @@ export function BillsPage() {
     return found;
   }, [bills, profile?.rfc]);
 
+  // Meses que tienen facturas: "2026-03" → "Mar 2026".
+  const monthOptions = useMemo(() => {
+    const found: Record<string, string> = {};
+    for (const b of bills) {
+      const key = b.date.slice(0, 7);
+      if (/^\d{4}-\d{2}$/.test(key)) found[key] = `${MONTH_LABELS[Number(key.slice(5)) - 1]} ${key.slice(0, 4)}`;
+    }
+    return found;
+  }, [bills]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const own = profile?.rfc ?? "";
     return bills.filter((b) => {
       if (kind === "incomes" && !isIncome(b, own)) return false;
       if (kind === "expenses" && !isExpense(b, own)) return false;
+      if (month && !b.date.startsWith(month)) return false;
       if (rfc && b.rfcEmisor !== rfc && b.rfcReceptor !== rfc) return false;
       if (!q) return true;
       return [b.rfcReceptor, b.rfcEmisor, b.nameReceptor, b.nameEmisor, b.description, b.folio].some((v) =>
         v?.toLowerCase().includes(q),
       );
     });
-  }, [bills, query, kind, rfc, profile?.rfc]);
+  }, [bills, query, kind, rfc, month, profile?.rfc]);
 
   async function onDelete(id: string) {
     if (!confirm("¿Eliminar esta factura de tus registros? No se cancela en el SAT.")) return;
@@ -158,7 +170,7 @@ export function BillsPage() {
 
       <Card>
         <CardContent className="grid gap-4 pt-6">
-          <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto_auto]">
             <Input placeholder="Buscar por RFC, cliente, concepto o folio" value={query} onChange={(e) => setQuery(e.target.value)} />
             <NativeSelect
               className="sm:w-40"
@@ -168,6 +180,15 @@ export function BillsPage() {
               value={kind}
               options={{ expenses: "Gastos", incomes: "Ingresos" }}
               onChange={(e) => setKind(e.target.value)}
+            />
+            <NativeSelect
+              className="sm:w-36"
+              aria-label="Mes"
+              placeholder="Todos los meses"
+              showKey={false}
+              value={month}
+              options={monthOptions}
+              onChange={(e) => setMonth(e.target.value)}
             />
             <NativeSelect
               className="sm:w-64"
