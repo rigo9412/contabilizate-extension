@@ -3,20 +3,82 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Contabilizate</title>
+  <title>Contabilizate: tus ingresos, gastos e impuestos sin hojas de cálculo</title>
+  <meta name="description" content="Extensión de Chrome gratuita para freelancers en México: dashboard de ingresos, gastos, tarjetas, IVA y retenciones a partir de tus facturas del SAT. Todo se queda en tu navegador.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Contabilizate: tus ingresos, gastos e impuestos sin hojas de cálculo">
+  <meta property="og:description" content="Gratis, local y privada. Tus facturas del SAT se convierten en un dashboard mes a mes, y tus datos nunca salen de tu navegador.">
+  <meta property="og:url" content="https://rigo9412.github.io/contabilizate-extension/">
+  <meta property="og:image" content="https://rigo9412.github.io/contabilizate-extension/icon.png">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="icon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main>
-    <h1>Contabilizate</h1>
-    <p>Extensión de Chrome para emitir y organizar tus facturas (CFDI) en el portal del SAT: llena los formularios
-      por ti, inicia sesión con tu e.firma y guarda tus facturas, plantillas y perfil en tu navegador.</p>
-    <ul>
-      <li>Tus datos se guardan en tu navegador, no en un servidor.</li>
-      <li>Opcionalmente puedes sincronizarlos entre navegadores con tu propio Google Drive.</li>
-      <li>Es de código abierto: <a href="https://github.com/rigo9412/contabilizate-extension">github.com/rigo9412/contabilizate-extension</a>.</li>
-    </ul>
-    <p><a href="privacy.html">Política de privacidad</a></p>
+    <header class="hero">
+      <img src="icon.png" alt="" width="64" height="64">
+      <h1>Deja de cruzar facturas del SAT con estados de cuenta cada mes</h1>
+      <p class="lead">Contabilizate es una extensión de Chrome que convierte tus facturas en un dashboard mes a mes con
+        tus ingresos, gastos, tarjetas de crédito, margen, IVA y retenciones.</p>
+      <div class="badges">
+        <span>🆓 100% gratis</span>
+        <span>💻 Todo en tu navegador</span>
+        <span>🔒 Nada se comparte</span>
+      </div>
+      <p class="cta">
+        <a class="button" href="#instalar">Instalar gratis</a>
+        <a class="button secondary" href="https://github.com/rigo9412/contabilizate-extension">Ver el código en GitHub</a>
+      </p>
+    </header>
+
+    <section>
+      <h2>📊 Qué hace</h2>
+      <ul class="features">
+        <li><strong>Dashboard mensual.</strong> Tus ingresos, gastos y margen real, calculados a partir de tus facturas.</li>
+        <li><strong>Tarjetas de crédito.</strong> Ve en qué se te va el dinero mes a mes.</li>
+        <li><strong>Impuestos ya calculados.</strong> IVA trasladado y retenciones, sin fórmulas.</li>
+        <li><strong>Facturación en el SAT.</strong> Llena los formularios del portal por ti e inicia sesión con tu e.firma.</li>
+        <li><strong>Descarga e importación de CFDI.</strong> Baja tus facturas del SAT o arrastra los XML.</li>
+        <li><strong>Montos ocultos por defecto.</strong> Ábrela con alguien al lado sin enseñar tus números.</li>
+      </ul>
+    </section>
+
+    <section class="privacy">
+      <h2>🔒 Tus datos son tuyos</h2>
+      <ul>
+        <li><strong>Gratis, de verdad.</strong> Sin suscripciones, planes premium ni anuncios.</li>
+        <li><strong>Sin servidores.</strong> Todo se procesa y se guarda en tu computadora. No hay cuentas ni rastreo.</li>
+        <li><strong>Nada se comparte con nadie.</strong> Solo se conecta al portal del SAT cuando tú facturas o descargas.</li>
+        <li><strong>Tu e.firma va cifrada</strong> con su propia contraseña.</li>
+        <li><strong>Respaldo opcional en tu propio Google Drive</strong>, en una carpeta oculta que solo esta extensión puede leer.</li>
+        <li><strong>Código abierto.</strong> Puedes revisar exactamente qué hace en
+          <a href="https://github.com/rigo9412/contabilizate-extension">GitHub</a>.</li>
+      </ul>
+    </section>
+
+    <section id="instalar">
+      <h2>⬇️ Cómo instalarla</h2>
+      <p class="muted">Todavía no está en la Chrome Web Store, así que por ahora se instala desde el código:</p>
+      <ol>
+        <li>Descarga el código desde <a href="https://github.com/rigo9412/contabilizate-extension">GitHub</a>
+          (botón <strong>Code → Download ZIP</strong>) y descomprímelo.</li>
+        <li>En esa carpeta, ejecuta <code>npm install && npm run build</code>.</li>
+        <li>Abre <code>chrome://extensions</code> y activa el <strong>Modo de desarrollador</strong>.</li>
+        <li>Haz clic en <strong>Cargar descomprimida</strong> y elige la carpeta <code>dist</code>.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>💬 ¿Qué le agregarías?</h2>
+      <p>La sigo mejorando cada semana. Cuéntame qué te serviría o reporta un error en
+        <a href="https://github.com/rigo9412/contabilizate-extension/issues">GitHub Issues</a>.</p>
+    </section>
+
+    <footer class="muted">
+      <a href="privacy.html">Política de privacidad</a> ·
+      <a href="https://github.com/rigo9412/contabilizate-extension">GitHub</a>
+    </footer>
   </main>
 </body>
 </html>
