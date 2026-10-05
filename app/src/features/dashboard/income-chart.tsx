@@ -6,10 +6,7 @@ import type { CardSeries } from "@/lib/card-movements";
 import type { MonthSummary } from "@/lib/dashboard";
 import { useHideAmounts } from "@/lib/privacy";
 
-const SERIES = [
-  { key: "incomes", label: "Ingresos", color: "var(--series-income)" },
-  { key: "expenses", label: "Gastos", color: "var(--series-expense)" },
-] as const;
+const INCOME = { label: "Ingresos", color: "var(--series-income)" };
 
 /** Las tarjetas usan la paleta categórica sin el verde de ingresos (--category-1). */
 function cardColor(i: number) {
@@ -24,7 +21,7 @@ const RADIUS = 4;
 
 const compact = new Intl.NumberFormat("es-MX", { notation: "compact", maximumFractionDigits: 1 });
 
-/** Margen: lo que queda de los ingresos tras gastos y tarjetas. */
+/** Margen: lo que queda de los ingresos tras los pagos a tarjetas (las facturas de gasto no se restan). */
 const MARGIN_SERIES = { label: "Margen", color: "hsl(var(--foreground))" };
 
 /** Escala "bonita" con ~4 divisiones (pasos 1/2/2.5/5 × 10ⁿ); incluye el 0 y baja si hay negativos. */
@@ -60,7 +57,7 @@ export function IncomeChart({
 }: {
   data: MonthSummary[];
   year: number;
-  /** Cargos de tarjeta por mes; se apilan sobre la barra de gastos. */
+  /** Abonos a tarjetas por mes; se apilan en la segunda barra (gastos). */
   cards?: CardSeries[];
 }) {
   const { money, hide } = useHideAmounts();
@@ -77,10 +74,11 @@ export function IncomeChart({
   }, [showTable]);
 
   const cardTotal = (i: number) => cards.reduce((a, c) => a + c.months[i], 0);
-  const margins = data.map((d, i) => Math.round((d.incomes - d.expenses - cardTotal(i)) * 100) / 100);
+  const margins = data.map((d, i) => Math.round((d.incomes - cardTotal(i)) * 100) / 100);
+  const marginTotal = Math.round(margins.reduce((a, m) => a + m, 0) * 100) / 100;
   const ticks = niceTicks(
     Math.min(...margins),
-    Math.max(...data.flatMap((d, i) => [d.incomes, d.expenses + cardTotal(i)])),
+    Math.max(...data.flatMap((d, i) => [d.incomes, cardTotal(i)])),
   );
   const bottom = ticks[0];
   const top = ticks[ticks.length - 1];
@@ -96,12 +94,10 @@ export function IncomeChart({
     <div className="grid gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <ul className="flex gap-4 text-sm text-muted-foreground" aria-label="Leyenda">
-          {SERIES.map((s) => (
-            <li key={s.key} className="flex items-center gap-2">
-              <span className="size-3 rounded-sm" style={{ background: s.color }} aria-hidden />
-              {s.label}
-            </li>
-          ))}
+          <li className="flex items-center gap-2">
+            <span className="size-3 rounded-sm" style={{ background: INCOME.color }} aria-hidden />
+            {INCOME.label}
+          </li>
           {cards.map((c, i) => (
             <li key={c.key} className="flex items-center gap-2">
               <span className="size-3 rounded-sm" style={{ background: cardColor(i) }} aria-hidden />
@@ -124,7 +120,6 @@ export function IncomeChart({
             <TableRow>
               <TableHead>Mes {year}</TableHead>
               <TableHead className="text-right">Ingresos</TableHead>
-              <TableHead className="text-right">Gastos</TableHead>
               {cards.map((c) => (
                 <TableHead key={c.key} className="text-right">
                   {c.label}
@@ -138,7 +133,6 @@ export function IncomeChart({
               <TableRow key={d.month}>
                 <TableCell>{d.label}</TableCell>
                 <TableCell className="text-right tabular-nums">{money(d.incomes)}</TableCell>
-                <TableCell className="text-right tabular-nums">{money(d.expenses)}</TableCell>
                 {cards.map((c) => (
                   <TableCell key={c.key} className="text-right tabular-nums">
                     {money(c.months[i])}
@@ -149,11 +143,23 @@ export function IncomeChart({
                 </TableCell>
               </TableRow>
             ))}
+            <TableRow className="font-medium">
+              <TableCell>Total</TableCell>
+              <TableCell className="text-right tabular-nums">{money(data.reduce((a, d) => a + d.incomes, 0))}</TableCell>
+              {cards.map((c) => (
+                <TableCell key={c.key} className="text-right tabular-nums">
+                  {money(c.months.reduce((a, v) => a + v, 0))}
+                </TableCell>
+              ))}
+              <TableCell className={`text-right tabular-nums ${marginTotal < 0 ? "text-destructive" : ""}`}>
+                {money(marginTotal)}
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       ) : (
         <div ref={ref} className="relative" onMouseLeave={() => setHover(null)}>
-          <svg width={width} height={HEIGHT} role="img" aria-label={`Ingresos, gastos y margen por mes de ${year}`}>
+          <svg width={width} height={HEIGHT} role="img" aria-label={`Ingresos, pagos a tarjetas y margen por mes de ${year}`}>
             {ticks.map((t) => (
               <g key={t}>
                 <line
@@ -173,16 +179,11 @@ export function IncomeChart({
               const cx = cxOf(i);
               return (
                 <g key={d.month} opacity={hover === null || hover === i ? 1 : 0.45}>
-                  {SERIES.map((s, j) => {
-                    const x = cx - barW - BAR_GAP / 2 + j * (barW + BAR_GAP);
-                    // Gastos: facturas en la base y encima un segmento por tarjeta; solo la punta se redondea.
-                    const segments =
-                      s.key === "expenses"
-                        ? [
-                            { key: s.key, v: d.expenses, color: s.color },
-                            ...cards.map((c, k) => ({ key: c.key, v: c.months[i], color: cardColor(k) })),
-                          ].filter((seg) => seg.v > 0)
-                        : [{ key: s.key, v: d[s.key], color: s.color }];
+                  <path d={barPath(cx - barW - BAR_GAP / 2, y(d.incomes), barW, y(0) - y(d.incomes))} fill={INCOME.color} />
+                  {/* Pagos a tarjetas: un segmento por tarjeta; solo la punta se redondea. */}
+                  {(() => {
+                    const x = cx + BAR_GAP / 2;
+                    const segments = cards.map((c, k) => ({ key: c.key, v: c.months[i], color: cardColor(k) })).filter((seg) => seg.v > 0);
                     let base = 0;
                     return segments.map((seg, k) => {
                       const y0 = y(base);
@@ -191,7 +192,7 @@ export function IncomeChart({
                       const draw = k === segments.length - 1 ? barPath : rectPath;
                       return <path key={seg.key} d={draw(x, y1, barW, y0 - y1)} fill={seg.color} />;
                     });
-                  })}
+                  })()}
                   <text x={cx} y={HEIGHT - 8} textAnchor="middle" className="fill-muted-foreground text-[11px]">
                     {d.label}
                   </text>
@@ -239,15 +240,13 @@ export function IncomeChart({
               <div className="mb-1 font-medium">
                 {hovered.label} {year}
               </div>
-              {SERIES.map((s) => (
-                <div key={s.key} className="flex items-center justify-between gap-3">
-                  <span className="flex items-center gap-1.5 text-muted-foreground">
-                    <span className="size-2 rounded-sm" style={{ background: s.color }} aria-hidden />
-                    {s.label}
-                  </span>
-                  <span className="tabular-nums">{money(hovered[s.key])}</span>
-                </div>
-              ))}
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <span className="size-2 rounded-sm" style={{ background: INCOME.color }} aria-hidden />
+                  {INCOME.label}
+                </span>
+                <span className="tabular-nums">{money(hovered.incomes)}</span>
+              </div>
               {cards
                 .map((c, k) => ({ c, k, v: c.months[hover!] }))
                 .filter(({ v }) => v > 0)

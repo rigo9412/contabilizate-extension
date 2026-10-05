@@ -94,4 +94,17 @@ describe("textItemsToLines", () => {
     ]);
     expect(lines).toEqual(["Encabezado", "06-dic-2025 OXXO + $52.00"]);
   });
+
+  it("no cuenta como gasto del mes la compra a meses completa", () => {
+    const lines = LINES.flatMap((l) =>
+      l.startsWith("TOTAL CARGOS")
+        ? ["01-jun-2025 01-jun-2025 AMAZON A MESES A 03 MESES S/I ; Tarjeta Digital ***1090 + $900.00", "03-jun-2025 04-jun-2025 01 DE 03 AMAZON A MESES ; Tarjeta Digital ***1090 + $300.00", "TOTAL CARGOS $2,769.12"]
+        : [l],
+    );
+    const { statement, warnings } = parseBbvaStatement(lines);
+    const msi = statement.movements.filter((m) => /A MESES/.test(m.description));
+    expect(msi.map((m) => [m.description, m.amount])).toEqual([["01 DE 03 AMAZON A MESES", 300]]);
+    expect(statement.totalCharges).toBe(2769.12);
+    expect(warnings).toEqual(["Compra a meses omitida (se cuenta por mensualidad): AMAZON A MESES A 03 MESES S/I $900"]);
+  });
 });

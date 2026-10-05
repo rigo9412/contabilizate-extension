@@ -9,7 +9,9 @@ const MONEY = String.raw`\$\s*([\d,]+\.\d{2})`;
 
 const MOVEMENT = new RegExp(String.raw`^(${DATE})\s+(${DATE})\s+(.+?)\s+([+-])\s*${MONEY}$`);
 const FOREIGN = new RegExp(String.raw`^([A-Z]{3})\s*${MONEY}\s+TIPO DE CAMBIO\s*\$\s*([\d,]+\.\d+)$`);
-const DIGITAL_CARD = /\s*;\s*Tarjeta Digital\s*\*+(\d{4})\s*$/i;
+/** "AMAZON A MESES A 03 MESES S/I": la compra completa, no la mensualidad. */
+const INSTALLMENT_PURCHASE = /\bA MESES A \d+ MESES\b/i;
+const DIGITAL_CARD =/\s*;\s*Tarjeta Digital\s*\*+(\d{4})\s*$/i;
 
 /** "04-dic-2025" → "2025-12-04". */
 export function parseBbvaDate(value: string): string {
@@ -65,6 +67,7 @@ export function parseBbvaStatement(lines: string[]): StatementParseResult {
   }
 
   const movements: CardMovement[] = [];
+  const deferred: CardMovement[] = [];
   let inRegular = false;
   let totalCharges: number | undefined;
   let totalPayments: number | undefined;
@@ -88,6 +91,12 @@ export function parseBbvaStatement(lines: string[]): StatementParseResult {
     if (m) {
       const [, date, chargeDate, rawDescription, sign, amount] = m;
       const digital = rawDescription.match(DIGITAL_CARD);
+      // La compra a meses sin intereses aparece completa el mes que se hace; lo que se paga
+      // cada mes es la mensualidad, así que el monto completo no se cuenta como gasto del mes.
+      if (sign === "+" && INSTALLMENT_PURCHASE.test(rawDescription)) {
+        deferred.push({ date: parseBbvaDate(date), chargeDate: parseBbvaDate(chargeDate), description: rawDescription.replace(DIGITAL_CARD, "").trim(), amount: money(amount) });
+        continue;
+      }
       movements.push({
         date: parseBbvaDate(date),
         chargeDate: parseBbvaDate(chargeDate),
@@ -106,7 +115,10 @@ export function parseBbvaStatement(lines: string[]): StatementParseResult {
     }
   }
 
-  const { sumCharges, sumPayments, warnings } = checkTotals(movements, totalCharges, totalPayments);
+  const { sumCharges, sumPayments, warnings } = checkTotals([...movements, ...deferred], totalCharges, totalPayments);
+  for (const d of deferred) {
+    warnings.push(`Compra a meses omitida (se cuenta por mensualidad): ${d.description} $${d.amount}`);
+  }
 
   const due = nearLabel(lines, /Fecha l[íi]mite de pago:/i, new RegExp(`(${DATE})`));
   return {

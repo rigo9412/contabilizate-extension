@@ -117,3 +117,70 @@ export function categorySummary(
     },
   ];
 }
+
+export type Grade = "A" | "B" | "C" | "D";
+
+export interface Health {
+  /** 0-100. */
+  score: number;
+  grade: Grade;
+  /** Porcentaje realmente ahorrado: (ingresos netos − pagos) / ingresos netos; null sin ingresos. */
+  rate: number | null;
+}
+
+export interface MonthHealth extends Health {
+  month: number;
+  label: string;
+  margin: number;
+  /** null cuando el mes no tiene movimientos. */
+  hasData: boolean;
+}
+
+export function gradeOf(score: number): Grade {
+  return score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : "D";
+}
+
+/** Score según la tasa de ahorro (margen / ingresos netos): ≥50% = 100, 0% = 50, ≤-50% = 0. */
+export function scoreFromRate(incomes: number, spent: number): number {
+  if (incomes <= 0) return spent > 0 ? 0 : 50;
+  const rate = (incomes - spent) / incomes;
+  const score = rate >= 0.5 ? 100 : 50 + rate * 100;
+  return Math.max(0, Math.round(score));
+}
+
+/** Ingreso sin el IVA que cobraste y le debes al SAT. */
+export function netIncome(m: MonthSummary): number {
+  return Math.max(0, m.incomes - m.taxesTranslated);
+}
+
+/** Tasa de ahorro en % con un decimal; null si no hubo ingresos. */
+export function savingsRate(incomes: number, spent: number): number | null {
+  return incomes > 0 ? Math.round(((incomes - spent) / incomes) * 1000) / 10 : null;
+}
+
+/** Calificación de cada mes; `cardByMonth` son los abonos a tarjeta (índice 0 = enero). Los ingresos se toman sin IVA trasladado (no es dinero tuyo); las facturas de gasto no se restan. */
+export function monthlyHealth(months: MonthSummary[], cardByMonth: number[]): MonthHealth[] {
+  return months.map((m, i) => {
+    const spent = cardByMonth[i] ?? 0;
+    const net = netIncome(m);
+    const score = scoreFromRate(net, spent);
+    return {
+      month: m.month,
+      label: m.label,
+      margin: round2(net - spent),
+      hasData: m.incomes > 0 || spent > 0 || m.expenses > 0,
+      score,
+      grade: gradeOf(score),
+      rate: savingsRate(net, spent),
+    };
+  });
+}
+
+/** Salud general del año: 70% tasa de ahorro anual, 30% proporción de meses con margen positivo. */
+export function overallHealth(months: MonthHealth[], totalIncomes: number, totalSpent: number): Health | null {
+  const active = months.filter((m) => m.hasData);
+  if (active.length === 0) return null;
+  const positive = active.filter((m) => m.margin >= 0).length / active.length;
+  const score = Math.round(0.7 * scoreFromRate(totalIncomes, totalSpent) + 0.3 * positive * 100);
+  return { score, grade: gradeOf(score), rate: savingsRate(totalIncomes, totalSpent) };
+}

@@ -10,13 +10,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { flattenMovements, topMerchants } from "@/lib/card-movements";
+import { categoryTotals, flattenMovements, monthlyTotals, topMerchants } from "@/lib/card-movements";
 import { MONTH_LABELS } from "@/lib/dashboard";
 import { alive, db, softDelete } from "@/lib/db";
 import { PdfPasswordError } from "@/lib/pdf-text";
 import { useHideAmounts } from "@/lib/privacy";
 import { importStatementPdf } from "@/lib/statement-import";
 import type { CardStatement } from "@/lib/types";
+
+const compact = new Intl.NumberFormat("es-MX", { notation: "compact", maximumFractionDigits: 1 });
 
 function monthLabel(key: string): string {
   return `${MONTH_LABELS[Number(key.slice(5, 7)) - 1]} ${key.slice(0, 4)}`;
@@ -33,6 +35,10 @@ export function CardsPage() {
   const [kind, setKind] = useState("charges");
   const [card, setCard] = useState("");
   const [month, setMonth] = useState("");
+  const [category, setCategory] = useState("");
+  const [stmtQuery, setStmtQuery] = useState("");
+  const [stmtCard, setStmtCard] = useState("");
+  const [stmtYear, setStmtYear] = useState("");
   const [importing, setImporting] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -124,22 +130,79 @@ export function CardsPage() {
     [statements],
   );
 
+  // Filtros de la tabla de estados de cuenta: tarjeta, año del corte y texto (periodo, tarjeta, banco).
+  const stmtYearOptions = useMemo(
+    () => Object.fromEntries(statements.map((s) => [s.periodEnd.slice(0, 4), s.periodEnd.slice(0, 4)])),
+    [statements],
+  );
+  const filteredStatements = useMemo(() => {
+    const q = stmtQuery.trim().toLowerCase();
+    return statements.filter((s) => {
+      if (stmtCard && s.cardLast4 !== stmtCard) return false;
+      if (stmtYear && !s.periodEnd.startsWith(stmtYear)) return false;
+      return !q || `${s.cardName} ${s.bank} ${s.cardLast4} ${s.periodStart} ${s.periodEnd}`.toLowerCase().includes(q);
+    });
+  }, [statements, stmtQuery, stmtCard, stmtYear]);
+
   // Meses con movimientos (por fecha de operación): "2026-03" → "Mar 2026".
   const monthOptions = useMemo(
     () => Object.fromEntries(rows.map((r) => [r.date.slice(0, 7), monthLabel(r.date)])),
     [rows],
   );
 
-  const filtered = useMemo(() => {
+  // Filtros sin el mes: alimentan la vista "Gastos por mes", que debe mostrar todos los meses.
+  const unmonthed = useMemo(() => {
     const q = query.trim().toLowerCase();
     return rows.filter((r) => {
       if (kind === "charges" && r.amount <= 0) return false;
       if (kind === "payments" && r.amount >= 0) return false;
       if (card && r.cardLast4 !== card) return false;
-      if (month && !r.date.startsWith(month)) return false;
+      if (category && r.categoryKey !== category) return false;
       return !q || r.description.toLowerCase().includes(q);
     });
-  }, [rows, query, kind, card, month]);
+  }, [rows, query, kind, card, category]);
+  const filtered = useMemo(
+    () => (month ? unmonthed.filter((r) => r.date.startsWith(month)) : unmonthed),
+    [unmonthed, month],
+  );
+  const byMonth = useMemo(() => monthlyTotals(unmonthed), [unmonthed]);
+
+  // Categorías según card/búsqueda/mes pero sin el filtro de categoría, para poder cambiar de una a otra.
+  const categoryScope = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return rows.filter(
+      (r) =>
+        r.amount > 0 &&
+        (!card || r.cardLast4 === card) &&
+        (!month || r.date.startsWith(month)) &&
+        (!q || r.description.toLowerCase().includes(q)),
+    );
+  }, [rows, query, card, month]);
+  const categories = useMemo(() => categoryTotals(categoryScope), [categoryScope]);
+  const categoryOptions = useMemo(
+    () => Object.fromEntries(categoryTotals(rows).map((c) => [c.key, c.name])),
+    [rows],
+  );
+  // Las 6 categorías mayores tienen color propio; el resto comparte el gris.
+  const categoryColor = useMemo(() => {
+    const colors = new Map<string, string>();
+    categoryTotals(unmonthed).forEach((c, i) => colors.set(c.key, i < 6 ? `var(--category-${i + 1})` : "var(--category-other)"));
+    return (key: string) => colors.get(key) ?? "var(--category-other)";
+  }, [unmonthed]);
+  // Por mes, los cargos de cada categoría (segmentos de la columna apilada).
+  const monthSegments = useMemo(() => {
+    const out = new Map<string, Map<string, number>>();
+    for (const r of unmonthed) {
+      if (r.amount <= 0) continue;
+      const m = r.date.slice(0, 7);
+      const segs = out.get(m) ?? new Map<string, number>();
+      segs.set(r.categoryKey, (segs.get(r.categoryKey) ?? 0) + r.amount);
+      out.set(m, segs);
+    }
+    return out;
+  }, [unmonthed]);
+  const showCharges = kind !== "payments";
+  const monthMax = Math.max(...byMonth.map((m) => (showCharges ? m.charges : m.payments)), 1);
 
   const totals = useMemo(
     () => ({
@@ -236,7 +299,35 @@ export function CardsPage() {
             <CardHeader>
               <CardTitle className="text-base">Estados de cuenta</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="grid gap-4">
+              <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+                <Input
+                  placeholder="Buscar por tarjeta, banco o fecha"
+                  value={stmtQuery}
+                  onChange={(e) => setStmtQuery(e.target.value)}
+                />
+                <NativeSelect
+                  className="sm:w-56"
+                  aria-label="Tarjeta de los estados de cuenta"
+                  placeholder="Todas las tarjetas"
+                  showKey={false}
+                  value={stmtCard}
+                  options={cardOptions}
+                  onChange={(e) => setStmtCard(e.target.value)}
+                />
+                <NativeSelect
+                  className="sm:w-32"
+                  aria-label="Año del corte"
+                  placeholder="Todos los años"
+                  showKey={false}
+                  value={stmtYear}
+                  options={stmtYearOptions}
+                  onChange={(e) => setStmtYear(e.target.value)}
+                />
+              </div>
+              {filteredStatements.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted-foreground">Ningún estado de cuenta coincide con los filtros.</p>
+              ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -249,7 +340,7 @@ export function CardsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {statements.map((s) => (
+                  {filteredStatements.map((s) => (
                     <TableRow key={s.id}>
                       <TableCell>
                         <div className="font-medium">{s.cardName}</div>
@@ -272,12 +363,13 @@ export function CardsPage() {
                   ))}
                 </TableBody>
               </Table>
+              )}
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="grid gap-4 pt-6">
-              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-[1fr_auto_auto_auto]">
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
                 <div className="sm:col-span-3 lg:col-span-1">
                   <Input placeholder="Buscar comercio" value={query} onChange={(e) => setQuery(e.target.value)} />
                 </div>
@@ -300,6 +392,15 @@ export function CardsPage() {
                   onChange={(e) => setMonth(e.target.value)}
                 />
                 <NativeSelect
+                  className="lg:w-52"
+                  aria-label="Categoría"
+                  placeholder="Todas las categorías"
+                  showKey={false}
+                  value={category}
+                  options={categoryOptions}
+                  onChange={(e) => setCategory(e.target.value)}
+                />
+                <NativeSelect
                   className="lg:w-56"
                   aria-label="Tarjeta"
                   placeholder="Todas las tarjetas"
@@ -309,6 +410,111 @@ export function CardsPage() {
                   onChange={(e) => setCard(e.target.value)}
                 />
               </div>
+
+              {byMonth.length > 0 && (
+                <div className="grid gap-3 rounded-lg border bg-muted/30 p-4">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h2 className="text-sm font-medium">{showCharges ? "Gastos por mes" : "Pagos y abonos por mes"}</h2>
+                    <p className="text-xs text-muted-foreground">
+                      {month ? (
+                        <button type="button" className="underline underline-offset-2" onClick={() => setMonth("")}>
+                          Quitar filtro de {monthLabel(month)}
+                        </button>
+                      ) : (
+                        "Haz clic en un mes para filtrar los movimientos"
+                      )}
+                    </p>
+                  </div>
+                  <div className="overflow-x-auto pb-1">
+                    <ul className="flex min-w-max items-end gap-2">
+                      {[...byMonth].reverse().map((m) => {
+                        const value = showCharges ? m.charges : m.payments;
+                        const selected = month === m.month;
+                        return (
+                          <li key={m.month} className="w-16 shrink-0">
+                            <button
+                              type="button"
+                              aria-pressed={selected}
+                              title={`${monthLabel(m.month)}: ${m.count} ${m.count === 1 ? "movimiento" : "movimientos"}`}
+                              onClick={() => setMonth(selected ? "" : m.month)}
+                              className={`flex w-full flex-col items-center gap-1 rounded-md px-1 pb-1 pt-2 transition-colors hover:bg-accent ${selected ? "bg-accent ring-1 ring-primary" : ""}`}
+                            >
+                              <span className="text-[11px] font-medium tabular-nums">{hide ? "••••" : compact.format(value)}</span>
+                              <span className="flex h-28 w-full items-end justify-center">
+                                <span
+                                  className={`flex w-8 flex-col-reverse overflow-hidden rounded-t ${selected || !month ? "" : "opacity-40"}`}
+                                  style={{ height: `${Math.max((value / monthMax) * 100, value > 0 ? 3 : 0)}%` }}
+                                >
+                                  {showCharges ? (
+                                    [...(monthSegments.get(m.month) ?? [])]
+                                      .sort((a, b) => b[1] - a[1])
+                                      .map(([key, amount]) => (
+                                        <span
+                                          key={key}
+                                          style={{ flexGrow: amount, backgroundColor: categoryColor(key) }}
+                                        />
+                                      ))
+                                  ) : (
+                                    <span className="flex-1 bg-primary" />
+                                  )}
+                                </span>
+                              </span>
+                              <span className="text-xs text-muted-foreground">{monthLabel(m.month)}</span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {categories.length > 0 && kind !== "payments" && (
+                <div className="grid gap-2">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h2 className="text-sm font-medium">En qué gastas{month ? ` · ${monthLabel(month)}` : ""}</h2>
+                    {category && (
+                      <button type="button" className="text-xs underline underline-offset-2" onClick={() => setCategory("")}>
+                        Quitar filtro de categoría
+                      </button>
+                    )}
+                  </div>
+                  <ul className="grid gap-1 text-sm">
+                    {categories.map((c) => {
+                      const selected = category === c.key;
+                      const share = categories.reduce((a, x) => a + x.total, 0);
+                      return (
+                        <li key={c.key}>
+                          <button
+                            type="button"
+                            aria-pressed={selected}
+                            onClick={() => setCategory(selected ? "" : c.key)}
+                            className={`grid w-full grid-cols-[auto_1fr_auto_auto] items-center gap-x-3 rounded-md px-2 py-1.5 text-left hover:bg-accent ${selected ? "bg-accent ring-1 ring-primary" : ""}`}
+                          >
+                            <span className="size-2.5 rounded-full" style={{ backgroundColor: categoryColor(c.key) }} />
+                            <span className="min-w-0 truncate">
+                              {c.name}
+                              <span className="ml-2 text-xs text-muted-foreground">
+                                {c.count} {c.count === 1 ? "compra" : "compras"}
+                              </span>
+                            </span>
+                            <span className="w-12 text-right text-xs text-muted-foreground tabular-nums">
+                              {hide ? "" : `${Math.round((c.total / share) * 100)}%`}
+                            </span>
+                            <span className="w-28 text-right tabular-nums">{money(c.total)}</span>
+                            <span className="col-span-4 mt-1 h-1.5 rounded-full bg-secondary">
+                              <span
+                                className="block h-full rounded-full"
+                                style={{ width: `${(c.total / categories[0].total) * 100}%`, backgroundColor: categoryColor(c.key) }}
+                              />
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
 
               {merchants.length > 0 && kind !== "payments" && (
                 <div className="grid gap-2">
@@ -343,6 +549,7 @@ export function CardsPage() {
                     <TableRow>
                       <TableHead>Fecha</TableHead>
                       <TableHead>Descripción</TableHead>
+                      <TableHead>Categoría</TableHead>
                       <TableHead>Tarjeta</TableHead>
                       <TableHead className="text-right">Monto</TableHead>
                     </TableRow>
@@ -357,6 +564,16 @@ export function CardsPage() {
                             <div className="text-xs text-muted-foreground">
                               {r.foreignCurrency} {r.foreignAmount?.toFixed(2)} · tipo de cambio {r.exchangeRate}
                             </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {r.amount > 0 ? (
+                            <span className="inline-flex items-center gap-2 text-sm">
+                              <span className="size-2 rounded-full" style={{ backgroundColor: categoryColor(r.categoryKey) }} />
+                              {r.categoryName}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
                           )}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
