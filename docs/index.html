@@ -5,80 +5,135 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Contabilizate: tus ingresos, gastos e impuestos sin hojas de cálculo</title>
   <meta name="description" content="Extensión de Chrome gratuita para freelancers en México: dashboard de ingresos, gastos, tarjetas, IVA y retenciones a partir de tus facturas del SAT. Todo se queda en tu navegador.">
+  <meta name="theme-color" content="#0c2418">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Contabilizate: tus ingresos, gastos e impuestos sin hojas de cálculo">
   <meta property="og:description" content="Gratis, local y privada. Tus facturas del SAT se convierten en un dashboard mes a mes, y tus datos nunca salen de tu navegador.">
   <meta property="og:url" content="https://rigo9412.github.io/contabilizate-extension/">
-  <meta property="og:image" content="https://rigo9412.github.io/contabilizate-extension/icon.png">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://rigo9412.github.io/contabilizate-extension/img/og.jpg">
+  <meta property="og:image:width" content="1400">
+  <meta property="og:image:height" content="560">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="icon.png">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="landing.css">
 </head>
 <body>
-  <main>
-    <header class="hero">
-      <img src="icon.png" alt="" width="64" height="64">
-      <h1>Deja de cruzar facturas del SAT con estados de cuenta cada mes</h1>
-      <p class="lead">Contabilizate es una extensión de Chrome que convierte tus facturas en un dashboard mes a mes con
-        tus ingresos, gastos, tarjetas de crédito, margen, IVA y retenciones.</p>
-      <div class="badges">
+  <header class="nav">
+    <a class="brand" href="#"><img src="img/logo.png" alt="" width="36" height="33"> Contabilizate</a>
+    <nav>
+      <a href="#funciones">Funciones</a>
+      <a href="#privacidad">Privacidad</a>
+      <a class="nav-cta" href="#instalar">Instalar</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Para freelancers y negocios en México</span>
+      <h1>Ingresos, gastos e impuestos <span class="accent">sin hojas de cálculo</span></h1>
+      <p class="lead">Deja de cruzar facturas del SAT con estados de cuenta cada mes. Contabilizate convierte tus CFDI en un
+        dashboard mes a mes, directo en tu navegador.</p>
+      <div class="pills">
         <span>🆓 100% gratis</span>
-        <span>💻 Todo en tu navegador</span>
+        <span>💻 Sin servidores</span>
         <span>🔒 Nada se comparte</span>
       </div>
-      <p class="cta">
-        <a class="button" href="#instalar">Instalar gratis</a>
-        <a class="button secondary" href="https://github.com/rigo9412/contabilizate-extension">Ver el código en GitHub</a>
-      </p>
-    </header>
+      <div class="ctas">
+        <a class="btn" href="#instalar">Instalar gratis</a>
+        <a class="btn ghost" href="https://github.com/rigo9412/contabilizate-extension">Ver el código</a>
+      </div>
+    </div>
+    <div class="hero-shot">
+      <img class="shot" src="img/dashboard.jpg" alt="Dashboard de Contabilizate con ingresos, gastos, tarjetas y margen por mes" width="1600" height="1000">
+    </div>
+  </section>
 
-    <section>
-      <h2>📊 Qué hace</h2>
-      <ul class="features">
-        <li><strong>Dashboard mensual.</strong> Tus ingresos, gastos y margen real, calculados a partir de tus facturas.</li>
-        <li><strong>Tarjetas de crédito.</strong> Ve en qué se te va el dinero mes a mes.</li>
-        <li><strong>Impuestos ya calculados.</strong> IVA trasladado y retenciones, sin fórmulas.</li>
-        <li><strong>Facturación en el SAT.</strong> Llena los formularios del portal por ti e inicia sesión con tu e.firma.</li>
-        <li><strong>Descarga e importación de CFDI.</strong> Baja tus facturas del SAT o arrastra los XML.</li>
-        <li><strong>Montos ocultos por defecto.</strong> Ábrela con alguien al lado sin enseñar tus números.</li>
-      </ul>
-    </section>
+  <section id="funciones" class="features">
+    <div class="wrap">
+      <h2 class="section-title">Todo lo que antes hacías a mano</h2>
 
-    <section class="privacy">
-      <h2>🔒 Tus datos son tuyos</h2>
-      <ul>
-        <li><strong>Gratis, de verdad.</strong> Sin suscripciones, planes premium ni anuncios.</li>
-        <li><strong>Sin servidores.</strong> Todo se procesa y se guarda en tu computadora. No hay cuentas ni rastreo.</li>
-        <li><strong>Nada se comparte con nadie.</strong> Solo se conecta al portal del SAT cuando tú facturas o descargas.</li>
-        <li><strong>Tu e.firma va cifrada</strong> con su propia contraseña.</li>
-        <li><strong>Respaldo opcional en tu propio Google Drive</strong>, en una carpeta oculta que solo esta extensión puede leer.</li>
-        <li><strong>Código abierto.</strong> Puedes revisar exactamente qué hace en
-          <a href="https://github.com/rigo9412/contabilizate-extension">GitHub</a>.</li>
-      </ul>
-    </section>
+      <article class="feature">
+        <div class="copy">
+          <span class="tag">Dashboard</span>
+          <h3>Ingresos, gastos y margen <span class="accent">mes a mes</span></h3>
+          <p>Calculado a partir de tus facturas emitidas y recibidas. Ve también lo que gastas con tarjeta y tu margen real.</p>
+          <ul>
+            <li>Oculta los montos con un clic</li>
+            <li>IVA trasladado y retenciones, ya calculados</li>
+            <li>De dónde vienen tus ingresos y tus gastos</li>
+            <li>No cuenta facturas canceladas ni excluidas</li>
+          </ul>
+        </div>
+        <img class="shot" src="img/dashboard-hidden.jpg" alt="Dashboard con los montos ocultos" loading="lazy" width="1600" height="1000">
+      </article>
 
-    <section id="instalar">
-      <h2>⬇️ Cómo instalarla</h2>
-      <p class="muted">Todavía no está en la Chrome Web Store, así que por ahora se instala desde el código:</p>
-      <ol>
-        <li>Descarga el código desde <a href="https://github.com/rigo9412/contabilizate-extension">GitHub</a>
-          (botón <strong>Code → Download ZIP</strong>) y descomprímelo.</li>
-        <li>En esa carpeta, ejecuta <code>npm install && npm run build</code>.</li>
-        <li>Abre <code>chrome://extensions</code> y activa el <strong>Modo de desarrollador</strong>.</li>
-        <li>Haz clic en <strong>Cargar descomprimida</strong> y elige la carpeta <code>dist</code>.</li>
+      <article class="feature reverse">
+        <div class="copy">
+          <span class="tag">Tarjetas</span>
+          <h3>Descubre <span class="accent">en qué se te va el dinero</span></h3>
+          <p>Importa tus estados de cuenta en PDF de BBVA o Nu y obtén un análisis de tus gastos.</p>
+          <ul>
+            <li>Categorías, gastos hormiga y cargos recurrentes</li>
+            <li>Recomendaciones de ahorro con montos estimados</li>
+            <li>Cuánto gastas por día de la semana</li>
+          </ul>
+        </div>
+        <img class="shot" src="img/analysis.jpg" alt="Análisis de gastos de tarjetas con recomendaciones de ahorro" loading="lazy" width="1600" height="1000">
+      </article>
+
+      <article class="feature">
+        <div class="copy">
+          <span class="tag">Facturas</span>
+          <h3>Todas tus facturas <span class="accent">en un solo lugar</span></h3>
+          <p>Descárgalas del SAT o arrastra tus XML. Para facturar, la extensión llena el portal del SAT por ti.</p>
+          <ul>
+            <li>Inicio de sesión automático con tu e.firma</li>
+            <li>Plantillas de clientes y conceptos</li>
+            <li>Busca por RFC, cliente, concepto o folio</li>
+          </ul>
+        </div>
+        <img class="shot" src="img/bills.jpg" alt="Lista de facturas emitidas y recibidas" loading="lazy" width="1600" height="1000">
+      </article>
+    </div>
+  </section>
+
+  <section id="privacidad" class="privacy">
+    <div class="wrap">
+      <img src="img/logo.png" alt="" width="72" height="65">
+      <h2 class="section-title">Tus datos son <span class="accent">tuyos</span></h2>
+      <p class="lead">Contabilizate no tiene servidores. Tus facturas, tus estados de cuenta y tu e.firma nunca salen de tu computadora.</p>
+      <div class="cards">
+        <div class="card"><b>🆓 Gratis, de verdad</b><p>Sin suscripciones, planes premium ni anuncios.</p></div>
+        <div class="card"><b>💻 Todo en tu navegador</b><p>Todo se procesa y se guarda en tu computadora. No hay cuentas ni rastreo.</p></div>
+        <div class="card"><b>🔒 Nada se comparte</b><p>Solo se conecta al portal del SAT cuando tú facturas o descargas.</p></div>
+        <div class="card"><b>🔑 e.firma cifrada</b><p>Se guarda cifrada con su propia contraseña.</p></div>
+        <div class="card"><b>🙈 Montos ocultos</b><p>Ábrela con alguien al lado sin enseñar tus números.</p></div>
+        <div class="card"><b>🧑‍💻 Código abierto</b><p>Revisa exactamente qué hace en <a href="https://github.com/rigo9412/contabilizate-extension">GitHub</a>.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="instalar" class="install">
+    <div class="wrap">
+      <h2 class="section-title">Instálala <span class="accent">gratis</span></h2>
+      <p class="lead">Muy pronto en la Chrome Web Store. Mientras tanto, se instala desde el código:</p>
+      <ol class="steps">
+        <li><span>1</span><div>Descarga el código desde <a href="https://github.com/rigo9412/contabilizate-extension">GitHub</a>
+          (<b>Code → Download ZIP</b>) y descomprímelo.</div></li>
+        <li><span>2</span><div>En esa carpeta, ejecuta <code>npm install && npm run build</code>.</div></li>
+        <li><span>3</span><div>Abre <code>chrome://extensions</code> y activa el <b>Modo de desarrollador</b>.</div></li>
+        <li><span>4</span><div>Haz clic en <b>Cargar descomprimida</b> y elige la carpeta <code>dist</code>.</div></li>
       </ol>
-    </section>
+      <p class="muted">¿Ideas o errores? Cuéntame en <a href="https://github.com/rigo9412/contabilizate-extension/issues">GitHub Issues</a>.</p>
+    </div>
+  </section>
 
-    <section>
-      <h2>💬 ¿Qué le agregarías?</h2>
-      <p>La sigo mejorando cada semana. Cuéntame qué te serviría o reporta un error en
-        <a href="https://github.com/rigo9412/contabilizate-extension/issues">GitHub Issues</a>.</p>
-    </section>
-
-    <footer class="muted">
-      <a href="privacy.html">Política de privacidad</a> ·
-      <a href="https://github.com/rigo9412/contabilizate-extension">GitHub</a>
-    </footer>
-  </main>
+  <footer>
+    <div class="wrap">
+      <span><img src="img/logo.png" alt="" width="22" height="20"> Contabilizate</span>
+      <span class="muted">Proyecto independiente, no afiliado al SAT.</span>
+      <span><a href="privacy.html">Privacidad</a> · <a href="https://github.com/rigo9412/contabilizate-extension">GitHub</a></span>
+    </div>
+  </footer>
 </body>
 </html>

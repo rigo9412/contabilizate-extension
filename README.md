@@ -5,10 +5,13 @@ A Chrome extension designed to automate form filling in the Mexican SAT (Tax Adm
 ## Features
 
 - Automated login using e.firma (electronic signature)
-- Automated bill/invoice form filling
-- Support for digital certificate management
-- Automatic tax calculations and verification
-- Smart form field population with saved data
+- Automated bill/invoice form filling (including global invoices)
+- Monthly dashboard: income, expenses and margin computed from your CFDI, with VAT and withholdings
+- Credit card spending: import PDF statements (BBVA and Nu) and analyze spending by category
+- Download CFDI from the SAT or import XML files by dragging them in
+- Client/concept templates, with automatic dates in descriptions
+- Amounts hidden by default (privacy mode)
+- Local-first storage, encrypted backups and Google Drive sync
 
 ## Installation
 
@@ -18,6 +21,9 @@ A Chrome extension designed to automate form filling in the Mexican SAT (Tax Adm
 4. Click "Load unpacked" and select the `dist/` directory
 
 Use `npm run dev` to rebuild on every change, and `npm test` to run the tests.
+`npm run typecheck` runs TypeScript only, and `npm run package` builds and
+creates `contabilizate-<version>.zip` for the Chrome Web Store (without the
+manifest `key`, which the store rejects).
 
 ## Full app (React)
 
@@ -31,6 +37,11 @@ The popup's "Abrir app completa" button opens a full-page React app
   password). Unlocking it puts the files in `chrome.storage.session` for the
   sign-in script; it is cleared when the browser closes unless you choose to
   keep it unlocked.
+- Pages: dashboard, invoices (with a month filter), templates, SAT downloads,
+  credit cards (statement import and spending analysis), profile/e.firma and
+  backup.
+- Statement import: PDFs are parsed locally in the browser (BBVA and Nu
+  formats); nothing is uploaded.
 - Backup: export everything to a `.json` file (optionally encrypted with a
   password) and import it in another browser.
 
@@ -98,6 +109,10 @@ build drops `oauth2` and the app says Drive isn't available.
 ├── manifest.json        # Extension configuration
 ├── index.html           # Popup (launcher)
 ├── app/                 # Full React app (Vite), built into dist/app
+│   └── src/             # pages/, components/, features/, lib/ (db, sync, parsers)
+├── docs/                # Landing page and privacy policy (GitHub Pages)
+├── store/               # Chrome Web Store listing and assets
+├── scripts/package.mjs  # Builds the store .zip
 ├── js/
 │   ├── background.js    # Injects the fill scripts on SAT pages
 │   ├── popup.js         # Popup logic
@@ -119,17 +134,19 @@ The extension requires permissions to:
 - Access SAT domains
 - Access active tabs
 - Execute scripts
-- Access local storage
-- Handle native messaging
+- Access local storage (including unlimited storage for the local database)
+- Download files (CFDI and backups)
+- Sign in with Google (`identity`) for Drive sync
 
 ## Development
 
 Built with:
-- JavaScript
-- Chrome Extension APIs
-- HTML/CSS
-- Bootstrap for styling
+- TypeScript, React 19 and Vite
+- Tailwind CSS and Radix UI
+- Dexie (IndexedDB), pdf.js for statements
+- Vitest for tests
+- Chrome Extension APIs (Manifest V3)
 
 ## License
 
-[Add your license information here]
+[MIT](LICENSE)
