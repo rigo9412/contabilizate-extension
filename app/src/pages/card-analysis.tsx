@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff, PiggyBank } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { PageTitle } from "@/components/page-title";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CategoryPie } from "@/features/dashboard/category-pie";
+import { SavingTips } from "@/features/dashboard/saving-tips";
 import { alive, db } from "@/lib/db";
 import { useHideAmounts } from "@/lib/privacy";
 import { analyzeSpending, cardKey, categorySlices, HORMIGA_MAX, statementMonth } from "@/lib/spending-analysis";
@@ -38,8 +38,6 @@ export function CardAnalysisPage() {
   const analysis = useMemo(() => analyzeSpending(selected, statements), [selected, statements]);
   const trend = analysis.periods >= 2;
   const maxWeekday = Math.max(1, ...analysis.byWeekday.map((d) => d.total));
-  // Las recomendaciones traen montos en el texto; en modo privado se tapan.
-  const text = (value: string) => (hide ? value.replace(/\$[\d,.]+/g, "$ ••••") : value);
 
   return (
     <>
@@ -122,38 +120,10 @@ export function CardAnalysisPage() {
             </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <PiggyBank className="size-4" /> Cómo ahorrar
-              </CardTitle>
-              <CardDescription>Ordenado por lo que más te ahorra. Los montos son estimaciones.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {analysis.recommendations.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No encontramos gastos fuera de lo normal. Sigue importando tus estados de cuenta para ver tendencias.
-                </p>
-              ) : (
-                <ol className="grid gap-4">
-                  {analysis.recommendations.map((r) => (
-                    <li key={r.id} className="grid gap-1 border-b pb-4 last:border-0 last:pb-0">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="font-medium">{r.title}</span>
-                        {r.monthlySaving > 0 && (
-                          <Badge variant="primary" className="tabular-nums">
-                            {r.upTo ? "hasta " : "~"}
-                            {money(r.monthlySaving)}/mes
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{text(r.detail)}</p>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </CardContent>
-          </Card>
+          <SavingTips
+            recommendations={analysis.recommendations}
+            description="Montos estimados. Pasa el cursor sobre un tip para ver el detalle."
+          />
 
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>

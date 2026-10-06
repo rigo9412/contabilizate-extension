@@ -22,9 +22,10 @@ import {
 import { NativeSelect } from "@/components/ui/native-select";
 import { CategoryPie } from "@/features/dashboard/category-pie";
 import { HealthBreakdown } from "@/features/dashboard/health-dialog";
+import { SavingTips } from "@/features/dashboard/saving-tips";
 import { IncomeChart } from "@/features/dashboard/income-chart";
 import { monthlyCardPayments } from "@/lib/card-movements";
-import { analyzeSpending, categorySlices } from "@/lib/spending-analysis";
+import { analyzeSpending, categorySlices, statementMonth } from "@/lib/spending-analysis";
 import {
   availableYears,
   categorySummary,
@@ -92,6 +93,12 @@ export function DashboardPage() {
     }));
     return categorySlices(analyzeSpending(inYear, statements).categories);
   }, [bills, statements, profile?.rfc, year, origin]);
+  // Tips de ahorro con los últimos 12 meses de estados de cuenta, sin importar el año elegido:
+  // así entran los cargos anuales (anualidad, seguros) y siempre reflejan lo reciente.
+  const tips = useMemo(() => {
+    const months = new Set([...new Set(statements.map(statementMonth))].sort().reverse().slice(0, 12));
+    return analyzeSpending(statements.filter((s) => months.has(statementMonth(s))), statements);
+  }, [statements]);
   const { hide, toggle } = useHideAmounts();
   const health = useMemo(() => {
     const byMonth = monthlyHealth(
@@ -146,6 +153,20 @@ export function DashboardPage() {
           </Button>
         }
       />
+
+      {statements.length > 0 && (
+        <SavingTips
+          className="mb-6"
+          recommendations={tips.recommendations}
+          potentialSaving={tips.potentialSaving}
+          description={`Últimos ${tips.periods} ${tips.periods === 1 ? "mes" : "meses"} de tarjetas. Pasa el cursor sobre un tip para ver el detalle.`}
+          actions={
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/cards/analysis">Ver análisis</Link>
+            </Button>
+          }
+        />
+      )}
 
       {!profile && (
         <Card className="mb-6 border-accent">

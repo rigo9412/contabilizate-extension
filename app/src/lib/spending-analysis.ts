@@ -19,10 +19,12 @@ interface CategoryRule {
 // El orden importa: gana la primera regla que coincide.
 export const CATEGORY_RULES: CategoryRule[] = [
   { key: "pagos", name: "Pagos a la tarjeta", pattern: /PAGO TDC|PAGO TARJETA|PAGO A TU TARJETA|SU PAGO/ },
+  { key: "comisiones", name: "Comisiones del banco", pattern: /ADMINISTRACION TARJ|ANUALIDAD|COMISION/ },
+  { key: "seguros", name: "Seguros", pattern: /\bGNP\b|SEGURO|\bAXA\b|QUALITAS|MAPFRE|METLIFE|ZURICH|CHUBB/ },
   {
     key: "suscripciones",
     name: "Suscripciones digitales",
-    pattern: /APPLE\.COM|ITUNES|NETFLIX|SPOTIFY|GITHUB|GOOGLE \*|YOUTUBE|DISNEY|HBO|\bMAX\b|PRIME VIDEO|AMAZON PRIME|PARAMOUNT|CRUNCHYROLL|OPENAI|CHATGPT|ANTHROPIC|CLAUDE\.AI|MICROSOFT|XBOX|PLAYSTATION|STEAM|ADOBE|CANVA|DROPBOX|ICLOUD|VIX|STAR\+/,
+    pattern: /APPLE\.COM|ITUNES|NETFLIX|SPOTIFY|GITHUB|GOOGLE \*|YOUTUBE|DISNEY|HBO|\bMAX\b|PRIME VIDEO|AMAZON PRIME|PARAMOUNT|CRUNCHYROLL|OPENAI|CHATGPT|ANTHROPIC|MOONSHOT|CLAUDE\.AI|MICROSOFT|XBOX|PLAYSTATION|STEAM|ADOBE|CANVA|DROPBOX|ICLOUD|VIX|STAR\+/,
   },
   { key: "delivery", name: "Comida a domicilio", pattern: /RAPPI|UBER ?EATS|DIDI ?FOOD|DIDIFOOD|SIN DELANTAL|PEDIDOSYA/ },
   {
@@ -41,7 +43,7 @@ export const CATEGORY_RULES: CategoryRule[] = [
   { key: "personal", name: "Cuidado personal", pattern: /BARBER|ESTETICA|SALON|SPA\b|GYM|SMART ?FIT|SPORTS WORLD/ },
 ];
 
-const NOT_HORMIGA = ["comida", "delivery", "suscripciones", "linea", "servicios", "farmacia", "transporte", "hogar"];
+const NOT_HORMIGA = ["comisiones", "seguros", "comida", "delivery", "suscripciones", "linea", "servicios", "farmacia", "transporte", "hogar"];
 
 export const OTHER_CATEGORY = { key: "otros", name: "Otros" };
 
@@ -300,7 +302,7 @@ export function analyzeSpending(statements: CardStatement[], history: CardStatem
     const saving = round2(hormiga.perPeriod * 0.5);
     recommendations.push({
       id: "hormiga",
-      title: "Reduce los gastos hormiga",
+      title: "Menos gastos hormiga",
       detail: `Haces unas ${Math.round(hormiga.count / periods)} compras de menos de ${money(HORMIGA_MAX)} por mes que suman ${money(hormiga.perPeriod)}, sobre todo en ${where}. Si las reduces a la mitad ahorras ${money(saving)} al mes, ${money(saving * 12)} al año.`,
       monthlySaving: saving,
     });
@@ -309,7 +311,7 @@ export function analyzeSpending(statements: CardStatement[], history: CardStatem
   if (delivery >= 200) {
     recommendations.push({
       id: "delivery",
-      title: "Pide menos comida a domicilio",
+      title: "Menos comida a domicilio",
       detail: `Gastas ${money(delivery)} al mes en apps de comida. Entre envío, servicio y propina pagas cerca de 30% más que en el local; cocinar o recoger tú mismo la mitad de esos pedidos te ahorra lo estimado.`,
       monthlySaving: round2(delivery * 0.4),
     });
@@ -318,16 +320,16 @@ export function analyzeSpending(statements: CardStatement[], history: CardStatem
   if (eatingOut >= 500) {
     recommendations.push({
       id: "comida",
-      title: "Ponle tope a comer fuera",
+      title: "Tope a comer fuera",
       detail: `Restaurantes y comida rápida suman ${money(eatingOut)} al mes. Fija un presupuesto semanal de ${money((eatingOut * 0.7) / 4.3)} y lleva comida algunos días: bajarlo 30% te ahorra lo estimado.`,
       monthlySaving: round2(eatingOut * 0.3),
     });
   }
   const online = perCategory("linea");
-  if (online >= 500 && online / perPeriod >= 0.15) {
+  if (online >= 500 && online / perPeriod >= 0.1) {
     recommendations.push({
       id: "linea",
-      title: "Aplica la regla de las 24 horas en compras en línea",
+      title: "Espera 24 h antes de comprar en línea",
       detail: `Las compras en línea son ${Math.round((online / perPeriod) * 100)}% de tu gasto (${money(online)} al mes). Deja los artículos en el carrito un día antes de pagar y quita la tarjeta guardada; evitar una de cada cuatro compras te ahorra lo estimado.`,
       monthlySaving: round2(online * 0.25),
     });
@@ -343,6 +345,38 @@ export function analyzeSpending(statements: CardStatement[], history: CardStatem
       upTo: true,
     });
   }
+  const superList = expenses.filter((e) => e.category.key === "super");
+  const superVisits = superList.length / periods;
+  const groceries = perCategory("super");
+  if (superVisits >= 8 && groceries >= 2000) {
+    recommendations.push({
+      id: "super",
+      title: "Ve al súper una vez por semana",
+      detail: `Vas al súper unas ${Math.round(superVisits)} veces al mes y gastas ${money(groceries)}. Cada visita extra trae compras que no planeabas; una compra semanal con lista te ahorra cerca de 15%.`,
+      monthlySaving: round2(groceries * 0.15),
+    });
+  }
+  const fees = expenses.filter((e) => e.category.key === "comisiones");
+  if (fees.length > 0) {
+    const total = sum(fees.map((e) => e.amount));
+    recommendations.push({
+      id: "comisiones",
+      title: "Pide quitar la anualidad",
+      detail: `Pagaste ${money(total)} en anualidad o comisiones del banco. Llama para pedir que te la bonifiquen o cambia a una tarjeta sin anualidad.`,
+      // La anualidad se cobra una vez al año.
+      monthlySaving: round2(total / 12),
+    });
+  }
+  const insurance = expenses.filter((e) => e.category.key === "seguros" && e.amount >= 3000);
+  if (insurance.length > 0) {
+    const biggest = insurance.reduce((a, e) => (e.amount > a.amount ? e : a));
+    recommendations.push({
+      id: "seguros",
+      title: "Aparta mes a mes para el seguro",
+      detail: `Pagaste ${money(biggest.amount)} de un jalón en ${biggest.merchant}. Si apartas ${money(biggest.amount / 12)} al mes, la próxima renovación no te descuadra.`,
+      monthlySaving: 0,
+    });
+  }
   const covered = new Set(recommendations.map((r) => r.id));
   for (const c of categories) {
     if (covered.has(c.key) || c.key === "otros" || c.last === undefined || !c.previousAverage) continue;
@@ -350,7 +384,7 @@ export function analyzeSpending(statements: CardStatement[], history: CardStatem
     if (increase >= 300 && c.last >= c.previousAverage * 1.3) {
       recommendations.push({
         id: `sube-${c.key}`,
-        title: `Tu gasto en ${c.name.toLowerCase()} subió`,
+        title: `Subió ${c.name.toLowerCase()}`,
         detail: `El último periodo gastaste ${money(c.last)}, ${Math.round((c.last / c.previousAverage - 1) * 100)}% más que tu promedio de ${money(c.previousAverage)}. Volver a tu promedio te ahorra lo estimado.`,
         monthlySaving: round2(increase),
       });

@@ -11,12 +11,13 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { taxRegimes } from "@/lib/catalogs";
 import { db, PROFILE_ID, save, VAULT_ID } from "@/lib/db";
+import { RESICO_ACTIVITIES } from "@/lib/resico";
 import { RFC_REGEX } from "@/lib/sat";
-import type { Profile } from "@/lib/types";
+import type { Profile, ResicoActivity } from "@/lib/types";
 import { useVaultStatus } from "@/lib/use-vault-status";
 import { lockVault, saveVault, unlockVault } from "@/lib/vault";
 
-const EMPTY_PROFILE = { name: "", rfc: "", postalCode: "", regimenFiscal: "" };
+const EMPTY_PROFILE = { name: "", rfc: "", postalCode: "", regimenFiscal: "", resicoActivity: "" as ResicoActivity | "" };
 
 export function ProfilePage() {
   return (
@@ -35,7 +36,15 @@ function ProfileForm() {
   const [form, setForm] = useState(EMPTY_PROFILE);
 
   useEffect(() => {
-    if (stored) setForm({ name: stored.name, rfc: stored.rfc, postalCode: stored.postalCode, regimenFiscal: stored.regimenFiscal });
+    if (stored) {
+      setForm({
+        name: stored.name,
+        rfc: stored.rfc,
+        postalCode: stored.postalCode,
+        regimenFiscal: stored.regimenFiscal,
+        resicoActivity: stored.resicoActivity ?? "",
+      });
+    }
   }, [stored]);
 
   const set = (field: keyof typeof EMPTY_PROFILE) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -48,7 +57,8 @@ function ProfileForm() {
       toast.error("Formato de RFC inválido");
       return;
     }
-    await save<Profile>(db.profile, { id: PROFILE_ID, ...form, rfc });
+    const { resicoActivity, ...rest } = form;
+    await save<Profile>(db.profile, { id: PROFILE_ID, ...rest, rfc, ...(resicoActivity && { resicoActivity }) });
     toast.success("Perfil guardado");
   }
 
@@ -76,6 +86,17 @@ function ProfileForm() {
               placeholder="Selecciona"
             />
           </Field>
+          {form.regimenFiscal === "626" && (
+            <Field label="Tipo de ingreso (RESICO)">
+              <NativeSelect
+                value={form.resicoActivity}
+                onChange={(e) => setForm((f) => ({ ...f, resicoActivity: e.target.value as ResicoActivity }))}
+                options={RESICO_ACTIVITIES}
+                showKey={false}
+                placeholder="Selecciona"
+              />
+            </Field>
+          )}
           <div className="sm:col-span-2">
             <Button type="submit">Guardar perfil</Button>
           </div>

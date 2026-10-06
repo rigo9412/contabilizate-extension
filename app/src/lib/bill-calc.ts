@@ -7,7 +7,9 @@ export function round2(value: number): number {
 
 /** Tasas de un concepto; null significa que el impuesto no aplica. */
 export interface ItemRates {
+  /** Con ivaExempt, iva es null: el traslado va como TipoFactor "Exento", sin tasa ni importe. */
   iva: number | null;
+  ivaExempt?: boolean;
   retIva: number | null;
   retIsr: number | null;
 }
@@ -29,7 +31,9 @@ function tax(type: string, section: string, base: number, rate: number): BillTax
 
 export function buildTaxes(subtotal: number, rates: ItemRates): BillTax[] {
   const taxes: BillTax[] = [];
-  if (rates.iva !== null) taxes.push(tax(TAXES_IVA, TYPE_TAXES_TRASLATE, subtotal, rates.iva));
+  if (rates.ivaExempt)
+    taxes.push({ type: TAXES_IVA, section: TYPE_TAXES_TRASLATE, base: subtotal, total: 0, porcentageOrValue: "Exento" });
+  else if (rates.iva !== null) taxes.push(tax(TAXES_IVA, TYPE_TAXES_TRASLATE, subtotal, rates.iva));
   if (rates.retIva !== null) taxes.push(tax(TAXES_IVA, TYPE_TAXES_RETENTION, subtotal, rates.retIva));
   if (rates.retIsr !== null) taxes.push(tax(TAXES_ISR, TYPE_TAXES_RETENTION, subtotal, rates.retIsr));
   return taxes;
@@ -38,10 +42,14 @@ export function buildTaxes(subtotal: number, rates: ItemRates): BillTax[] {
 export function ratesOf(item: Pick<BillItem, "taxes">): ItemRates {
   const find = (type: string, section: string) => {
     const t = item.taxes.find((x) => x.type === type && x.section === section);
-    return t?.factor !== undefined ? Number(t.factor) : null;
+    return t?.factor !== undefined && t.porcentageOrValue !== "Exento" ? Number(t.factor) : null;
   };
+  const ivaExempt = item.taxes.some(
+    (t) => t.type === TAXES_IVA && t.section === TYPE_TAXES_TRASLATE && t.porcentageOrValue === "Exento",
+  );
   return {
     iva: find(TAXES_IVA, TYPE_TAXES_TRASLATE),
+    ...(ivaExempt && { ivaExempt }),
     retIva: find(TAXES_IVA, TYPE_TAXES_RETENTION),
     retIsr: find(TAXES_ISR, TYPE_TAXES_RETENTION),
   };
@@ -82,4 +90,12 @@ export function formatCurrency(value: number, currency = "MXN"): string {
 
 export function formatRate(rate: number): string {
   return `${Number((rate * 100).toFixed(4))}%`;
+}
+
+/** Resumen corto de un impuesto del concepto: "+16%", "−10%", "IVA exento". */
+export function formatTax(t: BillTax): string {
+  if (t.porcentageOrValue === "Exento") return t.type === TAXES_IVA ? "IVA exento" : "Exento";
+  const sign = t.section === TYPE_TAXES_TRASLATE ? "+" : "−";
+  const rate = Number(t.factor);
+  return Number.isFinite(rate) && t.factor !== undefined ? `${sign}${formatRate(rate)}` : `${sign}${formatCurrency(t.total)}`;
 }

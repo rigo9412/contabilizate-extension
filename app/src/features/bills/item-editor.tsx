@@ -9,6 +9,7 @@ import {
   computeItem,
   formatCurrency,
   formatRate,
+  formatTax,
   IVA_RATES,
   ratesOf,
   RET_ISR_RATES,
@@ -19,6 +20,7 @@ import { typeObjectImp, unitMeasure } from "@/lib/catalogs";
 import type { BillItem } from "@/lib/types";
 
 const NONE = "";
+const EXEMPT = "exento";
 // Incluye la tasa actual aunque no sea de las comunes (p. ej. 5.33% importada del popup).
 const rateOptions = (rates: number[], current: number | null) =>
   Object.fromEntries(
@@ -68,7 +70,7 @@ export function ItemsEditor({ items, onChange }: { items: BillItem[]; onChange: 
                 <TableCell>
                   <div className="font-medium">{item.description}</div>
                   <div className="text-xs text-muted-foreground">
-                    {item.serviceId} · {item.taxes.map((t) => `${t.section === "traslado" ? "+" : "−"}${formatRate(Number(t.factor))}`).join(" ")}
+                    {item.serviceId} · {item.taxes.map(formatTax).join(" ")}
                   </div>
                 </TableCell>
                 <TableCell className="text-right">{item.quantity}</TableCell>
@@ -162,7 +164,19 @@ function ItemForm({ initial, onSave, onCancel }: { initial?: BillItem; onSave: (
         <NativeSelect value={fields.objectImp} options={typeObjectImp} onChange={(e) => set("objectImp", e.target.value)} />
       </Field>
       <Field label="IVA trasladado" className="sm:col-span-1">
-        <NativeSelect value={rates.iva ?? NONE} options={rateOptions(IVA_RATES, rates.iva)} showKey={false} placeholder="No aplica" onChange={setRate("iva")} />
+        <NativeSelect
+          value={rates.ivaExempt ? EXEMPT : (rates.iva ?? NONE)}
+          options={{ ...rateOptions(IVA_RATES, rates.iva), [EXEMPT]: "Exento" }}
+          showKey={false}
+          placeholder="No aplica"
+          onChange={(e) =>
+            setRates((r) => ({
+              ...r,
+              iva: e.target.value === NONE || e.target.value === EXEMPT ? null : Number(e.target.value),
+              ivaExempt: e.target.value === EXEMPT,
+            }))
+          }
+        />
       </Field>
       <Field label="Retención IVA" className="sm:col-span-1">
         <NativeSelect value={rates.retIva ?? NONE} options={rateOptions(RET_IVA_RATES, rates.retIva)} showKey={false} placeholder="No aplica" onChange={setRate("retIva")} />

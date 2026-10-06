@@ -120,5 +120,23 @@ describe("analyzeSpending", () => {
     const extra = statement("2026-09-24", [["2026-09-02", "Mta Nvo Reforma Serv D", 50]], "Nu");
     expect(analyzeSpending([extra], [extra, old]).categories[0].key).toBe("super");
   });
-});
 
+  it("recomienda comprar el súper una vez por semana si vas muy seguido", () => {
+    const visits = Array.from({ length: 10 }, (_, i): [string, string, number] => [`2025-10-${String(i + 10)}`, "HEB NUEVO LAREDO", 300]);
+    const r = analyzeSpending([statement("2025-11-03", visits)]).recommendations.find((x) => x.id === "super");
+    expect(r?.monthlySaving).toBe(450);
+  });
+
+  it("separa la anualidad y el seguro y los convierte en recomendaciones", () => {
+    const result = analyzeSpending([
+      statement("2025-11-03", [
+        ["2025-10-10", "ADMINISTRACION TARJ. TITULAR", 1200],
+        ["2025-10-11", "APP GNP MOVIL", 12000],
+      ]),
+    ]);
+    expect(result.categories.map((c) => c.key).sort()).toEqual(["comisiones", "seguros"]);
+    expect(result.recommendations.find((r) => r.id === "comisiones")?.monthlySaving).toBe(100);
+    expect(result.recommendations.find((r) => r.id === "seguros")?.detail).toContain("$1,000 al mes");
+    expect(result.hormiga.count).toBe(0);
+  });
+});

@@ -1,5 +1,5 @@
 import { HashRouter, NavLink, Route, Routes, useLocation } from "react-router-dom";
-import { CreditCard, DatabaseBackup, Download, FileText, LayoutDashboard, LayoutTemplate, UserRound } from "lucide-react";
+import { CreditCard, DatabaseBackup, Download, FileText, Landmark, LayoutDashboard, LayoutTemplate, UserRound } from "lucide-react";
 import { Toaster } from "sonner";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { useAutoSync } from "@/lib/use-auto-sync";
@@ -11,12 +11,14 @@ import { BillEditPage } from "@/pages/bill-edit";
 import { BillsPage } from "@/pages/bills";
 import { CardAnalysisPage } from "@/pages/card-analysis";
 import { CardsPage } from "@/pages/cards";
+import { DeclarationPage } from "@/pages/declaration";
 import { DownloadsPage } from "@/pages/downloads";
 import { TemplateEditPage } from "@/pages/template-edit";
 import { TemplatesPage } from "@/pages/templates";
 
 const NAV = [
   { to: "/", label: "Inicio", icon: LayoutDashboard },
+  { to: "/declaration", label: "Declaración mensual", icon: Landmark },
   { to: "/bills", label: "Facturas", icon: FileText },
   { to: "/templates", label: "Plantillas", icon: LayoutTemplate },
   { to: "/cards", label: "Tarjetas", icon: CreditCard },
@@ -49,7 +51,7 @@ export function App() {
             </NavLink>
           ))}
         </aside>
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           <nav className="flex gap-1 overflow-x-auto border-b bg-background p-2 md:hidden">
             {NAV.map(({ to, label }) => (
               <NavLink
@@ -68,6 +70,7 @@ export function App() {
             <RouteErrorBoundary>
             <Routes>
               <Route path="/" element={<DashboardPage />} />
+              <Route path="/declaration" element={<DeclarationPage />} />
               <Route path="/bills" element={<BillsPage />} />
               <Route path="/bills/new" element={<BillEditPage />} />
               <Route path="/bills/:id" element={<BillEditPage />} />

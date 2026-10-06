@@ -1,6 +1,7 @@
 // Descarga de CFDI desde el portal del SAT (portalcfdi). Port de
 // js/download/download-manager.js del popup: abre una pestaña del portal, llena
 // la búsqueda, lee la tabla de resultados y descarga el XML y el PDF de cada una.
+import { delay, removePageStatus, run, showPageStatus, waitForTabUrl } from "./sat-tab";
 
 export type InvoiceType = "emitidas" | "recibidas";
 
@@ -39,16 +40,11 @@ const QUERY_URL: Record<InvoiceType, string> = {
   emitidas: `${PORTAL}/ConsultaEmisor.aspx`,
   recibidas: `${PORTAL}/ConsultaReceptor.aspx`,
 };
-/** Tiempo máximo para que el usuario (o la e.firma desbloqueada) inicie sesión. */
-const LOGIN_TIMEOUT_MS = 3 * 60 * 1000;
-
 export class DownloadCancelledError extends Error {
   constructor() {
     super("Descarga cancelada");
   }
 }
-
-const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export function monthsBetween(startDate: string, endDate: string): { year: number; month: number }[] {
   const [sy, sm] = startDate.split("-").map(Number);
@@ -58,53 +54,6 @@ export function monthsBetween(startDate: string, endDate: string): { year: numbe
     months.push({ year: y, month: m });
   }
   return months;
-}
-
-/**
- * Espera a que la pestaña llegue a la página de consulta. Si la sesión expiró,
- * el SAT la manda al login: ahí el script de inicio de sesión entra solo si la
- * e.firma está desbloqueada, o el usuario inicia sesión a mano.
- */
-function waitForQueryPage(tabId: number, url: string, isCancelled: () => boolean): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const started = Date.now();
-    const cleanup = () => {
-      chrome.tabs.onUpdated.removeListener(onUpdated);
-      chrome.tabs.onRemoved.removeListener(onRemoved);
-      clearInterval(timer);
-    };
-    const check = (tab: chrome.tabs.Tab) => {
-      if (tab.status === "complete" && tab.url?.startsWith(url)) {
-        cleanup();
-        resolve();
-      }
-    };
-    const onUpdated = (id: number, _info: chrome.tabs.OnUpdatedInfo, tab: chrome.tabs.Tab) => {
-      if (id === tabId) check(tab);
-    };
-    const onRemoved = (id: number) => {
-      if (id !== tabId) return;
-      cleanup();
-      reject(new Error("Se cerró la pestaña del SAT"));
-    };
-    const timer = setInterval(() => {
-      if (isCancelled()) {
-        cleanup();
-        reject(new DownloadCancelledError());
-      } else if (Date.now() - started > LOGIN_TIMEOUT_MS) {
-        cleanup();
-        reject(new Error("No se inició sesión en el SAT a tiempo"));
-      }
-    }, 500);
-    chrome.tabs.onUpdated.addListener(onUpdated);
-    chrome.tabs.onRemoved.addListener(onRemoved);
-    chrome.tabs.get(tabId).then(check, () => {});
-  });
-}
-
-async function run<A extends unknown[], R>(tabId: number, func: (...args: A) => R, args: A): Promise<Awaited<R>> {
-  const [result] = await chrome.scripting.executeScript({ target: { tabId }, func, args });
-  return result.result as Awaited<R>;
 }
 
 // ── Funciones que se inyectan en el portal (no pueden usar nada de fuera) ──
@@ -209,27 +158,6 @@ async function fetchPdf(datos: string) {
   }
 }
 
-function showPageStatus(text: string, percent: number) {
-  let box = document.getElementById("contabilizate-status");
-  if (!box) {
-    box = document.createElement("div");
-    box.id = "contabilizate-status";
-    box.style.cssText =
-      "position:fixed;top:20px;right:20px;width:300px;z-index:999999;background:#fff;border:1px solid #e0e0e0;" +
-      "border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);padding:15px;font:13px system-ui,sans-serif;color:#03301D";
-    box.innerHTML =
-      '<strong>Contabilizate · descargando</strong><div id="contabilizate-status-text" style="margin:8px 0;color:#555"></div>' +
-      '<div style="height:8px;background:#eee;border-radius:4px;overflow:hidden"><div id="contabilizate-status-bar" style="height:100%;width:0;background:#86EE02;transition:width .3s"></div></div>';
-    document.body.appendChild(box);
-  }
-  document.getElementById("contabilizate-status-text")!.textContent = text;
-  (document.getElementById("contabilizate-status-bar") as HTMLElement).style.width = `${percent}%`;
-}
-
-function removePageStatus() {
-  document.getElementById("contabilizate-status")?.remove();
-}
-
 // ── Orquestación (corre en la página de la app) ──
 
 export async function downloadFromSat(
@@ -246,14 +174,14 @@ export async function downloadFromSat(
 
   const report = async (status: string, percent: number) => {
     onProgress({ status, percent: Math.round(percent), done: result.uuids.length, total });
-    await run(tabId, showPageStatus, [status, Math.round(percent)]).catch(() => {});
+    await run(tabId, showPageStatus, ["Contabilizate · descargando", status, Math.round(percent)]).catch(() => {});
   };
   const ensureActive = () => {
     if (isCancelled()) throw new DownloadCancelledError();
   };
 
   onProgress({ status: "Esperando el portal del SAT (inicia sesión si te lo pide)…", percent: 2, done: 0, total: 0 });
-  await waitForQueryPage(tabId, url, isCancelled);
+  await waitForTabUrl(tabId, (u) => u.startsWith(url), isCancelled, () => new DownloadCancelledError());
 
   try {
     await report("Preparando búsqueda…", 10);

@@ -16,6 +16,7 @@ import { typeCFDI } from "@/lib/catalogs";
 import { importCfdiXml } from "@/lib/bill-import";
 import { isExpense, isIncome, MONTH_LABELS } from "@/lib/dashboard";
 import { alive, db, PROFILE_ID, softDelete } from "@/lib/db";
+import type { Bill } from "@/lib/types";
 
 export function BillsPage() {
   const bills = useLiveQuery(async () => alive(await db.bills.orderBy("date").reverse().toArray()), [], []);
@@ -206,65 +207,126 @@ export function BillsPage() {
                 : "Ninguna factura coincide con la búsqueda."}
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Contraparte</TableHead>
-                  <TableHead>Concepto</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="w-32" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* En pantallas chicas, tarjetas: la tabla escondería el concepto. */}
+              <ul className="divide-y rounded-md border md:hidden">
                 {filtered.map((bill) => {
                   const issued = !!profile?.rfc && bill.rfcEmisor === profile.rfc;
                   return (
-                    <TableRow key={bill.id}>
-                      <TableCell className="whitespace-nowrap">{bill.date.slice(0, 10)}</TableCell>
-                      <TableCell>
-                        <Badge variant={issued ? "primary" : "secondary"}>
-                          {typeCFDI[bill.typeBill] ?? bill.typeBill} {issued ? "emitida" : "recibida"}
-                        </Badge>
-                        {bill.cancelled && (
-                          <Badge variant="destructive" className="ml-1">
-                            Cancelada
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">{issued ? bill.nameReceptor : bill.nameEmisor || bill.rfcEmisor}</div>
-                        <div className="text-xs text-muted-foreground">{issued ? bill.rfcReceptor : bill.rfcEmisor}</div>
-                      </TableCell>
-                      <TableCell className="max-w-56 truncate">{bill.description}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(bill.total, bill.currency)}</TableCell>
-                      <TableCell className="whitespace-nowrap text-right">
-                        <IssueInSatDialog
-                          bill={bill}
-                          trigger={
-                            <Button variant="ghost" size="icon" aria-label="Emitir de nuevo en el SAT">
-                              <Send />
-                            </Button>
-                          }
-                        />
-                        <Button variant="ghost" size="icon" asChild aria-label="Editar">
-                          <Link to={`/bills/${bill.id}`}>
-                            <Pencil />
-                          </Link>
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => onDelete(bill.id)} aria-label="Eliminar">
-                          <Trash2 />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                    <li key={bill.id} className="grid gap-1 p-3">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <span className="min-w-0 break-words font-medium">{counterpart(bill, issued)}</span>
+                        <span className="shrink-0 whitespace-nowrap tabular-nums">{formatCurrency(bill.total, bill.currency)}</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {bill.date.slice(0, 10)} · {issued ? bill.rfcReceptor : bill.rfcEmisor}
+                      </div>
+                      <BillConcepts bill={bill} />
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <BillBadges bill={bill} issued={issued} />
+                        <BillActions bill={bill} onDelete={onDelete} />
+                      </div>
+                    </li>
                   );
                 })}
-              </TableBody>
-            </Table>
+              </ul>
+              <Table className="hidden md:table">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Contraparte y concepto</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="w-32" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((bill) => {
+                    const issued = !!profile?.rfc && bill.rfcEmisor === profile.rfc;
+                    return (
+                      <TableRow key={bill.id}>
+                        <TableCell className="whitespace-nowrap align-top">{bill.date.slice(0, 10)}</TableCell>
+                        <TableCell className="align-top">
+                          <BillBadges bill={bill} issued={issued} />
+                        </TableCell>
+                        <TableCell className="whitespace-normal break-words">
+                          <div className="font-medium">{counterpart(bill, issued)}</div>
+                          <div className="text-xs text-muted-foreground">{issued ? bill.rfcReceptor : bill.rfcEmisor}</div>
+                          <div className="mt-1">
+                            <BillConcepts bill={bill} />
+                          </div>
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-right align-top">{formatCurrency(bill.total, bill.currency)}</TableCell>
+                        <TableCell className="whitespace-nowrap text-right align-top">
+                          <BillActions bill={bill} onDelete={onDelete} />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </>
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+/** Conceptos completos de la factura, para reconocer de qué es cada gasto o ingreso. */
+function BillConcepts({ bill }: { bill: Bill }) {
+  if (bill.typeBill === "P") {
+    const paid = bill.payments ?? [];
+    return (
+      <span className="text-sm text-muted-foreground">
+        Complemento de pago{paid.length > 0 && ` de ${paid.length} factura${paid.length > 1 ? "s" : ""}`}
+      </span>
+    );
+  }
+  const concepts = bill.items.map((i) => i.description).filter(Boolean);
+  if (concepts.length === 0) return <span className="text-sm">{bill.description || "—"}</span>;
+  if (concepts.length === 1) return <span className="text-sm">{concepts[0]}</span>;
+  return (
+    <ul className="list-disc space-y-0.5 pl-4 text-sm">
+      {concepts.map((c, i) => (
+        <li key={i}>{c}</li>
+      ))}
+    </ul>
+  );
+}
+
+const counterpart = (bill: Bill, issued: boolean) => (issued ? bill.nameReceptor || bill.rfcReceptor : bill.nameEmisor || bill.rfcEmisor);
+
+function BillBadges({ bill, issued }: { bill: Bill; issued: boolean }) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      <Badge variant={issued ? "primary" : "secondary"}>
+        {typeCFDI[bill.typeBill] ?? bill.typeBill} {issued ? "emitida" : "recibida"}
+      </Badge>
+      {bill.cancelled && <Badge variant="destructive">Cancelada</Badge>}
+    </div>
+  );
+}
+
+function BillActions({ bill, onDelete }: { bill: Bill; onDelete: (id: string) => void }) {
+  return (
+    <div className="flex justify-end">
+      <IssueInSatDialog
+        bill={bill}
+        trigger={
+          <Button variant="ghost" size="icon" aria-label="Emitir de nuevo en el SAT">
+            <Send />
+          </Button>
+        }
+      />
+      <Button variant="ghost" size="icon" asChild aria-label="Editar">
+        <Link to={`/bills/${bill.id}`}>
+          <Pencil />
+        </Link>
+      </Button>
+      <Button variant="ghost" size="icon" onClick={() => onDelete(bill.id)} aria-label="Eliminar">
+        <Trash2 />
+      </Button>
     </div>
   );
 }

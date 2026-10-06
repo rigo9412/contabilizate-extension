@@ -61,6 +61,66 @@ describe("parseCfdi", () => {
   });
 });
 
+const PAGO20 = `<?xml version="1.0" encoding="utf-8"?>
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:pago20="http://www.sat.gob.mx/Pagos20"
+  xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" Version="4.0" Fecha="2026-04-05T09:00:00" SubTotal="0"
+  Moneda="XXX" Total="0" TipoDeComprobante="P" Exportacion="01" LugarExpedicion="88240">
+  <cfdi:Emisor Rfc="RAAR941112L88" Nombre="RIGOBERTO RAMOS APARICIO" RegimenFiscal="626"/>
+  <cfdi:Receptor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" DomicilioFiscalReceptor="42501" RegimenFiscalReceptor="601" UsoCFDI="CP01"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="84111506" Cantidad="1" ClaveUnidad="ACT" Descripcion="Pago" ValorUnitario="0" Importe="0" ObjetoImp="01"/>
+  </cfdi:Conceptos>
+  <cfdi:Complemento>
+    <pago20:Pagos Version="2.0">
+      <pago20:Totales MontoTotalPagos="5675.00"/>
+      <pago20:Pago FechaPago="2026-04-03T12:00:00" FormaDePagoP="03" MonedaP="MXN" TipoCambioP="1" Monto="5675.00">
+        <pago20:DoctoRelacionado IdDocumento="aaaa1111-0000-4000-8000-000000000001" MonedaDR="MXN" EquivalenciaDR="1"
+          NumParcialidad="1" ImpSaldoAnt="11350.00" ImpPagado="5675.00" ImpSaldoInsoluto="5675.00" ObjetoImpDR="02">
+          <pago20:ImpuestosDR>
+            <pago20:RetencionesDR>
+              <pago20:RetencionDR BaseDR="5000.00" ImpuestoDR="001" TipoFactorDR="Tasa" TasaOCuotaDR="0.012500" ImporteDR="62.50"/>
+            </pago20:RetencionesDR>
+            <pago20:TrasladosDR>
+              <pago20:TrasladoDR BaseDR="5000.00" ImpuestoDR="002" TipoFactorDR="Tasa" TasaOCuotaDR="0.160000" ImporteDR="800.00"/>
+            </pago20:TrasladosDR>
+          </pago20:ImpuestosDR>
+        </pago20:DoctoRelacionado>
+      </pago20:Pago>
+    </pago20:Pagos>
+    <tfd:TimbreFiscalDigital Version="1.1" UUID="bbbb2222-0000-4000-8000-000000000002" FechaTimbrado="2026-04-05T09:01:00"/>
+  </cfdi:Complemento>
+</cfdi:Comprobante>`;
+
+describe("parseCfdi · complemento de pago", () => {
+  it("lee los documentos pagados con sus impuestos proporcionales", () => {
+    const { bill } = parseCfdi(PAGO20);
+    expect(bill.typeBill).toBe("P");
+    expect(bill.payments).toEqual([
+      {
+        date: "2026-04-03T12:00:00",
+        relatedUuid: "AAAA1111-0000-4000-8000-000000000001",
+        amountPaid: 5675,
+        partiality: 1,
+        taxes: [
+          { type: "002", section: "traslado", base: 5000, total: 800, porcentageOrValue: "Tasa", factor: "0.160000" },
+          { type: "001", section: "retencion", base: 5000, total: 62.5, porcentageOrValue: "Tasa", factor: "0.012500" },
+        ],
+      },
+    ]);
+  });
+
+  it("lee complementos 1.0 (sin impuestos) y convierte a pesos", () => {
+    const xml = PAGO20.replace(/pago20/g, "pago10")
+      .replace('Version="2.0"', 'Version="1.0"')
+      .replace('MonedaP="MXN" TipoCambioP="1" Monto="5675.00"', 'MonedaP="USD" TipoCambioP="20" Monto="100"')
+      .replace('MonedaDR="MXN" EquivalenciaDR="1"', 'MonedaDR="USD"')
+      .replace('ImpPagado="5675.00"', 'ImpPagado="100"')
+      .replace(/<pago10:ImpuestosDR>[\s\S]*<\/pago10:ImpuestosDR>/, "");
+    const [payment] = parseCfdi(xml).bill.payments!;
+    expect(payment).toMatchObject({ amountPaid: 2000, taxes: [] });
+  });
+});
+
 describe("monthlySummary", () => {
   const RFC = "RAAR941112L88";
   const base = { id: "x", updatedAt: 1, count: true, items: [], subtotal: 0, totalTaxesTranslated: 0, totalTaxesRetention: 0 };

@@ -12,7 +12,13 @@ export interface Profile extends SyncRecord {
   rfc: string;
   postalCode: string;
   regimenFiscal: string;
+  /** De dónde vienen los ingresos de RESICO; el portal pide clasificar el total así. */
+  resicoActivity?: ResicoActivity;
+  /** Acreditar el IVA de gastos en la declaración mensual (apagado por defecto). */
+  creditIva?: boolean;
 }
+
+export type ResicoActivity = "empresarial" | "honorarios" | "arrendamiento" | "agricola";
 
 export interface EncryptedPayload {
   salt: string;
@@ -71,6 +77,23 @@ export interface GlobalInfo {
   anio: string;
 }
 
+/**
+ * Un documento pagado dentro de un complemento de pago (CFDI tipo P): lo que
+ * se cobró de una factura PPD y cuándo. Con esto se calcula el flujo de
+ * efectivo de RESICO.
+ */
+export interface BillPayment {
+  /** Fecha del pago (FechaPago), YYYY-MM-DDTHH:mm:ss. */
+  date: string;
+  /** UUID de la factura PPD que se pagó (IdDocumento), en mayúsculas. */
+  relatedUuid: string;
+  /** Importe pagado en pesos, con IVA y menos retenciones. */
+  amountPaid: number;
+  partiality?: number;
+  /** Impuestos proporcionales al pago (ImpuestosDR) en pesos; vacío en complementos 1.0. */
+  taxes: BillTax[];
+}
+
 export interface Bill extends SyncRecord {
   folio?: string;
   description?: string;
@@ -98,6 +121,10 @@ export interface Bill extends SyncRecord {
   cancelled?: boolean;
   items: BillItem[];
   globalInfo?: GlobalInfo;
+  /** Tipo de cambio del comprobante cuando no es MXN. */
+  exchangeRate?: number;
+  /** Solo en complementos de pago (tipo P). */
+  payments?: BillPayment[];
 }
 
 export type BillDraft = Omit<Bill, keyof SyncRecord>;
@@ -159,4 +186,55 @@ export interface CardStatement extends SyncRecord {
   minimumPayment?: number;
   creditLimit?: number;
   movements: CardMovement[];
+}
+
+export type DeclarationStatus = "borrador" | "autorizada" | "llenada" | "presentada";
+
+/** Renglones de ISR RESICO tal como se capturan en el portal de Declaraciones. */
+export interface IsrResico {
+  /** Ingresos cobrados del mes, sin IVA. */
+  income: number;
+  rate: number;
+  tax: number;
+  retained: number;
+  due: number;
+}
+
+export interface IvaResico {
+  /** Base cobrada por tasa. */
+  taxed16: number;
+  taxed8: number;
+  taxed0: number;
+  exempt: number;
+  notObject: number;
+  translated: number;
+  /** IVA de gastos efectivamente pagados. */
+  creditable: number;
+  retained: number;
+  /** Saldo a favor de meses anteriores que se aplicó. */
+  previousBalance: number;
+  /** Positivo = a cargo; negativo = saldo a favor. */
+  result: number;
+}
+
+/** Valor leído del portal del SAT o capturado por la extensión, por clave de campo. */
+export type PortalValues = Record<string, number | null>;
+
+/** Declaración mensual de RESICO; el id es "YYYY-MM". */
+export interface Declaration extends SyncRecord {
+  year: number;
+  month: number;
+  status: DeclarationStatus;
+  isr: IsrResico;
+  iva: IvaResico;
+  /** Lo que el SAT traía prellenado al abrir la declaración. */
+  satPrefill?: PortalValues;
+  /** Campos que la extensión no encontró y quedaron para captura manual. */
+  missingFields?: string[];
+  /** Pasos del portal que la extensión no pudo completar, en palabras para el usuario. */
+  manualSteps?: string[];
+  operationNumber?: string;
+  captureLine?: string;
+  amountDue?: number;
+  captureLineDueDate?: string;
 }

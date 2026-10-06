@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from "dexie";
-import type { Bill, CardStatement, Profile, SatDownload, SyncRecord, Template, Vault } from "./types";
+import type { Bill, CardStatement, Declaration, Profile, SatDownload, SyncRecord, Template, Vault } from "./types";
 
 export const PROFILE_ID = "me";
 export const VAULT_ID = "efirma";
@@ -11,6 +11,7 @@ export const db = new Dexie("contabilizate") as Dexie & {
   templates: EntityTable<Template, "id">;
   downloads: EntityTable<SatDownload, "id">;
   statements: EntityTable<CardStatement, "id">;
+  declarations: EntityTable<Declaration, "id">;
 };
 
 db.version(1).stores({
@@ -25,7 +26,11 @@ db.version(2).stores({
   statements: "id, updatedAt, periodEnd, cardLast4",
 });
 
-export const SYNC_TABLES = ["profile", "vault", "bills", "templates", "downloads", "statements"] as const;
+db.version(3).stores({
+  declarations: "id, updatedAt",
+});
+
+export const SYNC_TABLES = ["profile", "vault", "bills", "templates", "downloads", "statements", "declarations"] as const;
 export type SyncTableName = (typeof SYNC_TABLES)[number];
 
 export function newId(): string {

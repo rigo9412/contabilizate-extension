@@ -9,8 +9,10 @@ const MONEY = String.raw`\$\s*([\d,]+\.\d{2})`;
 
 const MOVEMENT = new RegExp(String.raw`^(${DATE})\s+(${DATE})\s+(.+?)\s+([+-])\s*${MONEY}$`);
 const FOREIGN = new RegExp(String.raw`^([A-Z]{3})\s*${MONEY}\s+TIPO DE CAMBIO\s*\$\s*([\d,]+\.\d+)$`);
-/** "AMAZON A MESES A 03 MESES S/I": la compra completa, no la mensualidad. */
-const INSTALLMENT_PURCHASE = /\bA MESES A \d+ MESES\b/i;
+/** "01 DE 03 AMAZON A MESES": mensualidad de una compra a meses que ya se contó completa. */
+const INSTALLMENT_PAYMENT = /^\d{1,2} DE \d{1,2}\b.*\bA MESES\b/i;
+/** Anualidad o comisiones: el banco las suma aparte, no van en TOTAL CARGOS. */
+const FEE = /^(ADMINISTRACION TARJ|ANUALIDAD|COMISION)/i;
 const DIGITAL_CARD =/\s*;\s*Tarjeta Digital\s*\*+(\d{4})\s*$/i;
 
 /** "04-dic-2025" → "2025-12-04". */
@@ -67,7 +69,7 @@ export function parseBbvaStatement(lines: string[]): StatementParseResult {
   }
 
   const movements: CardMovement[] = [];
-  const deferred: CardMovement[] = [];
+  const installments: CardMovement[] = [];
   let inRegular = false;
   let totalCharges: number | undefined;
   let totalPayments: number | undefined;
@@ -91,10 +93,11 @@ export function parseBbvaStatement(lines: string[]): StatementParseResult {
     if (m) {
       const [, date, chargeDate, rawDescription, sign, amount] = m;
       const digital = rawDescription.match(DIGITAL_CARD);
-      // La compra a meses sin intereses aparece completa el mes que se hace; lo que se paga
-      // cada mes es la mensualidad, así que el monto completo no se cuenta como gasto del mes.
-      if (sign === "+" && INSTALLMENT_PURCHASE.test(rawDescription)) {
-        deferred.push({ date: parseBbvaDate(date), chargeDate: parseBbvaDate(chargeDate), description: rawDescription.replace(DIGITAL_CARD, "").trim(), amount: money(amount) });
+      // La compra a meses se cuenta completa el día que se hace ("AMAZON A MESES A 03 MESES S/I").
+      // Las mensualidades ("01 DE 03 AMAZON A MESES") son parte de esa compra: contarlas también
+      // la duplicaría, y si se liquida antes las demás ya no aparecen.
+      if (sign === "+" && INSTALLMENT_PAYMENT.test(rawDescription)) {
+        installments.push({ date: parseBbvaDate(date), chargeDate: parseBbvaDate(chargeDate), description: rawDescription.replace(DIGITAL_CARD, "").trim(), amount: money(amount) });
         continue;
       }
       movements.push({
@@ -115,9 +118,11 @@ export function parseBbvaStatement(lines: string[]): StatementParseResult {
     }
   }
 
-  const { sumCharges, sumPayments, warnings } = checkTotals([...movements, ...deferred], totalCharges, totalPayments);
-  for (const d of deferred) {
-    warnings.push(`Compra a meses omitida (se cuenta por mensualidad): ${d.description} $${d.amount}`);
+  // TOTAL CARGOS del banco incluye la compra completa y también sus mensualidades.
+  const regular = movements.filter((m) => !(m.amount > 0 && FEE.test(m.description)));
+  const { sumCharges, sumPayments, warnings } = checkTotals([...regular, ...installments], totalCharges, totalPayments);
+  for (const d of installments) {
+    warnings.push(`Mensualidad omitida (la compra a meses ya se contó completa): ${d.description} $${d.amount}`);
   }
 
   const due = nearLabel(lines, /Fecha l[íi]mite de pago:/i, new RegExp(`(${DATE})`));
