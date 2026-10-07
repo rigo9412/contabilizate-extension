@@ -21,6 +21,9 @@ import {
 } from "@/components/ui/card";
 import { NativeSelect } from "@/components/ui/native-select";
 import { CategoryPie } from "@/features/dashboard/category-pie";
+import { GoalSuggestions } from "@/features/savings/goal-suggestions";
+import { PlanTracking } from "@/features/savings/plan-tracking";
+import { useSavings } from "@/features/savings/use-savings";
 import { HealthBreakdown } from "@/features/dashboard/health-dialog";
 import { SavingTips } from "@/features/dashboard/saving-tips";
 import { IncomeChart } from "@/features/dashboard/income-chart";
@@ -135,6 +138,7 @@ export function DashboardPage() {
     0,
   );
   const vaultStatus = useVaultStatus();
+  const savings = useSavings();
 
   return (
     <>
@@ -153,6 +157,12 @@ export function DashboardPage() {
           </Button>
         }
       />
+
+      {savings.stored && savings.comparison ? (
+        <PlanTracking className="mb-6" stored={savings.stored} comparison={savings.comparison} />
+      ) : (
+        savings.stored === null && <GoalSuggestions className="mb-6 border-accent" />
+      )}
 
       {statements.length > 0 && (
         <SavingTips

@@ -16,6 +16,18 @@ export interface Profile extends SyncRecord {
   resicoActivity?: ResicoActivity;
   /** Acreditar el IVA de gastos en la declaración mensual (apagado por defecto). */
   creditIva?: boolean;
+  /** Ingresos recurrentes (sueldo, renta…) que sirven de referencia para el plan de ahorro. */
+  fixedIncomes?: FixedIncome[];
+}
+
+export type IncomeFrequency = "semanal" | "quincenal" | "mensual" | "bimestral" | "anual";
+
+export interface FixedIncome {
+  id: string;
+  name: string;
+  /** Monto que realmente te llega cada vez (ya neto de impuestos). */
+  amount: number;
+  frequency: IncomeFrequency;
 }
 
 export type ResicoActivity = "empresarial" | "honorarios" | "arrendamiento" | "agricola";
@@ -237,4 +249,20 @@ export interface Declaration extends SyncRecord {
   captureLine?: string;
   amountDue?: number;
   captureLineDueDate?: string;
+}
+
+/** Plan de ahorro guardado; hay uno solo (id "main") y se compara cada mes contra lo real. */
+export interface SavingsPlan extends SyncRecord {
+  name: string;
+  target: number;
+  /** Lo ahorrado al arrancar el plan. */
+  initialSaved: number;
+  /** Primer mes del plan, "YYYY-MM". */
+  startMonth: string;
+  deadlineMonths: number;
+  /** Cuota mensual comprometida (fija al guardar). */
+  monthlyGoal: number;
+  /** Supuestos con los que se armó, solo informativos. */
+  income: number;
+  spent: number;
 }

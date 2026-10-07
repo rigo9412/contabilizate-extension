@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Lock, Unlock } from "lucide-react";
+import { Lock, Plus, Trash2, Unlock } from "lucide-react";
 import { toast } from "sonner";
 import { Field } from "@/components/field";
 import { PageTitle } from "@/components/page-title";
@@ -10,10 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { taxRegimes } from "@/lib/catalogs";
-import { db, PROFILE_ID, save, VAULT_ID } from "@/lib/db";
+import { db, newId, PROFILE_ID, save, VAULT_ID } from "@/lib/db";
 import { RESICO_ACTIVITIES } from "@/lib/resico";
 import { RFC_REGEX } from "@/lib/sat";
-import type { Profile, ResicoActivity } from "@/lib/types";
+import { FREQUENCY_LABELS, fixedIncomeMonthly, monthlyEquivalent } from "@/lib/savings-plan";
+import { useHideAmounts } from "@/lib/privacy";
+import type { FixedIncome, IncomeFrequency, Profile, ResicoActivity } from "@/lib/types";
 import { useVaultStatus } from "@/lib/use-vault-status";
 import { lockVault, saveVault, unlockVault } from "@/lib/vault";
 
@@ -25,6 +27,7 @@ export function ProfilePage() {
       <PageTitle title="Perfil y e.firma" description="Datos fiscales del emisor y certificados para el SAT." />
       <div className="grid gap-6">
         <ProfileForm />
+        <FixedIncomesCard />
         <VaultCard />
       </div>
     </>
@@ -58,7 +61,13 @@ function ProfileForm() {
       return;
     }
     const { resicoActivity, ...rest } = form;
-    await save<Profile>(db.profile, { id: PROFILE_ID, ...rest, rfc, ...(resicoActivity && { resicoActivity }) });
+    await save<Profile>(db.profile, {
+      id: PROFILE_ID,
+      ...rest,
+      rfc,
+      ...(resicoActivity && { resicoActivity }),
+      ...(stored?.fixedIncomes && { fixedIncomes: stored.fixedIncomes }),
+    });
     toast.success("Perfil guardado");
   }
 
@@ -101,6 +110,91 @@ function ProfileForm() {
             <Button type="submit">Guardar perfil</Button>
           </div>
         </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function FixedIncomesCard() {
+  const profile = useLiveQuery(() => db.profile.get(PROFILE_ID));
+  const { money } = useHideAmounts();
+  const [rows, setRows] = useState<FixedIncome[]>([]);
+
+  useEffect(() => {
+    setRows(profile?.fixedIncomes ?? []);
+  }, [profile]);
+
+  const update = (id: string, patch: Partial<FixedIncome>) =>
+    setRows((r) => r.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+
+  async function onSave() {
+    if (!profile) return;
+    const clean = rows.filter((r) => r.amount > 0).map((r) => ({ ...r, name: r.name.trim() || "Ingreso" }));
+    await save<Profile>(db.profile, { ...profile, fixedIncomes: clean });
+    toast.success("Ingresos fijos guardados");
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Ingresos fijos</CardTitle>
+        <CardDescription>
+          Sueldo, renta u otros ingresos recurrentes, por el monto que te llega neto. El Plan de ahorro los toma como
+          referencia de tu ingreso mensual.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        {!profile && <p className="text-sm text-muted-foreground">Guarda primero tus datos fiscales.</p>}
+        {rows.map((r) => (
+          <div key={r.id} className="grid items-end gap-3 sm:grid-cols-[1fr_8rem_9rem_auto]">
+            <Field label="Concepto">
+              <Input value={r.name} onChange={(e) => update(r.id, { name: e.target.value })} placeholder="Sueldo" />
+            </Field>
+            <Field label="Monto">
+              <Input
+                type="number"
+                min="0"
+                inputMode="decimal"
+                value={r.amount || ""}
+                onChange={(e) => update(r.id, { amount: Number(e.target.value) })}
+              />
+            </Field>
+            <Field label="Frecuencia">
+              <NativeSelect
+                value={r.frequency}
+                onChange={(e) => update(r.id, { frequency: e.target.value as IncomeFrequency })}
+                options={FREQUENCY_LABELS}
+                showKey={false}
+              />
+            </Field>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              aria-label="Quitar ingreso"
+              onClick={() => setRows((x) => x.filter((i) => i.id !== r.id))}
+            >
+              <Trash2 />
+            </Button>
+            <p className="text-xs text-muted-foreground sm:col-span-4">≈ {money(monthlyEquivalent(r))} al mes</p>
+          </div>
+        ))}
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!profile}
+            onClick={() => setRows((r) => [...r, { id: newId(), name: "", amount: 0, frequency: "mensual" }])}
+          >
+            <Plus /> Agregar ingreso
+          </Button>
+          <Button type="button" disabled={!profile} onClick={onSave}>
+            Guardar ingresos fijos
+          </Button>
+          {rows.length > 0 && (
+            <span className="text-sm text-muted-foreground">Total ≈ {money(fixedIncomeMonthly(rows))} al mes</span>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
