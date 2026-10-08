@@ -74,6 +74,11 @@ code { background: rgba(255, 255, 255, 0.08); padding: 2px 6px; border-radius: 6
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
+/* Demo */
+.demo { text-align: center; padding: 100px 0; border-top: 1px solid var(--line); }
+.demo-gif { max-width: 960px; width: 100%; margin: 48px auto 0; }
+.demo-note { font-size: 0.85rem; margin-top: 14px; }
+
 /* Funciones */
 .features { background: var(--bg-2); padding: 100px 0; border-top: 1px solid var(--line); }
 .feature { display: grid; grid-template-columns: 5fr 7fr; align-items: center; gap: 56px; margin-top: 90px; }
@@ -135,7 +140,7 @@ footer span { display: inline-flex; align-items: center; gap: 8px; }
   .nav nav a:not(.nav-cta) { display: none; }
   .hero { padding-top: 56px; }
   .cards { grid-template-columns: 1fr; }
-  .features, .privacy, .install { padding: 72px 0; }
+  .features, .privacy, .install, .demo { padding: 72px 0; }
   footer .wrap { flex-direction: column; text-align: center; }
 }
 
