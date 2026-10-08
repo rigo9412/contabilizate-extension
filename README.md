@@ -7,6 +7,7 @@ A Chrome extension designed to automate form filling in the Mexican SAT (Tax Adm
 - Automated login using e.firma (electronic signature)
 - Automated bill/invoice form filling (including global invoices)
 - Monthly dashboard: income, expenses and margin computed from your CFDI, with VAT and withholdings
+- Optional monthly declaration reminder, delivered on the 17th at 9 a.m.
 - Credit card spending: import PDF statements (BBVA and Nu) and analyze spending by category
 - Download CFDI from the SAT or import XML files by dragging them in
 - Client/concept templates, with automatic dates in descriptions
@@ -137,6 +138,7 @@ The extension requires permissions to:
 - Access local storage (including unlimited storage for the local database)
 - Download files (CFDI and backups)
 - Sign in with Google (`identity`) for Drive sync
+- Optional alarms and notifications for a monthly declaration reminder, enabled by the user
 
 ## Development
 

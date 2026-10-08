@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { CompareTable } from "@/features/declaration/compare-table";
+import { DeclarationReminder } from "@/features/declaration/declaration-reminder";
 import { CreditIvaToggle, ExpenseList, IncomeTable, IsrBreakdown, IvaBreakdown, Line, Step } from "@/features/declaration/guide-steps";
 import { importCfdiXml } from "@/lib/bill-import";
 import { availableYears, MONTH_LABELS } from "@/lib/dashboard";
@@ -179,6 +180,8 @@ export function DeclarationPage() {
             </div>
           </CardContent>
         </Card>
+
+        <DeclarationReminder />
 
         {calc.warnings.length > 0 && (
           <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/20">

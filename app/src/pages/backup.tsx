@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DriveSyncCard } from "@/features/sync/drive-sync-card";
+import { FileSyncCard } from "@/features/sync/file-sync-card";
 import { backupFileName, BackupNeedsPasswordError, exportBackup, importBackup } from "@/lib/backup";
 
 export function BackupPage() {
@@ -14,10 +15,11 @@ export function BackupPage() {
     <>
       <PageTitle
         title="Respaldo y sincronización"
-        description="Sincroniza tus datos con Google Drive o expórtalos a un archivo para restaurarlos en otro navegador."
+        description="Sincroniza tus datos con Google Drive, con un archivo en una carpeta que ya sincronizas, o expórtalos a un archivo para restaurarlos en otro navegador."
       />
       <div className="grid gap-6 md:grid-cols-2">
         <DriveSyncCard />
+        <FileSyncCard />
         <ExportCard />
         <ImportCard />
       </div>

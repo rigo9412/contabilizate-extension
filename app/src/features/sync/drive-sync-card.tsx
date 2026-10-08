@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { disconnect, isDriveConfigured } from "@/lib/drive";
 import { getSyncSettings, syncNow, updateSyncSettings, type SyncSettings } from "@/lib/sync";
 
-function useSyncSettings() {
+export function useSyncSettings() {
   const [settings, setSettings] = useState<SyncSettings>({ enabled: false });
   const refresh = useCallback(() => {
     getSyncSettings().then(setSettings);
@@ -20,18 +20,21 @@ function useSyncSettings() {
   return [settings, refresh] as const;
 }
 
-const summary = (r?: { added: number; updated: number }) =>
-  !r || r.added + r.updated === 0 ? "sin cambios de otros dispositivos" : `${r.added} nuevos y ${r.updated} actualizados desde Drive`;
+export const summary = (r?: { added: number; updated: number }) =>
+  !r || r.added + r.updated === 0 ? "sin cambios de otros dispositivos" : `${r.added} nuevos y ${r.updated} actualizados desde otro navegador`;
 
 export function DriveSyncCard() {
-  const [settings, refresh] = useSyncSettings();
+  const [stored, refresh] = useSyncSettings();
+  // Solo un proveedor activo a la vez: si sincroniza por archivo, Drive aparece desactivado.
+  const settings = { ...stored, enabled: stored.enabled && stored.provider !== "file" };
   const [busy, setBusy] = useState(false);
 
   async function onSync(interactive: boolean) {
     setBusy(true);
     try {
+      if (stored.provider === "file") await updateSyncSettings({ provider: "drive", enabled: false });
       const result = await syncNow({ interactive });
-      if (!settings.enabled) await updateSyncSettings({ enabled: true });
+      if (!settings.enabled) await updateSyncSettings({ enabled: true, provider: "drive" });
       toast.success(`Sincronizado: ${summary(result)}`);
     } catch (err) {
       toast.error((err as Error).message);

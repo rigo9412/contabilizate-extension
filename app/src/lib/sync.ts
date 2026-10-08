@@ -3,6 +3,7 @@
 // tombstones) y sube el resultado. Misma regla que importar un respaldo.
 import { mergeSnapshot, takeSnapshot, type MergeResult, type Snapshot } from "./backup";
 import { createDriveClient, getToken, type DriveClient } from "./drive";
+import { createFileClient, ensurePermission, getSavedHandle } from "./file-sync";
 
 const SYNC_FORMAT = "contabilizate-sync";
 const SYNC_VERSION = 1;
@@ -15,8 +16,14 @@ interface SyncFile {
   tables: Snapshot;
 }
 
+/** Dónde se guarda la copia compartida: Drive (por defecto) o un archivo que elige el usuario. */
+export type SyncProvider = "drive" | "file";
+
 export interface SyncSettings {
   enabled: boolean;
+  provider?: SyncProvider;
+  /** Nombre del archivo elegido, solo para mostrarlo. */
+  fileName?: string;
   lastSyncAt?: number;
   lastError?: string;
   lastResult?: MergeResult;
@@ -55,14 +62,22 @@ export async function syncWith(client: DriveClient): Promise<MergeResult> {
   return result;
 }
 
+async function createClient(provider: SyncProvider = "drive", interactive: boolean): Promise<DriveClient> {
+  if (provider === "drive") return createDriveClient(await getToken(interactive));
+  const handle = await getSavedHandle();
+  if (!handle) throw new Error("No hay archivo de sincronización elegido");
+  await ensurePermission(handle, interactive);
+  return createFileClient(handle);
+}
+
 let running: Promise<MergeResult> | null = null;
 
 /** Sincroniza ahora; si ya hay una sincronización en curso, espera esa. */
 export function syncNow(options: { interactive?: boolean } = {}): Promise<MergeResult> {
   running ??= (async () => {
     try {
-      const token = await getToken(options.interactive ?? false);
-      const result = await syncWith(createDriveClient(token));
+      const interactive = options.interactive ?? false;
+      const result = await syncWith(await createClient((await getSyncSettings()).provider, interactive));
       await updateSyncSettings({ lastSyncAt: Date.now(), lastError: undefined, lastResult: result });
       return result;
     } catch (err) {

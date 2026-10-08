@@ -11,6 +11,10 @@
         "unlimitedStorage",
         "identity"
     ],
+    "optional_permissions": [
+        "alarms",
+        "notifications"
+    ],
     "host_permissions": [
         "https://*.sat.gob.mx/*",
         "https://portal.facturaelectronica.sat.gob.mx/*"

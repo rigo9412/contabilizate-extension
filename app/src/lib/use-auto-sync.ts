@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { db, SYNC_TABLES } from "./db";
-import { isDriveConfigured } from "./drive";
 import { getSyncSettings, isSyncing, syncNow } from "./sync";
 
 /** Espera tras el último cambio antes de subirlo, para juntar ediciones seguidas. */
@@ -9,13 +8,12 @@ const CHANGE_DEBOUNCE_MS = 10_000;
 const STALE_MS = 2 * 60_000;
 
 /**
- * Sincroniza con Drive al abrir la app, unos segundos después de cada cambio
+ * Sincroniza (Drive o archivo) al abrir la app, unos segundos después de cada cambio
  * local y al volver a la pestaña. Nunca abre la ventana de Google: si falta
  * permiso, el error queda en la configuración y se muestra en Respaldo.
  */
 export function useAutoSync() {
   useEffect(() => {
-    if (!isDriveConfigured()) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     const run = async () => {
