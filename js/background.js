@@ -5,6 +5,9 @@ const URL_LOGIN_FIEL =
   "https://cfdiau.sat.gob.mx/nidp/app/login?id=SATx509Custom";
 const URL_PASSWORD_LOGIN =
   "https://cfdiau.sat.gob.mx/nidp/wsfed/ep?id=SATUPCFDiCon";
+// Login del portal de declaraciones (pstcdypisr): mismo formulario del SAT en otro
+// dominio; el script de login solo actúa si ve "Acceso por contraseña" o "Acceso con e.firma".
+const URL_DECLARATION_LOGIN = "https://loginda.siat.sat.gob.mx/nidp/";
 const DECLARATION_REMINDER_ALARM = "monthly-declaration-reminder";
 const DECLARATION_REMINDER_KEY = "monthlyDeclarationReminderEnabled";
 const DECLARATION_REMINDER_PERMISSIONS = ["alarms", "notifications"];
@@ -160,7 +163,8 @@ function ActiveQueryByURL(tabId, url) {
       });
     } else if (
       url.includes(URL_LOGIN_FIEL) ||
-      url.includes(URL_PASSWORD_LOGIN)
+      url.includes(URL_PASSWORD_LOGIN) ||
+      url.startsWith(URL_DECLARATION_LOGIN)
     ) {
       console.log("INJECTAR LOGIN:", url);
       chrome.scripting.executeScript({

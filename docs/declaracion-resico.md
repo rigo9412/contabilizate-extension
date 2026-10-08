@@ -120,8 +120,11 @@ directo al nuevo portal de pagos provisionales:
 `https://pstcdypisr.clouda.sat.gob.mx/Declaracion/Temporales`. El portal viejo
 (`ptscdecprov`) ya no ofrece las obligaciones de RESICO.
 
-- Acceso: RFC + contraseña (con captcha) o **e.firma**. La extensión **nunca
-  resuelve captchas**; el usuario entra y la app espera hasta 3 minutos. Si el
+- Acceso: RFC + contraseña (con captcha) o **e.firma**. El portal manda a
+  `loginda.siat.sat.gob.mx/nidp/…`; con la e.firma desbloqueada, `js/background.js`
+  inyecta ahí el mismo login de facturas (`js/forms/fill-form-sign-in.js`: pasa
+  a *e.firma*, carga `.cer`/`.key`/contraseña y envía). La extensión **nunca
+  resuelve captchas**; sin e.firma el usuario entra y la app espera hasta 3 minutos. Si el
   portal falla, el SAT recomienda cambiar de navegador.
 
 Pantallas, en orden:

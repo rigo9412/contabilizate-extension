@@ -244,6 +244,8 @@ Pestañas: `#285,INVS01V2-tab` Determinación · `#4543-tab` Pago.
 - **Obligatorios aunque vayan en 0:** "Descuentos… de integrantes por
   copropiedad" (`E{e}0001PSAT1100608`, dentro de Descuentos) y los dos renglones
   del ISR retenido: "a adicionar (+)" y "no acreditable (-)".
+  En IVA, la ventana de "IVA acreditable del periodo" (`E{e}0006PSAT1200602` y
+  `…603` en 0 si no hay gastos): si queda vacía, Pago no se desbloquea.
 - **Pestañas:** se desbloquean en orden (Pago queda `disabled` hasta pasar por
   Determinación). La obligación solo queda completa (`span.checkOn` en el menú)
   si se recorren todas y luego se guarda.

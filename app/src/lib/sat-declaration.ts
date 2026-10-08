@@ -254,6 +254,7 @@ export type AgentAction =
   | { type: "prepareForm" }
   | { type: "open"; entity: string }
   | { type: "visitTabs"; entity: string }
+  | { type: "complete"; entity: string }
   | { type: "read"; entity: string; fields: { key: string; codes: PortalKey[] }[] }
   | { type: "write"; entity: string; fields: { key: string; codes: PortalKey[]; value: number }[] }
   | { type: "setSelect"; entity: string; key: PortalKey; value: string }
@@ -414,7 +415,13 @@ export async function portalAgent(action: AgentAction): Promise<unknown> {
         tab.click();
         await wait(1200);
       }
-      return tabs.length;
+      // Una pestaña sigue bloqueada si falta un obligatorio en las anteriores. El texto trae un contador al final.
+      return tabs.filter((t) => t.classList.contains("disabled")).map((t) => (t.textContent ?? "").trim().replace(/\d+$/, ""));
+    }
+    case "complete": {
+      // En la administración de la declaración, la obligación completa lleva la palomita encendida.
+      const mark = document.querySelector(`a.opcion-menu[data-titulo-grupo="${action.entity}group1"] span`);
+      return !!mark?.classList.contains("checkOn");
     }
     case "read": {
       const values: Record<string, number | null> = {};
@@ -672,20 +679,19 @@ export async function fillDeclaration(
 
     await report("Capturando IVA…", 75);
     missing.push(...(await agent<string[]>(tabId, { type: "write", entity: iva, fields: ivaPlan.direct })));
-    if (ivaPlan.creditable !== 0) {
-      const keys = PORTAL_KEYS.iva;
-      const ok = await agent<boolean>(tabId, {
-        type: "modal",
-        entity: iva,
-        target: keys.creditable,
-        rows: [],
-        fields: [
-          { key: keys.creditableTaxed, value: ivaPlan.creditable },
-          { key: keys.creditableMixed, value: 0 },
-        ],
-      });
-      if (!ok) manualSteps.push(`En "IVA acreditable del periodo" → Capturar, escribe $${ivaPlan.creditable}; en "actividades mixtas" pon 0.`);
-    }
+    // La ventana del IVA acreditable es obligatoria aunque vaya en cero; sin ella Pago queda bloqueada.
+    const keys = PORTAL_KEYS.iva;
+    const creditable = await agent<boolean>(tabId, {
+      type: "modal",
+      entity: iva,
+      target: keys.creditable,
+      rows: [],
+      fields: [
+        { key: keys.creditableTaxed, value: ivaPlan.creditable },
+        { key: keys.creditableMixed, value: 0 },
+      ],
+    });
+    if (!creditable) manualSteps.push(`En "IVA acreditable del periodo" → Capturar, escribe $${ivaPlan.creditable}; en "actividades mixtas" pon 0.`);
     await delay(1000);
     Object.assign(after, await agent<PortalValues>(tabId, { type: "read", entity: iva, fields: fieldsOf("iva") }));
     await finishObligation(tabId, iva, PORTAL_KEYS.iva, manualSteps, "IVA");
@@ -759,26 +765,22 @@ async function captureIsr(tabId: number, entity: string, plan: FillPlan["isr"]):
   });
   if (!classified) pending.push(`En "Total de ingresos percibidos" → Capturar, agrega tu tipo de ingreso por $${income}.`);
 
-  if (plan.retainedToAdd !== 0) {
-    // En "Ver detalle" del ISR retenido: lo que falta se adiciona y lo que sobra va como no acreditable;
-    // el portal pide los dos renglones, el otro en cero.
-    const ok = await agent<boolean>(tabId, {
-      type: "modal",
-      entity,
-      target: keys.retained,
-      rows: [],
-      fields: [
-        { key: keys.retainedAdd, value: Math.max(0, plan.retainedToAdd) },
-        { key: keys.retainedNotCreditable, value: Math.max(0, -plan.retainedToAdd) },
-      ],
-    });
-    if (!ok) {
-      pending.push(
-        plan.retainedToAdd > 0
-          ? `En ISR retenido → Ver detalle, escribe $${plan.retainedToAdd} en "ISR retenido a adicionar".`
-          : `En ISR retenido → Ver detalle, escribe $${-plan.retainedToAdd} en "ISR retenido no acreditable".`,
-      );
-    }
+  // "Ver detalle" del ISR retenido: lo que falta se adiciona y lo que sobra va como no acreditable.
+  // El portal pide los dos renglones aunque la diferencia sea cero ("no acreditable" viene vacío).
+  const retained = await agent<boolean>(tabId, {
+    type: "modal",
+    entity,
+    target: keys.retained,
+    rows: [],
+    fields: [
+      { key: keys.retainedAdd, value: Math.max(0, plan.retainedToAdd) },
+      { key: keys.retainedNotCreditable, value: Math.max(0, -plan.retainedToAdd) },
+    ],
+  });
+  if (!retained) {
+    pending.push(
+      `En ISR retenido → Ver detalle, escribe $${Math.max(0, plan.retainedToAdd)} en "ISR retenido a adicionar" y $${Math.max(0, -plan.retainedToAdd)} en "ISR retenido no acreditable".`,
+    );
   }
   return pending;
 }
@@ -794,7 +796,10 @@ async function finishObligation(
   manualSteps: string[],
   name: string,
 ) {
-  await agent(tabId, { type: "visitTabs", entity });
+  const blocked = await agent<string[]>(tabId, { type: "visitTabs", entity });
+  if (blocked.length > 0) {
+    manualSteps.push(`${name}: la pestaña ${blocked.join(", ")} no se desbloqueó; revisa los campos marcados en rojo.`);
+  }
   for (const [key, question] of [
     [keys.compensations, "compensaciones"],
     [keys.stimulus, "estímulos"],
@@ -808,6 +813,9 @@ async function finishObligation(
     manualSteps.push(`Después de ${name}, presiona "Administración de la declaración".`);
   }
   await delay(2500);
+  if (!(await agent<boolean>(tabId, { type: "complete", entity }))) {
+    manualSteps.push(`${name} quedó incompleto en el SAT: ábrelo, corrige los campos marcados en rojo y presiona Guardar.`);
+  }
 }
 
 /**

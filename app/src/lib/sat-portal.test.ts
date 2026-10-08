@@ -197,6 +197,24 @@ describe("formulario de ISR e IVA RESICO", () => {
     expect(close).not.toHaveBeenCalled();
   });
 
+  it("llena los dos renglones del ISR retenido aunque la diferencia sea cero", async () => {
+    const keys = PORTAL_KEYS.isr;
+    expect(byKey("E4570020PSAT1101216").value).toBe("");
+    const ok = await act({
+      type: "modal",
+      entity: "457",
+      target: keys.retained,
+      rows: [],
+      fields: [
+        { key: keys.retainedAdd, value: 0 },
+        { key: keys.retainedNotCreditable, value: 0 },
+      ],
+    });
+    expect(ok).toBe(true);
+    expect(byKey("E4570020PSUMAISR007").value).toBe("0");
+    expect(byKey("E4570020PSAT1101216").value).toBe("0");
+  });
+
   it("captura el IVA acreditable con mixtas en cero", async () => {
     const keys = PORTAL_KEYS.iva;
     const ok = await act({
@@ -215,10 +233,29 @@ describe("formulario de ISR e IVA RESICO", () => {
   });
 
   it("recorre las pestañas de la obligación en orden", async () => {
+    const tabs = Array.from(document.querySelectorAll<HTMLElement>('a.nav-link[href^="#tab457"]'));
     const clicked: string[] = [];
-    for (const tab of document.querySelectorAll('a.nav-link[href^="#tab457"]')) tab.addEventListener("click", () => clicked.push(tab.textContent!.trim()));
-    expect(await act({ type: "visitTabs", entity: "457" })).toBe(4);
-    expect(clicked.map((t) => t.replace(/\d+$/, ""))).toEqual(["Ingresos", "Determinación", "Pago", "Datos adicionales"]);
+    // El portal desbloquea la siguiente pestaña al pasar por la anterior.
+    tabs.forEach((tab, i) =>
+      tab.addEventListener("click", () => {
+        clicked.push(tab.textContent!.trim().replace(/\d+$/, ""));
+        tabs[i + 1]?.classList.remove("disabled");
+      }),
+    );
+    expect(await act({ type: "visitTabs", entity: "457" })).toEqual([]);
+    expect(clicked).toEqual(["Ingresos", "Determinación", "Pago", "Datos adicionales"]);
+  });
+
+  it("reporta las pestañas que siguen bloqueadas", async () => {
+    // Sin el JS del portal nada se desbloquea, como cuando falta un obligatorio.
+    expect(await act({ type: "visitTabs", entity: "457" })).toEqual(["Determinación", "Pago", "Datos adicionales"]);
+  });
+
+  it("sabe si la obligación quedó completa en la administración", async () => {
+    expect(await act({ type: "complete", entity: "454" })).toBe(false);
+    const mark = document.querySelector('a.opcion-menu[data-titulo-grupo="454group1"] span')!;
+    mark.className = "checkOn";
+    expect(await act({ type: "complete", entity: "454" })).toBe(true);
   });
 
   it("guarda con el enlace GUARDAR de la obligación", async () => {
