@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Contabilizate: tus ingresos, gastos e impuestos sin hojas de cálculo</title>
-  <meta name="description" content="Extensión de Chrome gratuita para freelancers en México: dashboard de ingresos, gastos, tarjetas, IVA y retenciones a partir de tus facturas del SAT. Todo se queda en tu navegador.">
+  <meta name="description" content="Extensión de Chrome gratuita para freelancers en México: dashboard de ingresos, gastos, tarjetas, IVA y retenciones a partir de tus facturas del SAT, declaración mensual RESICO y plan de ahorro. Todo se queda en tu navegador.">
   <meta name="theme-color" content="#0c2418">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Contabilizate: tus ingresos, gastos e impuestos sin hojas de cálculo">
@@ -32,7 +32,7 @@
       <span class="eyebrow">Para freelancers y negocios en México</span>
       <h1>Ingresos, gastos e impuestos <span class="accent">sin hojas de cálculo</span></h1>
       <p class="lead">Deja de cruzar facturas del SAT con estados de cuenta cada mes. Contabilizate convierte tus CFDI en un
-        dashboard mes a mes, directo en tu navegador.</p>
+        dashboard mes a mes, calcula tu declaración RESICO y te ayuda a ahorrar, directo en tu navegador.</p>
       <div class="pills">
         <span>🆓 100% gratis</span>
         <span>💻 Sin servidores</span>
@@ -61,6 +61,7 @@
             <li>Oculta los montos con un clic</li>
             <li>IVA trasladado y retenciones, ya calculados</li>
             <li>De dónde vienen tus ingresos y tus gastos</li>
+            <li>Salud financiera: cuánto ahorras de verdad y por qué</li>
             <li>No cuenta facturas canceladas ni excluidas</li>
           </ul>
         </div>
@@ -75,6 +76,7 @@
           <ul>
             <li>Categorías, gastos hormiga y cargos recurrentes</li>
             <li>Recomendaciones de ahorro con montos estimados</li>
+            <li>Totales por mes y filtro por categoría</li>
             <li>Cuánto gastas por día de la semana</li>
           </ul>
         </div>
@@ -94,6 +96,44 @@
         </div>
         <img class="shot" src="img/bills.jpg" alt="Lista de facturas emitidas y recibidas" loading="lazy" width="1600" height="1000">
       </article>
+
+      <article class="feature reverse">
+        <div class="copy">
+          <span class="tag">Declaración mensual</span>
+          <h3>Tu declaración RESICO, <span class="accent">ya calculada</span></h3>
+          <p>Calcula el ISR y el IVA del mes con lo que realmente cobraste y pagaste, y llena el portal de Declaraciones del SAT por ti. Tú solo revisas y envías.</p>
+          <ul>
+            <li>Flujo de efectivo: PUE, PPD con complementos de pago y notas de crédito</li>
+            <li>Compara tu cálculo con lo que muestra el SAT</li>
+            <li>Fecha límite según tu RFC</li>
+            <li>Recordatorio opcional el día 17 de cada mes</li>
+          </ul>
+        </div>
+        <div class="mock" role="img" aria-label="Ejemplo de cálculo de la declaración mensual RESICO con ISR e IVA">
+          <div class="mock-head"><b>Declaración de septiembre</b><span class="mock-badge">Capturada en el SAT</span></div>
+          <div class="mock-group">
+            <span class="mock-label">ISR</span>
+            <div class="mock-row"><span>Ingresos cobrados</span><span>$48,500.00</span></div>
+            <div class="mock-row"><span>Tasa RESICO</span><span>1.10 %</span></div>
+            <div class="mock-row"><span>ISR retenido</span><span>−$312.50</span></div>
+            <div class="mock-row total"><span>ISR a cargo</span><span>$221.00</span></div>
+          </div>
+          <div class="mock-group">
+            <span class="mock-label">IVA</span>
+            <div class="mock-row"><span>IVA trasladado</span><span>$7,760.00</span></div>
+            <div class="mock-row"><span>IVA acreditable</span><span>−$1,184.00</span></div>
+            <div class="mock-row"><span>IVA retenido</span><span>−$2,666.67</span></div>
+            <div class="mock-row total"><span>IVA a cargo</span><span>$3,909.33</span></div>
+          </div>
+          <div class="mock-foot">Fecha límite según tu RFC · Tú envías la declaración</div>
+        </div>
+      </article>
+
+      <div class="more">
+        <div class="card"><b>🎯 Plan de ahorro</b><p>Proyecta cuánto puedes apartar con tus ingresos, cuándo llegas a tu meta y si vas al corriente mes a mes.</p></div>
+        <div class="card"><b>🔄 Sincroniza tus navegadores</b><p>Con la carpeta oculta de tu Google Drive o con un archivo en iCloud, OneDrive o Dropbox.</p></div>
+        <div class="card"><b>💾 Respaldos cifrados</b><p>Exporta todo a un archivo con contraseña y restáuralo en otro navegador.</p></div>
+      </div>
     </div>
   </section>
 
@@ -101,11 +141,11 @@
     <div class="wrap">
       <img src="img/logo.png" alt="" width="72" height="65">
       <h2 class="section-title">Tus datos son <span class="accent">tuyos</span></h2>
-      <p class="lead">Contabilizate no tiene servidores. Tus facturas, tus estados de cuenta y tu e.firma nunca salen de tu computadora.</p>
+      <p class="lead">Contabilizate no tiene servidores. Tus facturas, tus estados de cuenta y tu e.firma nunca llegan a nosotros ni a nadie más.</p>
       <div class="cards">
         <div class="card"><b>🆓 Gratis, de verdad</b><p>Sin suscripciones, planes premium ni anuncios.</p></div>
         <div class="card"><b>💻 Todo en tu navegador</b><p>Todo se procesa y se guarda en tu computadora. No hay cuentas ni rastreo.</p></div>
-        <div class="card"><b>🔒 Nada se comparte</b><p>Solo se conecta al portal del SAT cuando tú facturas o descargas.</p></div>
+        <div class="card"><b>🔒 Nada se comparte</b><p>Solo se conecta al SAT cuando tú facturas, descargas o declaras, y a tu Google Drive si activas la sincronización.</p></div>
         <div class="card"><b>🔑 e.firma cifrada</b><p>Se guarda cifrada con su propia contraseña.</p></div>
         <div class="card"><b>🙈 Montos ocultos</b><p>Ábrela con alguien al lado sin enseñar tus números.</p></div>
         <div class="card"><b>🧑‍💻 Código abierto</b><p>Revisa exactamente qué hace en <a href="https://github.com/rigo9412/contabilizate-extension">GitHub</a>.</p></div>
