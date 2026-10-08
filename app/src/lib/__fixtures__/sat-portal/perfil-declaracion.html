@@ -1,0 +1,126 @@
+<!doctype html>
+<!-- pstcdypisr.clouda.sat.gob.mx/Declaracion/PerfilDeclaracion con 2026 / Mensual / Octubre / Normal elegidos (v24.0.0, oct 2026). -->
+<html lang="es"><head>
+    <meta charset="utf-8">
+    <title>Declaración Provisional o Definitiva de Impuestos Federales</title>
+</head>
+<body>
+<div class="container-fluid userHeader py-2">
+    <div class="container">
+        <div class="row align-items-center text-center">
+            <div class="col-md-3 text-xs-center text-sm-center text-md-left">
+                <p class="small mb-0"><b>RFC:</b> XAXX010101000 | CONTRIBUYENTE DE PRUEBA</p>
+                <p class="small"><b>Versión <span id="lblVersion"></span></b>  - 24.0.0</p>
+            </div>
+            <div class="col-md-6 text-center mainTitInter">
+                <h1>Declaración Provisional o Definitiva de Impuestos Federales</h1>
+            </div>
+        </div>
+    </div>
+</div>
+<form action="/Declaracion/PerfilDeclaracion" id="__AjaxAntiForgeryForm" method="post"><input name="__RequestVerificationToken" type="hidden" value="REDACTED"></form>
+    <div class="container">
+<div class="row pt-4">
+    <div class="col-md-12">
+        <div class="mainTitle">
+            Configuración de la declaración
+            <hr class="red">
+        </div>
+    </div>
+</div>
+<div class="row mt-2" id="divControls">
+    <div class="col-md-12">
+        <div class="form-group" style="" id="formularioPerfilador">
+            <div class="row">
+                <div class="col-lg-3 col-md-4 col-sm-4 cmbEjercicio">
+                    <label class="borderTextSearch font-weight-bold">Ejercicio</label>
+                </div>
+                <div class="col-lg-3 col-md-8 col-sm-8 mb-2 cmbEjercicio">
+                    <select id="ejercicio" name="cmbEjercicio" class="form-control w-100-select"><option value="0" disabled="disabled">Selecciona</option><option value="2026" selected="">2026</option><option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option></select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-4 col-sm-4 cmbPeriodicidad">
+                    <label class="borderTextSearch font-weight-bold">Periodicidad</label>
+                </div>
+                <div class="col-lg-3 col-md-8 col-sm-8 mb-2 cmbPeriodicidad">
+                    <select id="periodicidad" name="cmbPeriodicidad" class="form-control w-100-select"><option value="0" disabled="disabled">Sin Selección</option><option value="M" selected="">1-Mensual</option><option value="T">3-Trimestral</option><option value="S">5-Semestral (A)</option><option value="B">2-Bimestral</option><option value="N">9-Sin período</option></select>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-4 cmbPeriodo" style="">
+                    <label class="borderTextSearch font-weight-bold">Periodo</label>
+                </div>
+                <div class="col-lg-3 col-md-8 col-sm-8 mb-2 cmbPeriodo" style="">
+                    <select id="periodos" name="cmbPeriodo" class="form-control w-100-select"><option value="0" disabled="disabled">Selecciona</option><option value="001">Enero</option><option value="002">Febrero</option><option value="003">Marzo</option><option value="004">Abril</option><option value="005">Mayo</option><option value="006">Junio</option><option value="007">Julio</option><option value="008">Agosto</option><option value="009">Septiembre</option><option value="010" selected="">Octubre</option></select>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-4 inputFechaCausacion" style="display: none;">
+                    <label class="borderTextSearch font-weight-bold">Fecha Causación</label>
+                </div>
+                <div class="col-lg-3 col-md-8 col-sm-8 mb-2 inputFechaCausacion" style="display: none;">
+                    <input id="fechaCausacion" type="text" placeholder="dd/mm/aaaa" class="form-control-datepicker form-control pull-left" disabled="">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-4 col-sm-4 cmbTipoDeclaracion" style="">
+                    <label class="borderTextSearch font-weight-bold">Tipo de declaración</label>
+                </div>
+                <div class="col-lg-3 col-md-8 col-sm-8 cmbTipoDeclaracion" style="">
+                    <select id="tipodeclaracion" name="cmbTipoDeclaracion" class="form-control w-100-select"><option value="0" disabled="disabled">Selecciona</option><option value="001" selected="">Normal</option><option value="003">Normal por Corrección Fiscal</option></select>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-4 cmbTipoComplementaria" style="display: none;">
+                    <label class="borderTextSearch font-weight-bold">Tipo de complementaria</label>
+                </div>
+                <div class="col-lg-3 col-md-8 col-sm-8 cmbTipoComplementaria" style="display: none;">
+                    <select id="tipocomplementaria" name="cmbTipoComplementaria" class="form-control w-100-select"><option value="0" disabled="disabled" selected="">Selecciona</option></select>
+                </div>
+            </div>
+            <hr>
+            <div id="divObligaciones" class="">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3><b>Obligaciones a declarar</b></h3>
+                    </div>
+                </div>
+                <div id="sectionObligaciones" class="row align-items-top justify-content-center text-center mt-4"><div class="col-md-2 col-sm-4 pb-3"><label for="0168"><span class="checkOn"><i class="fas fa-check"></i></span></label><input id="0168" type="checkbox" name="btnObligacion" autocomplete="off" class="d-none noDecoration" data-valida-idc="true" data-vigente="false" checked=""><p class="textOptions mt-4">ISR simplificado de confianza. Personas físicas</p><br></div><div class="col-md-2 col-sm-4 pb-3"><label for="0112"><span class="checkOff"><i class="fas fa-check"></i></span></label><input id="0112" type="checkbox" name="btnObligacion" autocomplete="off" class="d-none noDecoration" data-valida-idc="false" data-vigente="false"><p class="textOptions mt-4">ISR retenciones por salarios</p><br></div><div class="col-md-2 col-sm-4 pb-3"><label for="0113"><span class="checkOff"><i class="fas fa-check"></i></span></label><input id="0113" type="checkbox" name="btnObligacion" autocomplete="off" class="d-none noDecoration" data-valida-idc="false" data-vigente="false"><p class="textOptions mt-4">ISR retenciones por asimilados a salarios</p><br></div><div class="col-md-2 col-sm-4 pb-3"><label for="0301"><span class="checkOff"><i class="fas fa-check"></i></span></label><input id="0301" type="checkbox" name="btnObligacion" autocomplete="off" class="d-none noDecoration" data-valida-idc="false" data-vigente="false"><p class="textOptions mt-4">Impuesto al Valor Agregado. Personas físicas. Región Fronteriza</p><br></div><div class="col-md-2 col-sm-4 pb-3"><label for="0304"><span class="checkOff"><i class="fas fa-check"></i></span></label><input id="0304" type="checkbox" name="btnObligacion" autocomplete="off" class="d-none noDecoration" data-valida-idc="false" data-vigente="false"><p class="textOptions mt-4">IVA retenciones</p><br></div><div class="col-md-2 col-sm-4 pb-3"><label for="0318"><span class="checkOn"><i class="fas fa-check"></i></span></label><input id="0318" type="checkbox" name="btnObligacion" autocomplete="off" class="d-none noDecoration" data-valida-idc="true" data-vigente="false" checked=""><p class="textOptions mt-4">IVA simplificado de confianza región fronteriza</p><br></div><div class="col-md-2 col-sm-4 pb-3"><label for="0449"><span class="checkOff"><i class="fas fa-check"></i></span></label><input id="0449" type="checkbox" name="btnObligacion" autocomplete="off" class="d-none noDecoration" data-valida-idc="false" data-vigente="false"><p class="textOptions mt-4">IEPS retenciones por apuestas y sorteos</p><br></div></div>
+                <hr class="mt-0">
+            </div>
+            <div id="divContinuar" class="row">
+                <div class="col-md-12 text-center">
+                    <button class="btn redButton waves-effect waves-light" id="btnSiguiente">SIGUIENTE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalYesNo" class="modal fade modal-high-z">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                Existe sin enviar una declaración del mismo tipo y periodo que intentas presentar.
+                <br>
+                ¿Deseas reemplazarla o continuar con su llenado?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="si btn btn-primary redButton waves-effect waves-light">
+                    REEMPLAZAR
+                </button>
+                <button type="button" class="no btn btn-primary redButton waves-effect waves-light">
+                    CONTINUAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+    <div class="modal fade" id="msgLoading" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+        <div role="document" class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Cargando información.</h4>
+                </div>
+                <div class="modal-body">
+                    <span class="title-progress">Espera por favor mientras termina de cargar la información necesaria.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body></html>

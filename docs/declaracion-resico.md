@@ -111,12 +111,14 @@ acreditable de gastos $300 = **IVA a cargo $1,299.99**.
 ## 5. Flujo en el portal del SAT
 
 Basado en el tutorial de un contador ([YouTube, «Declaración mensual RESICO
-2026»](https://www.youtube.com/watch?v=XjCE6y2uBxg)); falta confirmarlo con
-capturas del HTML.
+2026»](https://www.youtube.com/watch?v=XjCE6y2uBxg)) y confirmado con el HTML
+del portal (octubre 2026). Selectores y llaves: `sat-portal-resico-map.md`.
 
 Navegación en sat.gob.mx: **Declaraciones → Personas → Provisionales y
 definitivas → ISR e IVA RESICO (+) → Ingresar al servicio**. La extensión va
-directo al servicio: `https://ptscdecprov.clouda.sat.gob.mx/`.
+directo al nuevo portal de pagos provisionales:
+`https://pstcdypisr.clouda.sat.gob.mx/Declaracion/Temporales`. El portal viejo
+(`ptscdecprov`) ya no ofrece las obligaciones de RESICO.
 
 - Acceso: RFC + contraseña (con captcha) o **e.firma**. La extensión **nunca
   resuelve captchas**; el usuario entra y la app espera hasta 3 minutos. Si el
@@ -124,7 +126,9 @@ directo al servicio: `https://ptscdecprov.clouda.sat.gob.mx/`.
 
 Pantallas, en orden:
 
-1. **Inicio del servicio** → *Presentar declaración*.
+1. **Formulario no concluido** (solo si hay borradores) → *Iniciar una nueva
+   declaración*. Si el periodo ya tiene borrador, al dar *Siguiente* el portal
+   pregunta si reemplazarlo: la app elige *Reemplazar* para partir del prellenado.
 2. **Datos iniciales**: Ejercicio, Periodicidad `Mensual`, Periodo (mes), Tipo de
    declaración `Normal`.
 3. **Obligaciones**: aparecen las que tenga el RFC. Se marcan *ISR simplificado
@@ -167,8 +171,9 @@ Pantallas, en orden:
 ## 6. Mapeo campo del portal ↔ cálculo
 
 Las claves son las que usa `app/src/lib/sat-declaration.ts` (`PORTAL_FIELDS`).
-Las etiquetas se buscan por texto (sin acentos ni mayúsculas) y **se deben
-confirmar con las capturas** de `reference/page-reference-declaracion-*.txt`.
+Cada una se lee por la **llave del modelo del SAT** (`view-model` / `data-bind`,
+p. ej. `E4570020PSAT1101006`), no por texto ni por id del DOM; la tabla de
+llaves está en `sat-portal-resico-map.md`.
 
 | Clave | Etiqueta en el portal | Valor de la app | Cómo se captura |
 | --- | --- | --- | --- |
@@ -193,8 +198,9 @@ manual (suele ser una factura cancelada o una PPD sin cobrar).
 
 1. El usuario revisa la guía en la app y presiona **Autorizar y llenar en el SAT**
    → se guarda `Declaration` (`id = "YYYY-MM"`, estado `autorizada`).
-2. `fillDeclaration()` abre el portal, espera el login, presiona *Presentar
-   declaración* y llena los datos iniciales y las obligaciones.
+2. `fillDeclaration()` abre el portal, espera el login, inicia una declaración
+   nueva, llena ejercicio, periodo y tipo, y confirma las obligaciones de RESICO
+   (ya vienen marcadas; un clic las desmarcaría).
 3. **Scrape**: lee lo prellenado de cada obligación (`satPrefill`) y la app
    muestra *SAT prellenó / Nosotros / Diferencia*.
 4. **Captura** según la tabla anterior, disparando `input`, `change` y `blur`
@@ -223,9 +229,9 @@ cobró de verdad, aunque el prellenado traiga menos.
 
 ## 9. Capturas de referencia
 
-Para escribir y mantener los selectores se guarda el HTML de cada pantalla en
-`reference/page-reference-declaracion-<pantalla>.txt` (datos-iniciales,
-obligaciones, isr, isr-detalle, iva, pago, acuse). Para capturar: entrar al
-portal, abrir DevTools → Elements → clic derecho en `<body>` → *Copy outerHTML*
-y pegarlo en el archivo. Usar un periodo ya presentado o salir sin enviar.
-Quitar RFC, nombre y montos reales antes de subirlo al repo.
+El HTML de cada pantalla vive en `app/src/lib/__fixtures__/sat-portal/`
+(`temporales.html`, `perfil-declaracion.html`, `formulario-resico.html` con ISR
+e IVA) y `sat-portal.test.ts` corre las acciones del agente contra él. Si el SAT
+cambia el formulario, se vuelve a capturar: llenar un periodo sin enviar,
+`document.documentElement.outerHTML` sin `<script>`/`<style>`, y quitar RFC,
+nombre y tokens. Falta capturar el acuse.

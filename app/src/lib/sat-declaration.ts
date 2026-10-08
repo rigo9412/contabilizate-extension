@@ -1,43 +1,84 @@
-// Scrape y llenado de la declaración mensual de RESICO en el portal de
-// Declaraciones del SAT. Lee lo que el SAT prellenó, escribe los valores que el
+// Scrape y llenado de la declaración mensual de RESICO en el portal de pagos
+// provisionales del SAT. Lee lo que el SAT prellenó, escribe los valores que el
 // usuario autorizó y se detiene antes de "Enviar": el envío lo hace el usuario.
-// Flujo y mapeo de campos: docs/declaracion-resico.md.
+// Flujo: docs/declaracion-resico.md. Selectores: docs/sat-portal-resico-map.md.
 import { round2 } from "./bill-calc";
 import { delay, LOGIN_TIMEOUT_MS, removePageStatus, run, showPageStatus } from "./sat-tab";
 import type { IsrResico, IvaResico, PortalValues, ResicoActivity } from "./types";
 
-export const DECLARATION_URL = "https://ptscdecprov.clouda.sat.gob.mx/";
+/** Nuevo portal de pagos provisionales; "Temporales" redirige a la configuración si no hay borradores. */
+export const DECLARATION_URL = "https://pstcdypisr.clouda.sat.gob.mx/Declaracion/Temporales";
 
 export type Obligation = "isr" | "iva";
+
+/**
+ * Llave del modelo del formulario del SAT (atributo `view-model` o `data-bind`).
+ * `{e}` es la entidad de la obligación (457 = ISR RESICO, 454 = IVA RESICO
+ * fronterizo); se resuelve en el portal para no depender de la región.
+ */
+export type PortalKey = `E{e}${string}`;
 
 export interface PortalField {
   key: string;
   obligation: Obligation;
-  /** Etiquetas posibles en el portal; se comparan sin acentos ni mayúsculas. */
-  labels: string[];
+  /** Llaves a leer; con varias, gana la primera distinta de cero. */
+  codes: PortalKey[];
 }
 
 export const PORTAL_FIELDS: PortalField[] = [
-  { key: "isr.ingresos", obligation: "isr", labels: ["total de ingresos percibidos", "ingresos percibidos"] },
-  { key: "isr.tasa", obligation: "isr", labels: ["tasa aplicable"] },
-  { key: "isr.impuesto", obligation: "isr", labels: ["isr determinado", "impuesto mensual"] },
-  { key: "isr.retenido", obligation: "isr", labels: ["isr retenido por personas morales", "isr retenido", "impuesto retenido"] },
-  { key: "isr.aCargo", obligation: "isr", labels: ["isr a cargo", "impuesto a cargo"] },
-  { key: "iva.gravados16", obligation: "iva", labels: ["actividades gravadas a la tasa del 16%"] },
-  { key: "iva.gravados8", obligation: "iva", labels: ["actividades gravadas a la tasa del 8%"] },
-  { key: "iva.gravados0", obligation: "iva", labels: ["actividades gravadas a la tasa del 0%"] },
-  { key: "iva.exentos", obligation: "iva", labels: ["actividades exentas"] },
-  { key: "iva.noObjeto", obligation: "iva", labels: ["actividades no objeto"] },
-  { key: "iva.trasladado", obligation: "iva", labels: ["iva trasladado", "total de iva trasladado", "iva a cargo a la tasa del 16%"] },
-  { key: "iva.retenido", obligation: "iva", labels: ["iva retenido"] },
-  { key: "iva.acreditable", obligation: "iva", labels: ["iva acreditable del periodo", "iva acreditable"] },
-  {
-    key: "iva.saldoAnterior",
-    obligation: "iva",
-    labels: ["acreditamiento de saldos a favor de periodos anteriores", "saldo a favor de periodos anteriores"],
-  },
-  { key: "iva.resultado", obligation: "iva", labels: ["impuesto a cargo", "cantidad a cargo", "saldo a favor"] },
+  { key: "isr.ingresos", obligation: "isr", codes: ["E{e}0020PSAT1101001"] },
+  { key: "isr.tasa", obligation: "isr", codes: ["E{e}0020PSAT1101004"] },
+  { key: "isr.impuesto", obligation: "isr", codes: ["E{e}0020PSAT1101005"] },
+  { key: "isr.retenido", obligation: "isr", codes: ["E{e}0020PSAT1101006"] },
+  { key: "isr.aCargo", obligation: "isr", codes: ["E{e}0020PSAT1101007"] },
+  { key: "iva.gravados16", obligation: "iva", codes: ["E{e}0001PSAT1200101"] },
+  // En el IVA fronterizo es "Actividades sujetas al estímulo de la región fronteriza".
+  { key: "iva.gravados8", obligation: "iva", codes: ["E{e}0001PSAT1200102"] },
+  { key: "iva.gravados0", obligation: "iva", codes: ["E{e}0001PSAT1200103"] },
+  { key: "iva.exentos", obligation: "iva", codes: ["E{e}0001PSAT1200104"] },
+  { key: "iva.noObjeto", obligation: "iva", codes: ["E{e}0001PSAT1200105"] },
+  { key: "iva.trasladado", obligation: "iva", codes: ["E{e}0001PSAT1200108"] },
+  { key: "iva.retenido", obligation: "iva", codes: ["E{e}0001PSAT1200110"] },
+  { key: "iva.acreditable", obligation: "iva", codes: ["E{e}0001PSAT1200111"] },
+  { key: "iva.saldoAnterior", obligation: "iva", codes: ["E{e}0001PSAT1200114"] },
+  // Impuesto a cargo o, si es cero, impuesto a favor.
+  { key: "iva.resultado", obligation: "iva", codes: ["E{e}0001PSAT1200115", "E{e}0001PSAT1200116"] },
 ];
+
+/** Llaves de los pasos de captura que no son renglones de `PORTAL_FIELDS`. */
+export const PORTAL_KEYS = {
+  isr: {
+    coownership: "E{e}0001PSAT1100105",
+    discounts: "E{e}0001PSAT1100106",
+    discountsCoownership: "E{e}0001PSAT1100608",
+    hasDecrease: "E{e}0001PSAT1100107",
+    hasExtra: "E{e}0001PSAT1100108",
+    extra: "E{e}0001PSAT1100103",
+    extraConcept: "E{e}0010PSAT1100401",
+    extraAmount: "E{e}0010PSAT1100402",
+    total: "E{e}0001PSAT1100104",
+    toDetail: "E{e}0001PSAT1100501",
+    totalConcept: "E{e}0012PSAT1100503",
+    totalAmount: "E{e}0012PSAT1100504",
+    retained: "E{e}0020PSAT1101006",
+    retainedAdd: "E{e}0020PSUMAISR007",
+    retainedNotCreditable: "E{e}0020PSAT1101216",
+    compensations: "E{e}0017P{e}0301001",
+    stimulus: "E{e}0017P{e}0301002",
+  },
+  iva: {
+    creditable: "E{e}0001PSAT1200111",
+    creditableTaxed: "E{e}0006PSAT1200602",
+    creditableMixed: "E{e}0006PSAT1200603",
+    compensations: "E{e}0002P{e}0301001",
+    stimulus: "E{e}0002P{e}0301002",
+  },
+} as const satisfies Record<Obligation, Record<string, PortalKey>>;
+
+/** Valor de "Ingresos no considerados en el prellenado" en el concepto de ingresos adicionales. */
+const EXTRA_INCOME_OPTION = "IA4";
+const SELECT_YES = "1";
+const SELECT_NO = "2";
 
 export const FIELD_LABELS: Record<string, string> = {
   "isr.ingresos": "Ingresos cobrados (sin IVA)",
@@ -131,7 +172,7 @@ export function parseAcuse(text: string): Acuse | null {
 
 // ── Plan de llenado (puro) ──
 
-/** Texto de la opción del portal para cada tipo de ingreso al clasificar el total. */
+/** Texto de la opción del portal (concepto de "Total de ingresos percibidos") para cada tipo de ingreso. */
 const ACTIVITY_OPTION: Record<ResicoActivity, string[]> = {
   empresarial: ["actividad empresarial"],
   honorarios: ["honorarios", "servicios profesionales"],
@@ -156,13 +197,13 @@ export interface FillPlan {
   };
   iva: {
     /** Campos que se escriben directo en el formulario. */
-    direct: { key: string; labels: string[]; value: number }[];
+    direct: { key: string; codes: PortalKey[]; value: number }[];
     /** Se captura con el botón "Capturar" (no viene prellenado). */
     creditable: number;
   };
 }
 
-const labelsOf = (key: string) => PORTAL_FIELDS.find((f) => f.key === key)!.labels;
+const codesOf = (key: string) => PORTAL_FIELDS.find((f) => f.key === key)!.codes;
 
 /**
  * Qué capturar en el portal. Como en el tutorial del contador: no se confía en
@@ -183,7 +224,7 @@ export function buildFillPlan(prefill: PortalValues, ours: PortalValues, activit
     },
     iva: {
       direct: directKeys
-        .map((key) => ({ key, labels: labelsOf(key), value: pesos(ours[key] ?? 0) }))
+        .map((key) => ({ key, codes: codesOf(key), value: pesos(ours[key] ?? 0) }))
         // Los renglones en cero que el SAT tampoco trae no se tocan (muchos no existen para todos).
         .filter((f) => f.value !== 0 || (prefill[f.key] ?? 0) !== 0),
       creditable: pesos(ours["iva.acreditable"] ?? 0),
@@ -193,213 +234,204 @@ export function buildFillPlan(prefill: PortalValues, ours: PortalValues, activit
 
 // ── Función que se inyecta en el portal (no puede usar nada de fuera) ──
 
-type AgentAction =
-  | { type: "hasText"; texts: string[] }
-  | { type: "selectInitial"; year: number; month: number }
-  | { type: "next" }
+export type PortalPage = "temporales" | "perfil" | "formulario" | "otra";
+
+export interface ModalRow {
+  /** Select del concepto y el valor de la opción, o textos a buscar en las opciones. */
+  conceptKey: PortalKey;
+  option: { value: string } | { texts: string[] };
+  amountKey: PortalKey;
+  amount: number;
+}
+
+export type AgentAction =
+  | { type: "state" }
+  | { type: "newForm" }
+  | { type: "configure"; year: number; month: number }
   | { type: "selectObligations" }
-  | { type: "openObligation"; obligation: Obligation }
-  | { type: "tab"; name: string }
-  | { type: "read"; fields: { key: string; labels: string[] }[] }
-  | { type: "write"; fields: { key: string; labels: string[]; value: number }[] }
-  | { type: "answerNo"; questions: string[] }
-  | { type: "isrCapture"; plan: FillPlan["isr"] }
-  | { type: "ivaCreditable"; value: number }
+  | { type: "next" }
+  | { type: "replaceDraft" }
+  | { type: "prepareForm" }
+  | { type: "open"; entity: string }
+  | { type: "visitTabs"; entity: string }
+  | { type: "read"; entity: string; fields: { key: string; codes: PortalKey[] }[] }
+  | { type: "write"; entity: string; fields: { key: string; codes: PortalKey[]; value: number }[] }
+  | { type: "setSelect"; entity: string; key: PortalKey; value: string }
+  | { type: "modal"; entity: string; target: PortalKey; rows: ModalRow[]; fields: { key: PortalKey; value: number }[] }
+  | { type: "save" }
   | { type: "admin" }
   | { type: "text" }
   | { type: "acuseLink" }
   | { type: "banner"; text: string };
 
 /**
- * Todo lo que se hace dentro del portal. Busca por texto visible en vez de ids
- * porque el portal los regenera; si algo no aparece lo regresa como pendiente y
- * la app lo muestra para captura manual en vez de fallar.
+ * Todo lo que se hace dentro del portal. Los campos se buscan por la llave del
+ * modelo del SAT (estable) y no por el id del DOM, que depende del orden del
+ * formulario. Lo que no aparece se regresa como pendiente y la app lo muestra
+ * para captura manual en vez de fallar. Nunca toca "Enviar declaración".
  */
-async function portalAgent(action: AgentAction): Promise<unknown> {
+export async function portalAgent(action: AgentAction): Promise<unknown> {
   const norm = (s: string) =>
     s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
-  const visible = (el: Element) => (el as HTMLElement).offsetParent !== null;
   const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
-  const MONTHS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-  const CONTROLS = 'input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]), select';
-  const CLICKABLE = "button, a, [role=button], input[type=button], input[type=submit], li";
-
-  /** La ventana emergente abierta encima, si hay; si no, la página. */
-  const scopeRoot = (): ParentNode => {
-    const dialogs = Array.from(document.querySelectorAll('[role="dialog"], .modal.in, .modal.show, .ui-dialog, .modal[style*="block"]')).filter(visible);
-    return dialogs.at(-1) ?? document;
+  const amount = (text: string) => {
+    const clean = text.replace(/[$\s,%]/g, "");
+    return /^-?\d+(\.\d+)?$/.test(clean) ? Number(clean) : null;
   };
+  const resolve = (entity: string, key: string) => key.replaceAll("{e}", entity);
 
-  /** Elementos cuyo texto propio (sin hijos) contiene la etiqueta. */
-  const byOwnText = (label: string, root: ParentNode = document) => {
-    const target = norm(label);
-    return Array.from(root.querySelectorAll("label, span, td, th, div, p, a, button, li, strong, b, h1, h2, h3, h4, h5, legend"))
-      .filter(visible)
-      .filter((el) => {
-        const own = Array.from(el.childNodes)
-          .filter((n) => n.nodeType === Node.TEXT_NODE)
-          .map((n) => n.textContent ?? "")
-          .join(" ");
-        return norm(own).includes(target);
-      });
-  };
-
-  /** Busca hacia arriba (hasta 5 niveles) desde la etiqueta algo que cumpla `selector`. */
-  const near = <T extends Element>(labels: string[], selector: string, root: ParentNode = document, accept: (el: T) => boolean = () => true) => {
-    for (const label of labels) {
-      for (const el of byOwnText(label, root)) {
-        const forId = el.getAttribute("for");
-        const direct = forId ? document.getElementById(forId) : null;
-        if (direct?.matches(selector)) return direct as unknown as T;
-        let scope: Element | null = el;
-        for (let i = 0; i < 5 && scope; i++, scope = scope.parentElement) {
-          const found = Array.from(scope.querySelectorAll<T>(selector)).find((c) => visible(c) && accept(c));
-          if (found) return found;
-        }
-      }
-    }
-    return null;
-  };
-
-  const fieldFor = (labels: string[], root: ParentNode = document) => near<HTMLInputElement | HTMLSelectElement>(labels, CONTROLS, root);
-
-  const textOf = (el: Element) => norm((el as HTMLElement).innerText || (el as HTMLInputElement).value || el.getAttribute("title") || "");
-
-  /** Botón cerca de una etiqueta cuyo texto es uno de `texts` (Capturar, Agregar, Ver detalle…). */
-  const buttonNear = (labels: string[], texts: string[]) =>
-    near<HTMLElement>(labels, CLICKABLE, document, (b) => texts.some((t) => textOf(b).includes(norm(t))));
+  const field = (key: string) =>
+    document.querySelector<HTMLInputElement | HTMLSelectElement>(`[view-model="${key}"]`) ??
+    Array.from(document.querySelectorAll<HTMLInputElement | HTMLSelectElement>("[data-bind]")).find((el) =>
+      new RegExp(`value:\\s*${key}\\b`).test(el.getAttribute("data-bind") ?? ""),
+    ) ??
+    null;
+  const editable = (el: HTMLInputElement | HTMLSelectElement | null): el is HTMLInputElement | HTMLSelectElement =>
+    !!el && !el.disabled && !(el instanceof HTMLInputElement && el.readOnly);
 
   const setValue = (el: HTMLInputElement | HTMLSelectElement, value: string) => {
     el.focus();
-    // Asignar con el setter nativo para que los frameworks del portal noten el cambio.
+    // Asignar con el setter nativo y disparar eventos: Knockout actualiza el modelo en "change"/"blur".
     const proto = el instanceof HTMLSelectElement ? HTMLSelectElement.prototype : HTMLInputElement.prototype;
     Object.getOwnPropertyDescriptor(proto, "value")?.set?.call(el, value);
     for (const type of ["input", "change", "blur"]) el.dispatchEvent(new Event(type, { bubbles: true }));
   };
 
-  const chooseOption = (select: HTMLSelectElement, wanted: string[]) => {
-    const option = Array.from(select.options).find((o) => wanted.some((w) => norm(o.text) === norm(w) || norm(o.text).includes(norm(w))));
-    if (!option) return false;
-    setValue(select, option.value);
-    return true;
-  };
-
-  const selectByText = (labels: string[], wanted: string) => {
-    const select = fieldFor(labels);
-    return select instanceof HTMLSelectElement && chooseOption(select, [wanted]);
-  };
-
-  const clickText = (texts: string[], root: ParentNode = document) => {
-    const target = Array.from(root.querySelectorAll<HTMLElement>(CLICKABLE))
-      .filter(visible)
-      .find((b) => texts.some((t) => textOf(b) === norm(t)));
-    target?.click();
-    return !!target;
-  };
-
-  /** Contesta "No" a una pregunta (radio o select) junto a su texto. */
-  const answerNo = (question: string) => {
-    const radio = near<HTMLInputElement>([question], 'input[type="radio"]', document, (r) => {
-      const label = r.labels?.[0]?.innerText ?? r.parentElement?.innerText ?? r.value;
-      return norm(label) === "no" || norm(r.value) === "no" || r.value === "0" || r.value === "false";
-    });
-    if (radio) {
-      if (!radio.checked) radio.click();
-      return true;
-    }
-    const select = near<HTMLSelectElement>([question], "select");
-    return !!select && chooseOption(select, ["no"]);
-  };
-
-  /**
-   * En la ventana de un renglón: Agregar → elegir concepto → importe → Guardar → Cerrar.
-   * Es como el portal pide desglosar ingresos y descuentos.
-   */
-  const addInDialog = async (concept: string[], amount: number) => {
-    await wait(1200);
-    let root = scopeRoot();
-    if (clickText(["agregar"], root)) {
-      await wait(1000);
-      root = scopeRoot();
-    }
-    const select = Array.from(root.querySelectorAll<HTMLSelectElement>("select")).find(visible);
-    if (concept.length && !(select && chooseOption(select, concept))) return false;
-    await wait(500);
-    const input = Array.from(root.querySelectorAll<HTMLInputElement>('input[type="text"], input[type="number"], input:not([type])')).find(
-      (i) => visible(i) && !i.readOnly && !i.disabled,
+  /** Elige una opción por valor; con `texts`, la primera cuyo texto contenga alguno. */
+  const choose = (select: HTMLSelectElement, option: { value: string } | { texts: string[] }) => {
+    const found = Array.from(select.options).find((o) =>
+      "value" in option ? o.value === option.value : option.texts.some((t) => norm(o.text).includes(norm(t))),
     );
-    if (!input) return false;
-    setValue(input, String(amount));
-    await wait(400);
-    clickText(["guardar", "aceptar"], root);
-    await wait(1000);
-    clickText(["cerrar"], scopeRoot());
-    await wait(800);
+    if (!found || found.disabled) return false;
+    setValue(select, found.value);
     return true;
   };
 
-  const amount = (text: string) => {
-    const clean = text.replace(/[$\s,%]/g, "");
-    return /^-?\d+(\.\d+)?$/.test(clean) ? Number(clean) : null;
+  /** Espera a que el select tenga sus opciones (los de configuración se cargan en cascada). */
+  const loadedSelect = async (id: string) => {
+    for (let i = 0; i < 60; i++) {
+      const el = document.getElementById(id);
+      if (el instanceof HTMLSelectElement && Array.from(el.options).filter((o) => !o.disabled).length > 0) return el;
+      await wait(250);
+    }
+    return null;
   };
 
-  /** Fila de una obligación por su texto, sin confundirla con las de retenciones. */
-  const obligationRow = (obligation: Obligation) => {
-    const rows = Array.from(document.querySelectorAll("tr, li, label, .row, div")).filter(visible);
-    const text = (el: Element) => norm((el as HTMLElement).innerText ?? "");
-    const isIsr = (t: string) => (t.includes("isr") || t.includes("impuesto sobre la renta")) && t.includes("simplificado de confianza");
-    const isIva = (t: string) => (t.includes("iva") || t.includes("valor agregado")) && !t.includes("isr") && !t.includes("impuesto sobre la renta");
-    // La fila más chica que cumpla: evita tomar el contenedor de toda la lista.
-    return rows
-      .filter((r) => {
-        const t = text(r);
-        return t.length < 200 && !t.includes("retenc") && (obligation === "isr" ? isIsr(t) : isIva(t));
-      })
-      .sort((a, b) => text(a).length - text(b).length)[0];
+  const shownModals = () => Array.from(document.querySelectorAll<HTMLElement>(".modal.show"));
+  const acceptAlerts = () => {
+    for (const button of document.querySelectorAll<HTMLElement>(".bootbox-alert.show .bootbox-accept")) button.click();
   };
+
+  /** Obligación de RESICO por impuesto ("isr" / "iva") en una lista de elementos con texto. */
+  const resico = <T extends Element>(items: T[], tax: Obligation, text: (el: T) => string) =>
+    items.find((el) => norm(text(el)).includes(`${tax} simplificado de confianza`));
 
   switch (action.type) {
-    case "hasText": {
-      const body = norm(document.body?.innerText ?? "");
-      return action.texts.some((t) => body.includes(norm(t)));
+    case "state": {
+      const page: PortalPage = location.pathname.startsWith("/Formulario")
+        ? "formulario"
+        : document.getElementById("tipodeclaracion")
+          ? "perfil"
+          : document.getElementById("newForm")
+            ? "temporales"
+            : "otra";
+      return { page, loading: shownModals().some((m) => norm(m.textContent ?? "").includes("cargando")) };
     }
-    case "selectInitial":
-      return [
-        selectByText(["ejercicio"], String(action.year)),
-        selectByText(["periodicidad"], "mensual"),
-        selectByText(["periodo"], MONTHS[action.month - 1]),
-        selectByText(["tipo de declaracion"], "normal"),
+    case "newForm": {
+      const button = document.getElementById("newForm");
+      button?.click();
+      return !!button;
+    }
+    case "configure": {
+      const steps: [string, string, string][] = [
+        ["ejercicio", String(action.year), "el ejercicio"],
+        ["periodicidad", "M", "la periodicidad mensual"],
+        ["periodos", String(action.month).padStart(3, "0"), "el periodo"],
+        ["tipodeclaracion", "001", "el tipo de declaración"],
       ];
-    case "next":
-      return clickText(["siguiente", "continuar"]);
-    case "selectObligations":
-      return (["isr", "iva"] as const).map((o) => {
-        const box = obligationRow(o)?.querySelector<HTMLInputElement>('input[type="checkbox"]');
-        if (!box) return false;
-        if (!box.checked) box.click();
-        return true;
-      });
-    case "openObligation": {
-      const row = obligationRow(action.obligation);
-      const target = row?.querySelector<HTMLElement>(CLICKABLE) ?? (row as HTMLElement | undefined);
-      target?.click();
-      return !!target;
+      for (const [id, value, label] of steps) {
+        const select = await loadedSelect(id);
+        if (!select) return { error: `No cargó ${label} en el portal.` };
+        if (!choose(select, { value })) {
+          // Sin "Normal" el periodo ya tiene una declaración presentada.
+          if (id === "tipodeclaracion") return { error: "Ese periodo ya tiene una declaración presentada; la app aún no hace complementarias." };
+          return { error: `El portal no ofrece ${label} (${value}).` };
+        }
+        await wait(300);
+      }
+      for (let i = 0; i < 40 && !document.querySelector('input[name="btnObligacion"]'); i++) await wait(250);
+      return document.querySelector('input[name="btnObligacion"]') ? {} : { error: "El portal no mostró las obligaciones a declarar." };
     }
-    case "tab":
-      return clickText([action.name]);
+    case "selectObligations": {
+      const boxes = Array.from(document.querySelectorAll<HTMLInputElement>('input[name="btnObligacion"]'));
+      const result: Record<Obligation, boolean> = { isr: false, iva: false };
+      for (const tax of ["isr", "iva"] as const) {
+        const box = resico(boxes, tax, (b) => b.parentElement?.textContent ?? "");
+        if (!box) continue;
+        // Las registradas en el RFC ya vienen marcadas; un clic las desmarcaría.
+        if (!box.checked) {
+          document.querySelector<HTMLElement>(`label[for="${box.id}"]`)?.click();
+          await wait(500);
+          acceptAlerts();
+        }
+        result[tax] = box.checked;
+      }
+      return result;
+    }
+    case "next": {
+      const button = document.getElementById("btnSiguiente");
+      button?.click();
+      return !!button;
+    }
+    case "replaceDraft": {
+      // "Existe sin enviar una declaración del mismo tipo y periodo": se reemplaza para partir del prellenado.
+      // El portal lo muestra como bootbox copiado de #modalYesNo (la plantilla nunca se abre).
+      const modal = shownModals().find((m) => norm(m.textContent ?? "").includes("existe sin enviar"));
+      const button = modal?.querySelector<HTMLElement>(".bootbox-accept, button.si");
+      button?.click();
+      return !!button;
+    }
+    case "prepareForm": {
+      document.querySelector<HTMLElement>("#modalPrellenado.show button")?.click();
+      const menus = Array.from(document.querySelectorAll<HTMLAnchorElement>("a.opcion-menu"));
+      const entity = (tax: Obligation) =>
+        resico(menus, tax, (a) => a.textContent ?? "")?.dataset.tituloGrupo?.match(/^(\d+)group/)?.[1] ?? null;
+      return {
+        loading: shownModals().some((m) => norm(m.textContent ?? "").includes("cargando")),
+        entities: { isr: entity("isr"), iva: entity("iva") },
+      };
+    }
+    case "open": {
+      const link = document.querySelector<HTMLElement>(`a.opcion-menu[data-titulo-grupo="${action.entity}group1"]`);
+      link?.click();
+      return !!link;
+    }
+    case "visitTabs": {
+      // El portal desbloquea las pestañas en orden (Pago queda deshabilitada hasta pasar por Determinación)
+      // y solo marca la obligación como completa si se recorrieron todas.
+      const tabs = Array.from(document.querySelectorAll<HTMLElement>(`a.nav-link[href^="#tab${action.entity}maincontainer"]`));
+      for (const tab of tabs) {
+        tab.click();
+        await wait(1200);
+      }
+      return tabs.length;
+    }
     case "read": {
       const values: Record<string, number | null> = {};
       for (const f of action.fields) {
-        const el = fieldFor(f.labels);
-        values[f.key] = el ? amount(el.value) : null;
+        const found = f.codes.map((code) => {
+          const el = field(resolve(action.entity, code));
+          return el ? amount(el.value) : null;
+        });
+        values[f.key] = found.find((v) => v !== null && v !== 0) ?? found.find((v) => v !== null) ?? null;
       }
       return values;
     }
     case "write": {
       const missing: string[] = [];
       for (const f of action.fields) {
-        const el = fieldFor(f.labels);
-        if (!el || (el instanceof HTMLInputElement && el.readOnly) || el.disabled) {
+        const el = field(resolve(action.entity, f.codes[0]));
+        if (!editable(el)) {
           missing.push(f.key);
           continue;
         }
@@ -408,86 +440,69 @@ async function portalAgent(action: AgentAction): Promise<unknown> {
       }
       return missing;
     }
-    case "answerNo":
-      return action.questions.filter((q) => !answerNo(q));
-    case "isrCapture": {
-      const pending: string[] = [];
-      const { plan } = action;
-      if (!answerNo("copropiedad")) pending.push('Contesta "No" a "¿Los ingresos fueron obtenidos a través de copropiedad?".');
-      await wait(800);
-
-      // Descuentos: el portal pide registrar el renglón aunque sea en cero.
-      const discounts = buttonNear(["descuentos, devoluciones", "descuentos devoluciones"], ["capturar", "agregar"]);
-      if (!discounts) pending.push('En "Descuentos, devoluciones y bonificaciones" agrega "Sin ingresos a disminuir" con 0.');
-      else {
-        discounts.click();
-        if (!(await addInDialog(["sin ingresos a disminuir"], 0))) pending.push('Agrega "Sin ingresos a disminuir" con 0 en Descuentos.');
-      }
-
-      if (plan.incomeToAdd > 0) {
-        const extra = buttonNear(["ingresos adicionales"], ["capturar", "agregar"]);
-        extra?.click();
-        if (!extra || !(await addInDialog(["no considerados en el prellenado"], plan.incomeToAdd))) {
-          pending.push(`En "Ingresos adicionales" agrega "Ingresos no considerados en el prellenado" por $${plan.incomeToAdd}.`);
-        }
-      }
-      if (plan.incomeToRemove > 0) {
-        pending.push(
-          `El SAT prellenó $${plan.incomeToRemove} más de lo que cobraste: revisa si hay facturas canceladas o PPD sin cobrar y ajústalo en "Descuentos, devoluciones y bonificaciones".`,
-        );
-      }
-
-      const total = buttonNear(["total de ingresos percibidos"], ["capturar"]);
-      total?.click();
-      if (!total || !(await addInDialog(plan.activityOptions, plan.income))) {
-        pending.push(`En "Total de ingresos percibidos" → Capturar, agrega tu tipo de ingreso por $${plan.income}.`);
-      }
-
-      if (plan.retainedToAdd !== 0) {
-        // El ISR retenido se ajusta en "Ver detalle" sumando la diferencia a lo de facturas emitidas.
-        clickText(["determinacion"]);
-        await wait(1500);
-        const detail = buttonNear(["isr retenido"], ["ver detalle", "capturar"]);
-        detail?.click();
-        await wait(1200);
-        const root = scopeRoot();
-        const diffInput = root === document ? null : fieldFor(["no considerado", "adicional", "otras retenciones", "diferencia"], root);
-        if (!detail || !(diffInput instanceof HTMLInputElement) || plan.retainedToAdd < 0) {
-          pending.push(
-            `Ajusta el ISR retenido en "Ver detalle": ${plan.retainedToAdd > 0 ? "suma" : "resta"} $${Math.abs(plan.retainedToAdd)} para que cuadre con tus facturas; "No acreditable" va en 0.`,
-          );
-        } else {
-          setValue(diffInput, String(plan.retainedToAdd));
-          const notCreditable = fieldFor(["no acreditable"], root);
-          if (notCreditable) setValue(notCreditable, "0");
-          await wait(400);
-          clickText(["cerrar", "guardar", "aceptar"], root);
-        }
-      }
-      return pending;
+    case "setSelect": {
+      const el = field(resolve(action.entity, action.key));
+      const ok = el instanceof HTMLSelectElement && choose(el, { value: action.value });
+      if (ok) await wait(500);
+      return ok;
     }
-    case "ivaCreditable": {
-      if (action.value === 0) return [];
-      const button = buttonNear(["iva acreditable"], ["capturar"]);
-      button?.click();
+    case "modal": {
+      // Los renglones con "Capturar"/"Ver detalle" se llenan en #modal-<id del campo>:
+      // Agregar → concepto → importe → Guardar (renglón) … → Guardar (ventana).
+      const target = field(resolve(action.entity, action.target));
+      const modal = target && document.getElementById(`modal-${target.id}`);
+      if (!target || !modal) return false;
+      document.querySelector<HTMLElement>(`[data-idcontrol="${target.id}"]`)?.click();
       await wait(1200);
-      const root = scopeRoot();
-      const input = Array.from(root.querySelectorAll<HTMLInputElement>('input[type="text"], input[type="number"], input:not([type])')).find(
-        (i) => visible(i) && !i.readOnly && !i.disabled,
-      );
-      if (!button || !input || root === document) {
-        return [`En "IVA acreditable" → Capturar, escribe $${action.value}; en "actividades mixtas" pon 0.`];
+      for (const row of action.rows) {
+        modal.querySelector<HTMLElement>(".btnNewItem")?.click();
+        await wait(800);
+        const concept = field(resolve(action.entity, row.conceptKey));
+        if (!(concept instanceof HTMLSelectElement) || !choose(concept, row.option)) return false;
+        // El importe se habilita al elegir el concepto.
+        let input: HTMLInputElement | HTMLSelectElement | null = null;
+        for (let i = 0; i < 10 && !editable(input); i++) {
+          await wait(300);
+          input = field(resolve(action.entity, row.amountKey));
+        }
+        if (!editable(input)) return false;
+        setValue(input, String(row.amount));
+        await wait(400);
+        modal.querySelector<HTMLElement>(".btnAddItem")?.click();
+        await wait(1000);
       }
-      setValue(input, String(action.value));
-      const mixed = fieldFor(["mixtas"], root);
-      if (mixed) setValue(mixed, "0");
-      await wait(400);
-      clickText(["continuar", "guardar", "aceptar"], root);
-      await wait(800);
-      return [];
+      for (const f of action.fields) {
+        const el = field(resolve(action.entity, f.key));
+        if (!editable(el)) return false;
+        setValue(el, String(f.value));
+        await wait(300);
+      }
+      // Los valores se guardan al salir de cada campo; "Guardar" de la ventana casi siempre está oculto.
+      const save = modal.querySelector<HTMLElement>(".btnGuardarModal");
+      if (save && save.style.display !== "none") {
+        save.click();
+        await wait(1200);
+        acceptAlerts();
+      }
+      if (modal.classList.contains("show")) {
+        modal.querySelector<HTMLElement>(".cerrar-modal")?.click();
+        await wait(800);
+      }
+      return true;
     }
-    case "admin":
-      return clickText(["administracion de la declaracion"]);
+    case "save": {
+      const buttons = Array.from(document.querySelectorAll<HTMLElement>(".guardardeclaracion"));
+      const button = buttons.find((b) => b.offsetParent !== null) ?? buttons[0];
+      button?.click();
+      await wait(1500);
+      acceptAlerts();
+      return !!button;
+    }
+    case "admin": {
+      const button = document.getElementById("ir-menu-principal");
+      button?.click();
+      return !!button;
+    }
     case "text":
       return document.body?.innerText ?? "";
     case "acuseLink": {
@@ -542,16 +557,31 @@ async function agent<T>(tabId: number, action: AgentAction): Promise<T> {
   return (await run(tabId, portalAgent, [action])) as T;
 }
 
-/** Espera a que la página muestre alguno de los textos; tolera navegaciones y el login. */
-async function waitForText(tabId: number, texts: string[], isCancelled: () => boolean, timeoutMs: number) {
+interface PortalState {
+  page: PortalPage;
+  loading: boolean;
+}
+
+/**
+ * Espera a que el portal muestre una de las páginas y termine de cargar; tolera
+ * navegaciones y el login. `onWait` corre en cada vuelta (p. ej. para contestar un aviso).
+ */
+async function waitForPage(
+  tabId: number,
+  pages: PortalPage[],
+  isCancelled: () => boolean,
+  timeoutMs: number,
+  onWait?: (state: PortalState | null) => Promise<unknown>,
+): Promise<PortalPage> {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
     if (isCancelled()) throw new DeclarationCancelledError();
-    const found = await agent<boolean>(tabId, { type: "hasText", texts }).catch(() => false);
-    if (found) return;
+    const state = await agent<PortalState>(tabId, { type: "state" }).catch(() => null);
+    if (state && pages.includes(state.page) && !state.loading) return state.page;
+    await onWait?.(state).catch(() => {});
     await delay(1500);
   }
-  throw new Error(`El portal no mostró "${texts[0]}" a tiempo`);
+  throw new Error("El portal de declaraciones no respondió a tiempo");
 }
 
 /** Copia solo los valores encontrados, para no borrar lo leído en otra pestaña. */
@@ -562,7 +592,7 @@ function mergeKnown(target: PortalValues, values: PortalValues) {
 const fieldsOf = (obligation: Obligation) => PORTAL_FIELDS.filter((f) => f.obligation === obligation);
 
 /**
- * Abre el portal, llena datos iniciales y obligaciones, lee lo prellenado,
+ * Abre el portal, configura el periodo y las obligaciones, lee lo prellenado,
  * captura lo autorizado y se detiene antes de Enviar.
  */
 export async function fillDeclaration(
@@ -584,76 +614,81 @@ export async function fillDeclaration(
   };
 
   onProgress({ status: "Esperando el portal de Declaraciones (inicia sesión si te lo pide)…", percent: 5 });
-  // Tras el login aparece el inicio del servicio con "Presentar declaración".
-  await waitForText(tabId, ["presentar declaracion", "ejercicio"], isCancelled, LOGIN_TIMEOUT_MS);
-  await run(tabId, clickPresentar, []);
-  await waitForText(tabId, ["periodicidad"], isCancelled, 30_000);
+  // Tras el login llega a "Temporales" (si hay borradores) o directo a la configuración.
+  const first = await waitForPage(tabId, ["temporales", "perfil"], isCancelled, LOGIN_TIMEOUT_MS);
+  if (first === "temporales") {
+    await agent(tabId, { type: "newForm" });
+    await waitForPage(tabId, ["perfil"], isCancelled, 30_000);
+  }
 
-  await report("Llenando datos iniciales…", 15);
-  const initial = await agent<boolean[]>(tabId, { type: "selectInitial", year, month });
-  if (initial.some((ok) => !ok)) {
-    throw new Error("No se pudieron elegir ejercicio, periodo y tipo de declaración; complétalos a mano y vuelve a intentar.");
-  }
-  if (await agent<boolean>(tabId, { type: "hasText", texts: ["complementaria"] })) {
-    // Ya hay una declaración normal del periodo: las complementarias no están soportadas.
-    throw new Error("Ese periodo ya tiene una declaración presentada; la app aún no hace complementarias.");
-  }
+  await report("Llenando ejercicio, periodo y tipo de declaración…", 15);
+  const config = await agent<{ error?: string }>(tabId, { type: "configure", year, month });
+  if (config.error) throw new Error(config.error);
   await agent(tabId, { type: "banner", text: "Contabilizate está llenando la declaración. No cierres esta pestaña." });
 
   await report("Eligiendo obligaciones ISR e IVA de RESICO…", 22);
-  await waitForText(tabId, ["simplificado de confianza"], isCancelled, 30_000);
-  const obligations = await agent<boolean[]>(tabId, { type: "selectObligations" });
-  if (!obligations[0]) throw new Error("No se encontró la obligación de ISR de RESICO en el portal.");
-  await delay(800);
+  const obligations = await agent<Record<Obligation, boolean>>(tabId, { type: "selectObligations" });
+  if (!obligations.isr) throw new Error("No se encontró la obligación de ISR de RESICO en el portal.");
   await agent(tabId, { type: "next" });
-  // El portal tarda en traer el prellenado de los CFDI.
-  await delay(6000);
+  // Si ya hay un borrador del periodo, el portal pregunta si reemplazarlo. El prellenado tarda en cargar.
+  await waitForPage(tabId, ["formulario"], isCancelled, 90_000, (state) =>
+    state?.page === "perfil" ? agent(tabId, { type: "replaceDraft" }) : Promise.resolve(),
+  );
+  const entities = await prepareForm(tabId, isCancelled);
+  if (!entities.isr) throw new Error("El formulario del SAT no trae la obligación de ISR de RESICO.");
 
   const prefill: PortalValues = {};
   const after: PortalValues = {};
   const missing: string[] = [];
   const manualSteps: string[] = [];
-  if (!obligations[1]) {
+  if (!obligations.iva || !entities.iva) {
     missing.push(...fieldsOf("iva").map((f) => f.key));
     manualSteps.push("No se encontró la obligación de IVA: agrégala a mano si te corresponde.");
   }
 
   // ISR
   ensureActive();
+  const isr = entities.isr;
   await report("Leyendo lo que el SAT prellenó de ISR…", 35);
-  await agent(tabId, { type: "openObligation", obligation: "isr" });
-  await delay(3000);
-  mergeKnown(prefill, await agent<PortalValues>(tabId, { type: "read", fields: fieldsOf("isr") }));
-  // Tasa, impuesto y retenido están en la pestaña Determinación.
-  await agent(tabId, { type: "tab", name: "determinacion" });
-  await delay(1500);
-  mergeKnown(prefill, await agent<PortalValues>(tabId, { type: "read", fields: fieldsOf("isr") }));
+  await agent(tabId, { type: "open", entity: isr });
+  await delay(2500);
+  mergeKnown(prefill, await agent<PortalValues>(tabId, { type: "read", entity: isr, fields: fieldsOf("isr") }));
   const plan = buildFillPlan(prefill, values, activity);
 
   await report("Capturando ingresos y retenciones de ISR…", 45);
-  await agent(tabId, { type: "tab", name: "ingresos" });
-  await delay(1000);
-  manualSteps.push(...(await agent<string[]>(tabId, { type: "isrCapture", plan: plan.isr })));
-  await agent(tabId, { type: "tab", name: "determinacion" });
-  await delay(1500);
-  mergeKnown(after, await agent<PortalValues>(tabId, { type: "read", fields: fieldsOf("isr") }));
-  await finishObligation(tabId, ["compensaciones", "estimulo"], manualSteps, "ISR");
+  manualSteps.push(...(await captureIsr(tabId, isr, plan.isr)));
+  mergeKnown(after, await agent<PortalValues>(tabId, { type: "read", entity: isr, fields: fieldsOf("isr") }));
+  await finishObligation(tabId, isr, PORTAL_KEYS.isr, manualSteps, "ISR");
 
   // IVA
-  if (obligations[1]) {
+  if (obligations.iva && entities.iva) {
     ensureActive();
+    const iva = entities.iva;
     await report("Leyendo lo que el SAT prellenó de IVA…", 65);
-    await agent(tabId, { type: "openObligation", obligation: "iva" });
-    await delay(3000);
-    Object.assign(prefill, await agent<PortalValues>(tabId, { type: "read", fields: fieldsOf("iva") }));
+    await agent(tabId, { type: "open", entity: iva });
+    await delay(2500);
+    Object.assign(prefill, await agent<PortalValues>(tabId, { type: "read", entity: iva, fields: fieldsOf("iva") }));
     const ivaPlan = buildFillPlan(prefill, values, activity).iva;
 
     await report("Capturando IVA…", 75);
-    missing.push(...(await agent<string[]>(tabId, { type: "write", fields: ivaPlan.direct })));
-    manualSteps.push(...(await agent<string[]>(tabId, { type: "ivaCreditable", value: ivaPlan.creditable })));
-    await delay(1500);
-    Object.assign(after, await agent<PortalValues>(tabId, { type: "read", fields: fieldsOf("iva") }));
-    await finishObligation(tabId, ["estimulo"], manualSteps, "IVA");
+    missing.push(...(await agent<string[]>(tabId, { type: "write", entity: iva, fields: ivaPlan.direct })));
+    if (ivaPlan.creditable !== 0) {
+      const keys = PORTAL_KEYS.iva;
+      const ok = await agent<boolean>(tabId, {
+        type: "modal",
+        entity: iva,
+        target: keys.creditable,
+        rows: [],
+        fields: [
+          { key: keys.creditableTaxed, value: ivaPlan.creditable },
+          { key: keys.creditableMixed, value: 0 },
+        ],
+      });
+      if (!ok) manualSteps.push(`En "IVA acreditable del periodo" → Capturar, escribe $${ivaPlan.creditable}; en "actividades mixtas" pon 0.`);
+    }
+    await delay(1000);
+    Object.assign(after, await agent<PortalValues>(tabId, { type: "read", entity: iva, fields: fieldsOf("iva") }));
+    await finishObligation(tabId, iva, PORTAL_KEYS.iva, manualSteps, "IVA");
   }
 
   await report("Listo: revisa y presiona Enviar tú mismo", 100);
@@ -665,38 +700,114 @@ export async function fillDeclaration(
   return { tabId, prefill, missing: [...new Set(missing)], manualSteps, after };
 }
 
-/** Pestaña Pago: "No" a compensaciones y estímulos, Guardar y volver a la administración de la declaración. */
-async function finishObligation(tabId: number, questions: string[], manualSteps: string[], name: string) {
-  await agent(tabId, { type: "tab", name: "pago" });
-  await delay(1500);
-  const unanswered = await agent<string[]>(tabId, { type: "answerNo", questions });
-  for (const q of unanswered) manualSteps.push(`${name} → Pago: contesta "No" a la pregunta de ${q}.`);
-  await delay(500);
-  await run(tabId, clickSave, []);
-  await delay(1500);
+/** Espera el prellenado, cierra su aviso y regresa las entidades de ISR e IVA del formulario. */
+async function prepareForm(tabId: number, isCancelled: () => boolean) {
+  const started = Date.now();
+  while (Date.now() - started < 60_000) {
+    if (isCancelled()) throw new DeclarationCancelledError();
+    const form = await agent<{ loading: boolean; entities: Record<Obligation, string | null> }>(tabId, { type: "prepareForm" }).catch(() => null);
+    if (form && !form.loading && form.entities.isr) {
+      await delay(1000);
+      return form.entities;
+    }
+    await delay(1500);
+  }
+  throw new Error("El formulario del SAT no terminó de cargar");
+}
+
+/** Pestaña Ingresos y ajuste del ISR retenido. Regresa los pasos que quedan para el usuario. */
+async function captureIsr(tabId: number, entity: string, plan: FillPlan["isr"]): Promise<string[]> {
+  const keys = PORTAL_KEYS.isr;
+  const pending: string[] = [];
+  const answer = (key: PortalKey, value: string) => agent<boolean>(tabId, { type: "setSelect", entity, key, value });
+
+  if (!(await answer(keys.coownership, SELECT_NO))) pending.push('Contesta "No" a "¿Los ingresos fueron obtenidos a través de copropiedad?".');
+  // El renglón de copropiedad en "Descuentos" es obligatorio aunque vaya en cero.
+  const discounts = await agent<boolean>(tabId, { type: "modal", entity, target: keys.discounts, rows: [], fields: [{ key: keys.discountsCoownership, value: 0 }] });
+  if (!discounts) pending.push('En "Descuentos, devoluciones y bonificaciones" → Capturar, pon 0 en "de integrantes por copropiedad".');
+  if (!(await answer(keys.hasDecrease, SELECT_NO))) pending.push('Contesta "No" a "¿Tienes ingresos a disminuir?".');
+  if (plan.incomeToRemove > 0) {
+    pending.push(
+      `El SAT prellenó $${plan.incomeToRemove} más de lo que cobraste: revisa si hay facturas canceladas o PPD sin cobrar y ajústalo en "Ingresos a disminuir".`,
+    );
+  }
+
+  if (plan.incomeToAdd > 0) {
+    const ok =
+      (await answer(keys.hasExtra, SELECT_YES)) &&
+      (await agent<boolean>(tabId, {
+        type: "modal",
+        entity,
+        target: keys.extra,
+        rows: [{ conceptKey: keys.extraConcept, option: { value: EXTRA_INCOME_OPTION }, amountKey: keys.extraAmount, amount: plan.incomeToAdd }],
+        fields: [],
+      }));
+    if (!ok) pending.push(`En "Ingresos adicionales" agrega "Ingresos no considerados en el prellenado" por $${plan.incomeToAdd}.`);
+  } else if (!(await answer(keys.hasExtra, SELECT_NO))) {
+    pending.push('Contesta "No" a "¿Tienes ingresos adicionales?".');
+  }
+
+  // El desglose por tipo de ingreso debe sumar el "Monto por detallar" que calcula el portal.
+  const toDetail = (await agent<PortalValues>(tabId, { type: "read", entity, fields: [{ key: "toDetail", codes: [keys.toDetail] }] })).toDetail;
+  const income = toDetail || plan.income;
+  const classified = await agent<boolean>(tabId, {
+    type: "modal",
+    entity,
+    target: keys.total,
+    rows: [{ conceptKey: keys.totalConcept, option: { texts: plan.activityOptions }, amountKey: keys.totalAmount, amount: income }],
+    fields: [],
+  });
+  if (!classified) pending.push(`En "Total de ingresos percibidos" → Capturar, agrega tu tipo de ingreso por $${income}.`);
+
+  if (plan.retainedToAdd !== 0) {
+    // En "Ver detalle" del ISR retenido: lo que falta se adiciona y lo que sobra va como no acreditable;
+    // el portal pide los dos renglones, el otro en cero.
+    const ok = await agent<boolean>(tabId, {
+      type: "modal",
+      entity,
+      target: keys.retained,
+      rows: [],
+      fields: [
+        { key: keys.retainedAdd, value: Math.max(0, plan.retainedToAdd) },
+        { key: keys.retainedNotCreditable, value: Math.max(0, -plan.retainedToAdd) },
+      ],
+    });
+    if (!ok) {
+      pending.push(
+        plan.retainedToAdd > 0
+          ? `En ISR retenido → Ver detalle, escribe $${plan.retainedToAdd} en "ISR retenido a adicionar".`
+          : `En ISR retenido → Ver detalle, escribe $${-plan.retainedToAdd} en "ISR retenido no acreditable".`,
+      );
+    }
+  }
+  return pending;
+}
+
+/**
+ * Recorre las pestañas (si no, el portal no la da por completa), contesta "No" a
+ * compensaciones y estímulos en Pago, guarda y vuelve a la administración de la declaración.
+ */
+async function finishObligation(
+  tabId: number,
+  entity: string,
+  keys: { compensations: PortalKey; stimulus: PortalKey },
+  manualSteps: string[],
+  name: string,
+) {
+  await agent(tabId, { type: "visitTabs", entity });
+  for (const [key, question] of [
+    [keys.compensations, "compensaciones"],
+    [keys.stimulus, "estímulos"],
+  ] as const) {
+    if (!(await agent<boolean>(tabId, { type: "setSelect", entity, key, value: SELECT_NO }))) {
+      manualSteps.push(`${name} → Pago: contesta "No" a la pregunta de ${question}.`);
+    }
+  }
+  if (!(await agent<boolean>(tabId, { type: "save" }))) manualSteps.push(`${name}: presiona "Guardar".`);
   if (!(await agent<boolean>(tabId, { type: "admin" }))) {
     manualSteps.push(`Después de ${name}, presiona "Administración de la declaración".`);
   }
   await delay(2500);
-}
-
-/** "Presentar declaración" en el inicio del servicio; inyectada aparte porque no lleva argumentos. */
-function clickPresentar() {
-  const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").trim().toLowerCase();
-  const button = Array.from(document.querySelectorAll<HTMLElement>("button, a, input[type=button]")).find(
-    (b) => b.offsetParent !== null && norm(b.innerText || (b as HTMLInputElement).value || "").includes("presentar declaracion"),
-  );
-  button?.click();
-  return !!button;
-}
-
-function clickSave() {
-  const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").trim().toLowerCase();
-  const button = Array.from(document.querySelectorAll<HTMLElement>("button, a, input[type=button]")).find(
-    (b) => b.offsetParent !== null && norm(b.innerText || (b as HTMLInputElement).value || "") === "guardar",
-  );
-  button?.click();
-  return !!button;
 }
 
 /**
