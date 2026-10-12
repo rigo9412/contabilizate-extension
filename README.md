@@ -1,4 +1,4 @@
-# contabilizate-extension
+# Taak'in
 
 A Chrome extension designed to automate form filling in the Mexican SAT (Tax Administration Service) portal, specifically for electronic invoicing (CFDI).
 
@@ -23,13 +23,13 @@ A Chrome extension designed to automate form filling in the Mexican SAT (Tax Adm
 
 Use `npm run dev` to rebuild on every change, and `npm test` to run the tests.
 `npm run typecheck` runs TypeScript only, and `npm run package` builds and
-creates `contabilizate-<version>.zip` for the Chrome Web Store (without the
+creates `taakin-<version>.zip` for the Chrome Web Store (without the
 manifest `key`, which the store rejects).
 
 ## Full app (React)
 
 The popup's "Abrir app completa" button opens a full-page React app
-(`app/`) that works without the Contabilizate website:
+(`app/`) that works without the Taak'in website:
 
 - Data lives locally in IndexedDB (Dexie). Every record has `updatedAt` and
   soft deletes, so backups merge by "newest wins", and the same rule will
@@ -63,7 +63,7 @@ The extension requires:
 
 The toolbar popup is a small launcher: it shows whether the e.firma is
 unlocked and whether an invoice is waiting to be issued (with a button to
-discard it). Everything else lives in the full app ("Abrir Contabilizate"):
+discard it). Everything else lives in the full app ("Abrir Taak'in"):
 profile and e.firma, invoices, templates (including importing the old popup
 JSON/CSV), downloading CFDI from the SAT, and backups.
 

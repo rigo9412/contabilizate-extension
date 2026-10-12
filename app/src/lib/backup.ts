@@ -3,13 +3,15 @@ import { db, SYNC_TABLES, type SyncTableName } from "./db";
 import { decryptJson, encryptJson } from "./crypto";
 import type { EncryptedPayload, SyncRecord } from "./types";
 
-const BACKUP_APP = "contabilizate";
+const BACKUP_APP = "taakin";
+// Respaldos exportados antes del cambio de marca.
+const LEGACY_BACKUP_APPS = ["contabilizate"];
 const BACKUP_VERSION = 1;
 
 export type Snapshot = Record<SyncTableName, SyncRecord[]>;
 
 interface BackupFile {
-  app: typeof BACKUP_APP;
+  app: string;
   version: number;
   exportedAt: string;
   tables?: Snapshot;
@@ -85,7 +87,7 @@ export async function importBackup(file: File, password?: string): Promise<Merge
   } catch {
     throw new Error("El archivo no es un respaldo válido");
   }
-  if (parsed.app !== BACKUP_APP) throw new Error("El archivo no es un respaldo de Contabilizate");
+  if (parsed.app !== BACKUP_APP && !LEGACY_BACKUP_APPS.includes(parsed.app)) throw new Error("El archivo no es un respaldo de Taak'in");
   if (parsed.version > BACKUP_VERSION) {
     throw new Error("El respaldo es de una versión más nueva de la extensión");
   }
@@ -98,5 +100,5 @@ export async function importBackup(file: File, password?: string): Promise<Merge
 }
 
 export function backupFileName(): string {
-  return `contabilizate-respaldo-${localDate()}.json`;
+  return `taakin-respaldo-${localDate()}.json`;
 }

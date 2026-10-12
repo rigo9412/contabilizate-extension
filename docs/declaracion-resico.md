@@ -214,7 +214,7 @@ manual (suele ser una factura cancelada o una PPD sin cobrar).
    extensión nunca presiona Enviar.** Estado → `llenada`.
 6. Cuando aparece el acuse, la app lee número de operación, importe, línea de
    captura y vigencia, los guarda (`presentada`) y descarga el PDF a
-   `Descargas/contabilizate/declaraciones/`.
+   `Descargas/taakin/declaraciones/`.
 
 **No confiar en el prellenado** (la recomendación principal del tutorial):
 descargar todas las facturas emitidas y recibidas del mes y declarar lo que se

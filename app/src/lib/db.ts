@@ -4,6 +4,8 @@ import type { Bill, CardStatement, Declaration, Profile, SatDownload, SavingsPla
 export const PROFILE_ID = "me";
 export const VAULT_ID = "efirma";
 
+// El nombre interno se conserva del nombre anterior de la marca: cambiarlo dejaría
+// a los usuarios existentes con una base vacía.
 export const db = new Dexie("contabilizate") as Dexie & {
   profile: EntityTable<Profile, "id">;
   vault: EntityTable<Vault, "id">;
