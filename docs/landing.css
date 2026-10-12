@@ -117,6 +117,14 @@ code { background: rgba(255, 255, 255, 0.08); padding: 2px 6px; border-radius: 6
 /* Más funciones */
 .more { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 90px; }
 
+/* El nombre */
+.name { padding: 100px 0; border-top: 1px solid var(--line); }
+.name .wrap { display: flex; align-items: center; gap: 48px; max-width: 860px; }
+.name img { flex-shrink: 0; filter: drop-shadow(0 20px 40px rgba(147, 226, 63, 0.2)); }
+.name h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); margin-top: 16px; }
+.name p { color: var(--muted); margin: 16px 0 0; }
+.name p b { color: var(--fg); }
+
 /* Instalación */
 .install { background: var(--bg-2); padding: 100px 0; text-align: center; border-top: 1px solid var(--line); }
 .steps { list-style: none; padding: 0; margin: 40px auto; max-width: 680px; text-align: left; display: grid; gap: 14px; }
@@ -140,7 +148,8 @@ footer span { display: inline-flex; align-items: center; gap: 8px; }
   .nav nav a:not(.nav-cta) { display: none; }
   .hero { padding-top: 56px; }
   .cards { grid-template-columns: 1fr; }
-  .features, .privacy, .install, .demo { padding: 72px 0; }
+  .features, .privacy, .install, .demo, .name { padding: 72px 0; }
+  .name .wrap { flex-direction: column; text-align: center; gap: 24px; }
   footer .wrap { flex-direction: column; text-align: center; }
 }
 
