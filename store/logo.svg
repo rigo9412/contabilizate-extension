@@ -1,16 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
-  <!-- Bloque 3D: cara verde lima con sombra verde oscuro, como el logo anterior -->
-  <rect x="14" y="40" width="184" height="184" rx="44" fill="#0c3a1f"/>
-  <rect x="42" y="16" width="184" height="184" rx="44" fill="#0c3a1f"/>
-  <rect x="50" y="22" width="170" height="170" rx="38" fill="#93e23f"/>
-  <!-- Mazorca de cacao: sus semillas eran la moneda de los mayas -->
-  <g transform="rotate(28 135 110)">
-    <path d="M135 46 C 190 56, 196 150, 135 176 C 74 150, 80 56, 135 46 Z" fill="#0c3a1f"/>
-    <g fill="none" stroke="#93e23f" stroke-width="7" stroke-linecap="round">
-      <path d="M135 66 V 158"/>
-      <path d="M113 74 C 101 100, 101 128, 114 152"/>
-      <path d="M157 74 C 169 100, 169 128, 156 152"/>
-    </g>
-    <path d="M135 48 V 32" stroke="#0c3a1f" stroke-width="10" stroke-linecap="round"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect x="14" y="40" width="184" height="184" rx="44" fill="#0c3a1f"/><rect x="42" y="16" width="184" height="184" rx="44" fill="#0c3a1f"/><rect x="50" y="22" width="170" height="170" rx="38" fill="#93e23f"/>
+<!-- Cero maya (caracol) -->
+<g transform="translate(135 110) scale(0.28) translate(-590 -285)" fill="none" stroke="#0c3a1f" stroke-width="26" stroke-linecap="round"><ellipse cx="590" cy="285" rx="262" ry="130"/>
+<path d="M332 262 C 420 380, 760 380, 848 262"/>
+<path d="M488 166 C 448 220, 452 300, 500 352"/>
+<path d="M590 156 C 550 210, 552 300, 595 360"/>
+<path d="M688 166 C 648 220, 652 300, 690 352"/></g></svg>
