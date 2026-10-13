@@ -72,8 +72,13 @@ describe("exportBackup / importBackup", () => {
     expect(JSON.parse(await file.text()).tables.vault).toEqual([]);
   });
 
+  it("acepta respaldos exportados con el nombre anterior de la marca", async () => {
+    const legacy = { app: "contabilizate", version: 1, exportedAt: "", tables: { profile: [profile("antes", 100)] } };
+    expect(await importBackup(new File([JSON.stringify(legacy)], "x.json"))).toEqual({ added: 1, updated: 0 });
+  });
+
   it("rechaza archivos que no son respaldos", async () => {
-    await expect(importBackup(new File(["{}"], "x.json"))).rejects.toThrow("no es un respaldo de Contabilizate");
+    await expect(importBackup(new File(["{}"], "x.json"))).rejects.toThrow("no es un respaldo de Taak'in");
     await expect(importBackup(new File(["nope"], "x.json"))).rejects.toThrow("no es un respaldo válido");
   });
 });

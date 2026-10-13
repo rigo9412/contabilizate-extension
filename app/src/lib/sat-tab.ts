@@ -63,23 +63,23 @@ export async function run<A extends unknown[], R>(tabId: number, func: (...args:
 // ── Funciones que se inyectan en el portal (no pueden usar nada de fuera) ──
 
 export function showPageStatus(title: string, text: string, percent: number) {
-  let box = document.getElementById("contabilizate-status");
+  let box = document.getElementById("taakin-status");
   if (!box) {
     box = document.createElement("div");
-    box.id = "contabilizate-status";
+    box.id = "taakin-status";
     box.style.cssText =
       "position:fixed;top:20px;right:20px;width:300px;z-index:999999;background:#fff;border:1px solid #e0e0e0;" +
       "border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);padding:15px;font:13px system-ui,sans-serif;color:#03301D";
     box.innerHTML =
-      '<strong id="contabilizate-status-title"></strong><div id="contabilizate-status-text" style="margin:8px 0;color:#555"></div>' +
-      '<div style="height:8px;background:#eee;border-radius:4px;overflow:hidden"><div id="contabilizate-status-bar" style="height:100%;width:0;background:#86EE02;transition:width .3s"></div></div>';
+      '<strong id="taakin-status-title"></strong><div id="taakin-status-text" style="margin:8px 0;color:#555"></div>' +
+      '<div style="height:8px;background:#eee;border-radius:4px;overflow:hidden"><div id="taakin-status-bar" style="height:100%;width:0;background:#86EE02;transition:width .3s"></div></div>';
     document.body.appendChild(box);
   }
-  document.getElementById("contabilizate-status-title")!.textContent = title;
-  document.getElementById("contabilizate-status-text")!.textContent = text;
-  (document.getElementById("contabilizate-status-bar") as HTMLElement).style.width = `${percent}%`;
+  document.getElementById("taakin-status-title")!.textContent = title;
+  document.getElementById("taakin-status-text")!.textContent = text;
+  (document.getElementById("taakin-status-bar") as HTMLElement).style.width = `${percent}%`;
 }
 
 export function removePageStatus() {
-  document.getElementById("contabilizate-status")?.remove();
+  document.getElementById("taakin-status")?.remove();
 }

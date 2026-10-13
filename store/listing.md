@@ -1,12 +1,12 @@
-# Ficha de Chrome Web Store: Contabilizate
+# Ficha de Chrome Web Store: Taak'in
 
 ## Paquete
 
-`npm run package` → `contabilizate-<versión>.zip` (sin el campo `key`).
+`npm run package` → `taakin-<versión>.zip` (sin el campo `key`).
 
 ## Ficha de la tienda
 
-**Nombre:** Contabilizate
+**Nombre:** Taak'in
 
 **Resumen (máx. 132):**
 Factura en el portal del SAT y lleva tus ingresos, gastos e impuestos. Gratis y privado: tus datos se quedan en tu navegador.
@@ -19,7 +19,7 @@ Factura en el portal del SAT y lleva tus ingresos, gastos e impuestos. Gratis y 
 
 Deja de cruzar facturas del SAT con estados de cuenta cada mes.
 
-Contabilizate es una extensión gratuita para freelancers y pequeños negocios en México. Te ayuda a emitir tus facturas en el portal del SAT y convierte tus CFDI en un dashboard mes a mes.
+Taak'in es una extensión gratuita para freelancers y pequeños negocios en México. Te ayuda a emitir tus facturas en el portal del SAT y convierte tus CFDI en un dashboard mes a mes.
 
 QUÉ HACE
 • Dashboard mensual con tus ingresos, gastos y margen real, calculados a partir de tus facturas.
@@ -38,7 +38,7 @@ TUS DATOS SON TUYOS
 • Respaldo en un archivo, cifrado si quieres, para pasar tus datos a otro navegador.
 • Código abierto: https://github.com/rigo9412/contabilizate-extension
 
-Contabilizate es un proyecto independiente y no está afiliado al Servicio de Administración Tributaria (SAT) ni a ninguna institución bancaria.
+Taak'in es un proyecto independiente y no está afiliado al Servicio de Administración Tributaria (SAT) ni a ninguna institución bancaria.
 
 **Sitio web:** https://rigo9412.github.io/contabilizate-extension/
 **Soporte:** https://github.com/rigo9412/contabilizate-extension/issues

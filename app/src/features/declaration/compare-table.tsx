@@ -16,7 +16,7 @@ export function CompareTable({ diffs, missing }: { diffs: FieldDiff[]; missing: 
         <TableRow>
           <TableHead>Concepto</TableHead>
           <TableHead className="text-right">El SAT prellenó</TableHead>
-          <TableHead className="text-right">Contabilizate</TableHead>
+          <TableHead className="text-right">Taak'in</TableHead>
           <TableHead className="text-right">Diferencia</TableHead>
         </TableRow>
       </TableHeader>

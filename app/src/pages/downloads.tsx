@@ -92,7 +92,7 @@ export function DownloadsPage() {
     <>
       <PageTitle
         title="Descargar facturas"
-        description="Descarga el XML y el PDF de tus CFDI del portal del SAT a Descargas/contabilizate y los agrega a Facturas."
+        description="Descarga el XML y el PDF de tus CFDI del portal del SAT a Descargas/taakin y los agrega a Facturas."
       />
       <div className="grid gap-6">
         <Card>

@@ -174,7 +174,7 @@ export async function downloadFromSat(
 
   const report = async (status: string, percent: number) => {
     onProgress({ status, percent: Math.round(percent), done: result.uuids.length, total });
-    await run(tabId, showPageStatus, ["Contabilizate · descargando", status, Math.round(percent)]).catch(() => {});
+    await run(tabId, showPageStatus, ["Taak'in · descargando", status, Math.round(percent)]).catch(() => {});
   };
   const ensureActive = () => {
     if (isCancelled()) throw new DownloadCancelledError();
@@ -214,7 +214,7 @@ export async function downloadFromSat(
       return result;
     }
 
-    const folder = `contabilizate/${request.type}`;
+    const folder = `taakin/${request.type}`;
     for (const [i, invoice] of invoices.entries()) {
       ensureActive();
       await report(`Descargando ${i + 1}/${total}: ${invoice.uuid}`, 30 + (i * 70) / total);

@@ -5,6 +5,7 @@ import { mergeSnapshot, takeSnapshot, type MergeResult, type Snapshot } from "./
 import { createDriveClient, getToken, type DriveClient } from "./drive";
 import { createFileClient, ensurePermission, getSavedHandle } from "./file-sync";
 
+// Formato heredado de la marca anterior; se conserva para que las copias existentes sigan sincronizando.
 const SYNC_FORMAT = "contabilizate-sync";
 const SYNC_VERSION = 1;
 const SETTINGS_KEY = "driveSync";
@@ -46,7 +47,7 @@ export async function syncWith(client: DriveClient): Promise<MergeResult> {
   let result: MergeResult = { added: 0, updated: 0 };
   if (remote) {
     const parsed = JSON.parse(await client.download(remote.id)) as Partial<SyncFile>;
-    if (parsed.app !== SYNC_FORMAT) throw new Error("El archivo de Drive no es de Contabilizate");
+    if (parsed.app !== SYNC_FORMAT) throw new Error("El archivo de Drive no es de Taak'in");
     if ((parsed.version ?? 0) > SYNC_VERSION) {
       throw new Error("Otro dispositivo usa una versión más nueva de la extensión; actualízala");
     }
