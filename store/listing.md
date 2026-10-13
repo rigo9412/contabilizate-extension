@@ -36,12 +36,12 @@ TUS DATOS SON TUYOS
 • Nada se comparte con nadie. La extensión solo se comunica con el portal del SAT cuando tú facturas o descargas.
 • Tu e.firma se guarda cifrada con su propia contraseña.
 • Respaldo en un archivo, cifrado si quieres, para pasar tus datos a otro navegador.
-• Código abierto: https://github.com/rigo9412/contabilizate-extension
+• Código abierto: https://github.com/rigo9412/taakin-extension
 
 Taak'in es un proyecto independiente y no está afiliado al Servicio de Administración Tributaria (SAT) ni a ninguna institución bancaria.
 
-**Sitio web:** https://rigo9412.github.io/contabilizate-extension/
-**Soporte:** https://github.com/rigo9412/contabilizate-extension/issues
+**Sitio web:** https://rigo9412.github.io/taakin-extension/
+**Soporte:** https://github.com/rigo9412/taakin-extension/issues
 
 ## Privacidad
 
@@ -70,7 +70,7 @@ Certificaciones (marcar las tres):
 - [x] No uso ni transfiero datos de usuario para fines no relacionados con el propósito único del elemento.
 - [x] No uso ni transfiero datos de usuario para determinar la solvencia crediticia ni para otorgar préstamos.
 
-**Política de privacidad:** https://rigo9412.github.io/contabilizate-extension/privacy.html
+**Política de privacidad:** https://rigo9412.github.io/taakin-extension/privacy.html
 
 ## Recursos gráficos
 
