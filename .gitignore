@@ -4,3 +4,6 @@ dist/
 .env
 .keys/
 taakin-*.zip
+
+# Material de marketing: solo local, no se sube al repositorio
+marketing/
