@@ -10,7 +10,7 @@ description: Configuración inicial de la extensión SAT para desarrollo
 ```bash
 # Clonar el repositorio (si no está clonado)
 git clone <repository-url>
-cd contabilizate-extension
+cd taakin-extension
 
 # Verificar estructura de archivos
 ls -la
