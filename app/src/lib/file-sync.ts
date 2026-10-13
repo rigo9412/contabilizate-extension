@@ -3,7 +3,7 @@
 // extensión lo lee y escribe con el mismo formato que usa Drive. Sin cuentas ni OAuth.
 import type { DriveClient } from "./drive";
 
-export const SYNC_FILE_DEFAULT_NAME = "contabilizate-sync.json";
+export const SYNC_FILE_DEFAULT_NAME = "taakin-sync.json";
 
 type Mode = { mode: "readwrite" };
 export interface SyncFileHandle {
@@ -19,7 +19,7 @@ interface FilePickerWindow {
   showOpenFilePicker(options: object): Promise<SyncFileHandle[]>;
 }
 
-const pickerTypes = [{ description: "Sincronización de Contabilizate", accept: { "application/json": [".json"] } }];
+const pickerTypes = [{ description: "Sincronización de Taak'in", accept: { "application/json": [".json"] } }];
 
 export function isFileSyncSupported(): boolean {
   return typeof window !== "undefined" && "showSaveFilePicker" in window && "showOpenFilePicker" in window;
@@ -76,6 +76,7 @@ export function createFileClient(handle: SyncFileHandle): DriveClient {
 
 // --- El handle se guarda en IndexedDB (no cabe en chrome.storage); es aparte de Dexie
 // para que no viaje en los respaldos ni en la sincronización.
+// Nombre heredado de la marca anterior; se conserva para no perder el archivo elegido.
 const DB_NAME = "contabilizate-file-sync";
 const STORE = "handles";
 const KEY = "syncFile";

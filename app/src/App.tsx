@@ -35,7 +35,7 @@ export function App() {
     <HashRouter>
       <div className="flex min-h-screen bg-secondary/40">
         <aside className="hidden w-60 shrink-0 flex-col gap-1 border-r bg-background p-4 md:flex">
-          <div className="mb-6 px-2 text-lg font-bold text-primary">Contabilizate</div>
+          <div className="mb-6 px-2 text-lg font-bold text-primary">Taak'in</div>
           {NAV.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}

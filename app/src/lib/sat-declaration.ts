@@ -519,10 +519,10 @@ export async function portalAgent(action: AgentAction): Promise<unknown> {
       return link?.href ?? null;
     }
     case "banner": {
-      let box = document.getElementById("contabilizate-banner");
+      let box = document.getElementById("taakin-banner");
       if (!box) {
         box = document.createElement("div");
-        box.id = "contabilizate-banner";
+        box.id = "taakin-banner";
         box.style.cssText =
           "position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:560px;z-index:999999;background:#03301D;" +
           "color:#fff;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.25);padding:14px 18px;font:14px system-ui,sans-serif";
@@ -558,7 +558,7 @@ export interface FillResult {
   after: PortalValues;
 }
 
-const STATUS_TITLE = "Contabilizate · declaración";
+const STATUS_TITLE = "Taak'in · declaración";
 
 async function agent<T>(tabId: number, action: AgentAction): Promise<T> {
   return (await run(tabId, portalAgent, [action])) as T;
@@ -631,7 +631,7 @@ export async function fillDeclaration(
   await report("Llenando ejercicio, periodo y tipo de declaración…", 15);
   const config = await agent<{ error?: string }>(tabId, { type: "configure", year, month });
   if (config.error) throw new Error(config.error);
-  await agent(tabId, { type: "banner", text: "Contabilizate está llenando la declaración. No cierres esta pestaña." });
+  await agent(tabId, { type: "banner", text: "Taak'in está llenando la declaración. No cierres esta pestaña." });
 
   await report("Eligiendo obligaciones ISR e IVA de RESICO…", 22);
   const obligations = await agent<Record<Obligation, boolean>>(tabId, { type: "selectObligations" });
@@ -700,7 +700,7 @@ export async function fillDeclaration(
   await report("Listo: revisa y presiona Enviar tú mismo", 100);
   await agent(tabId, {
     type: "banner",
-    text: "Contabilizate terminó de capturar. Revisa cada obligación y presiona Enviar declaración tú mismo; después vuelve a la app para guardar el acuse.",
+    text: "Taak'in terminó de capturar. Revisa cada obligación y presiona Enviar declaración tú mismo; después vuelve a la app para guardar el acuse.",
   });
   setTimeout(() => run(tabId, removePageStatus, []).catch(() => {}), 5000);
   return { tabId, prefill, missing: [...new Set(missing)], manualSteps, after };
@@ -840,7 +840,7 @@ export async function waitForAcuse(
       const pdf = await agent<string | null>(tabId, { type: "acuseLink" }).catch(() => null);
       if (pdf) {
         await chrome.downloads
-          .download({ url: pdf, filename: `contabilizate/declaraciones/acuse-${year}-${String(month).padStart(2, "0")}.pdf` })
+          .download({ url: pdf, filename: `taakin/declaraciones/acuse-${year}-${String(month).padStart(2, "0")}.pdf` })
           .catch(() => {});
       }
       return acuse;

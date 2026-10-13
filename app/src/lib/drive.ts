@@ -3,6 +3,7 @@
 
 const API = "https://www.googleapis.com/drive/v3";
 const UPLOAD = "https://www.googleapis.com/upload/drive/v3";
+// Nombre heredado de la marca anterior: es la copia que ya existe en Drive de cada usuario.
 export const SYNC_FILE_NAME = "contabilizate-sync.json";
 
 export interface DriveFile {
@@ -85,7 +86,7 @@ export function createDriveClient(token: string): DriveClient {
         });
         return resp.json();
       }
-      const boundary = `contabilizate-${crypto.randomUUID()}`;
+      const boundary = `taakin-${crypto.randomUUID()}`;
       const metadata = { name: SYNC_FILE_NAME, parents: ["appDataFolder"], mimeType: "application/json" };
       const body =
         `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +

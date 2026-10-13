@@ -10,11 +10,11 @@ const ROOT = resolve(import.meta.dirname, "..");
 const manifest = JSON.parse(readFileSync(join(ROOT, "dist/manifest.json"), "utf8"));
 delete manifest.key;
 
-const staging = mkdtempSync(join(tmpdir(), "contabilizate-"));
+const staging = mkdtempSync(join(tmpdir(), "taakin-"));
 cpSync(join(ROOT, "dist"), staging, { recursive: true });
 writeFileSync(join(staging, "manifest.json"), JSON.stringify(manifest, null, 4) + "\n");
 
-const out = join(ROOT, `contabilizate-${manifest.version}.zip`);
+const out = join(ROOT, `taakin-${manifest.version}.zip`);
 rmSync(out, { force: true });
 execFileSync("zip", ["-qr", "-X", out, ".", "-x", "*.DS_Store", "*.map"], { cwd: staging });
 rmSync(staging, { recursive: true, force: true });

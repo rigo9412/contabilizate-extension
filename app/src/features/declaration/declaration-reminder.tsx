@@ -60,7 +60,7 @@ export function DeclarationReminder() {
           <p className="text-sm text-muted-foreground">
             {supported
               ? "Recibe una notificación el día 17 de cada mes a las 9:00 a. m. Puedes desactivarla cuando quieras."
-              : "Disponible al usar Contabilizate como extensión de Chrome."}
+              : "Disponible al usar Taak'in como extensión de Chrome."}
           </p>
         </div>
       </div>
